@@ -1,8 +1,36 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "workbench.colorCustomizations": {
+      // From https://stackoverflow.com/a/50322474
+      // will change the color of three dots to red
+      "editorHint.foreground": "#ff0000",
+      // will underline the entire word with dots in your chosen color
+      "editorHint.border": "#00ff66"
+    },
+	"files.autoSave": "afterDelay",
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // From https://stackoverflow.com/a/76901285
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": false,
+    "cSpell.words": ["jsonify", "sqlalchemy"]
+  },
+  "extensions": {
+    "recommendations": [
+      "anbuselvanrocky.bootstrap5-vscode",
+      "hossaini.bootstrap-intellisense",
+	  "github.vscode-pull-request-github",
+	  "streetsidesoftware.code-spell-checker",
+	  "usernamehw.errorlens",
+	  "cstrap.flask-snippets",
+	  "waseemakram.jinja-snippets-flask",
+	  "esbenp.prettier-vscode",
+	  "rangav.vscode-thunder-client"
+    ]
+  }
 }
