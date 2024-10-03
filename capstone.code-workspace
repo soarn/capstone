@@ -30,7 +30,8 @@
 	  "cstrap.flask-snippets",
 	  "waseemakram.jinja-snippets-flask",
 	  "esbenp.prettier-vscode",
-	  "rangav.vscode-thunder-client"
+	  "rangav.vscode-thunder-client",
+    "lior-chamla.google-fonts"
     ]
   }
 }
