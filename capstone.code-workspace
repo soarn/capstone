@@ -12,26 +12,32 @@
       // will underline the entire word with dots in your chosen color
       "editorHint.border": "#00ff66"
     },
-	"files.autoSave": "afterDelay",
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.autoSave": "afterDelay",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
 
     // From https://stackoverflow.com/a/76901285
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": false,
-    "cSpell.words": ["jsonify", "sqlalchemy"]
+    "cSpell.words": [
+      "jsonify",
+      "sqlalchemy",
+      "venv"
+    ]
   },
   "extensions": {
     "recommendations": [
       "anbuselvanrocky.bootstrap5-vscode",
       "hossaini.bootstrap-intellisense",
-	  "github.vscode-pull-request-github",
-	  "streetsidesoftware.code-spell-checker",
-	  "usernamehw.errorlens",
-	  "cstrap.flask-snippets",
-	  "waseemakram.jinja-snippets-flask",
-	  "esbenp.prettier-vscode",
-	  "rangav.vscode-thunder-client",
-    "lior-chamla.google-fonts"
+      "github.vscode-pull-request-github",
+      "streetsidesoftware.code-spell-checker",
+      "usernamehw.errorlens",
+      "cstrap.flask-snippets",
+      "waseemakram.jinja-snippets-flask",
+      "esbenp.prettier-vscode",
+      "rangav.vscode-thunder-client",
+      "lior-chamla.google-fonts",
+      "ms-python.python",
+      "davidanson.vscode-markdownlint",
     ]
   }
 }
