@@ -27,7 +27,7 @@ Capstone project for a stock trading system.
 
 ## Writing Commits
 
-This repository uses [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
+This repository uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
 > The Conventional Commits specification is a lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit commit history; which makes it easier to write automated tools on top of. This convention dovetails with [SemVer](http://semver.org/), by describing the features, fixes, and breaking changes made in commit messages.
 
@@ -36,6 +36,13 @@ This repository uses [conventional commits](https://www.conventionalcommits.org/
 If you are implementing changes that may break the codebase, please create a Pull Request to allow others to review your changes first.
 
 You can create a Pull Request in VS Code by committing your changes and pressing the "Create Pull Request" button in the Source Control tab header.
+
+## Recommended Readings
+
+To better understand how to use this repository in your environment, it is suggested your read the following materials.
+
+1. [Working with GitHub in VS Code](https://code.visualstudio.com/docs/sourcecontrol/github)
+2. [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 
 ## Technologies Used
 
