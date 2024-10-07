@@ -4,7 +4,7 @@
 
 Capstone project for a stock trading system.
 
-## Cloning Locally
+## Local Setup
 
 1. Clone the repo
 2. Open the folder in VS Code and allow it to run the workspace file, it should prompt in bottom right corner
@@ -18,7 +18,19 @@ Capstone project for a stock trading system.
 5. Fully close VS Code and reopen it, allow the workspace to initialize
 6. Your terminal should reload automatically and display `(capstone )`, you are now using your venv
 7. Open the GitHub extension and log-in
-    - This will allow your to work on issues.
+    - This will allow your to work on issues
+
+### Using dotenv Vault
+
+1. Ensure you have node and npx
+    1. `npm -v`
+    2. `npx -v`
+2. Inside of VS Code, use the terminal to run the following commands
+    1. `npx dotenv-vault@latest login`
+        1. This should open in your browser, allow it to Log-In
+    2. `npx dotenv-vault@latest open`
+        1. Wait for it to process, then type `y` and press `ENTER`
+3. That's it! You should now have a `.env` and a `.env.me` located in your project directory
 
 ## Running Locally
 
