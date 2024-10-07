@@ -1,4 +1,4 @@
-# Customer
+# Custom
 .history/
 
 # BEGIN NODE
@@ -302,3 +302,7 @@ cython_debug/
 #.idea/
 
 # END PYTHON
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
