@@ -38,6 +38,7 @@
       "lior-chamla.google-fonts",
       "ms-python.python",
       "davidanson.vscode-markdownlint",
+      "dotenv.dotenv-vscode"
     ]
   }
 }
