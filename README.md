@@ -56,6 +56,10 @@ To better understand how to use this repository in your environment, it is sugge
 1. [Working with GitHub in VS Code](https://code.visualstudio.com/docs/sourcecontrol/github)
 2. [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 
+### SQLAlchemy
+
+1. [REST APIs with Flask and Python](https://rest-apis-flask.teclado.com/)
+
 ## Technologies Used
 
 - Python
