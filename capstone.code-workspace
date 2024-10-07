@@ -5,6 +5,7 @@
     }
   ],
   "settings": {
+    "git.autofetch": true,
     "workbench.colorCustomizations": {
       // From https://stackoverflow.com/a/50322474
       // will change the color of three dots to red
