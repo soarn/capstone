@@ -15,3 +15,7 @@ def home():
 @app.route("/portfolio")
 def portfolio():
     return render_template('portfolio.html')
+
+@app.route("/buy")
+def buy():
+    return render_template('buy.html')
