@@ -4,8 +4,25 @@
       "path": "."
     }
   ],
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Pull dotenv vault",
+        "command": "npx dotenv-vault pull",
+        "type": "shell",
+        "args": [],
+        "problemMatcher": [],
+        "group": "build",
+        "runOptions": {
+          "runOn": "folderOpen"
+        }
+      }
+    ]
+  },
   "settings": {
     "git.autofetch": true,
+
     "workbench.colorCustomizations": {
       // From https://stackoverflow.com/a/50322474
       // will change the color of three dots to red
@@ -20,6 +37,7 @@
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": false,
     "cSpell.words": [
+      "autofetch",
       "jsonify",
       "sqlalchemy",
       "venv"
