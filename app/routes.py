@@ -14,10 +14,10 @@ def home():
 def portfolio():
     return render_template('portfolio.html')
 
-@app.route("/buy")
+@main.route("/buy")
 def buy():
     return render_template('buy.html')
 
-@app.route("/sell")
+@main.route("/sell")
 def sell():
     return render_template('sell.html')
