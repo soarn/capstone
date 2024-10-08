@@ -47,7 +47,8 @@
       "autofetch",
       "jsonify",
       "sqlalchemy",
-      "venv"
+      "venv",
+      "werkzeug"
     ]
   },
   "extensions": {
