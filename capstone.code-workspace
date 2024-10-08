@@ -9,13 +9,20 @@
     "tasks": [
       {
         "label": "Pull dotenv vault",
-        "command": "npx dotenv-vault pull",
+        "command": "npx --yes dotenv-vault@latest pull",
         "type": "shell",
         "args": [],
         "problemMatcher": [],
         "group": "build",
         "runOptions": {
           "runOn": "folderOpen"
+        },
+        "presentation": {
+          "echo": false,
+          "reveal": "silent",
+          "focus": false,
+          "panel": "new",
+          "close": true
         }
       }
     ]
