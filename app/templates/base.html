@@ -9,6 +9,10 @@
 <body>
     <!-- Navigation Bar -->
     <div class="vertical-nav">
+        <a href="{{ url_for('main.home') }}">Home</a>
+        <a href="{{ url_for('main.portfolio') }}" style="text-decoration: none; color: inherit;">Portfolio</a>
+        <a href="#">Buy and Sell</a>
+        <a href="#">Change Stock Price (Admin)</a>
         <a href="{{ url_for('portfolio') }}" style="text-decoration: none; color: inherit;">Portfolio</a>
         <a href="{{ url_for('buy') }}" style="text-decoration: none; color: inherit;">Buy Stocks</a>
         <a href="{{ url_for('sell') }}" style="text-decoration: none; color: inherit;"></a>Sell Stocks</a>

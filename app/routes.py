@@ -1,18 +1,16 @@
-# Place flask routes here
-
 # TODO: #1 Implement routes
 
-#Route to Home Page
-from flask import Flask, render_template, request, jsonify
-import routes
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for
 
-app = Flask(__name__)
+# Create a blueprint object
+main = Blueprint('main', __name__, template_folder='templates')
 
-@app.route("/")
+# Route to Home Page
+@main.route("/")
 def home():
     return render_template('home.html')
 
-@app.route("/portfolio")
+@main.route("/portfolio")
 def portfolio():
     return render_template('portfolio.html')
 
