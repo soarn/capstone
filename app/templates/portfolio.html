@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio - Stock Trading System{% endblock %}
+
+{% block content %}
+<h1>Your Stock Portfolio</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Shares</th>
+            <th>Price per Share ($)</th>
+            <th>Total Value ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in portfolio %}
+        <tr>
+            <td>{{ stock.symbol }}</td>
+            <td>{{ stock.name }}</td>
+            <td>{{ stock.shares }}</td>
+            <td>{{ stock.price }}</td>
+            <td>{{ stock.total_value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
