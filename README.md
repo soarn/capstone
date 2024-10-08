@@ -60,6 +60,15 @@ To better understand how to use this repository in your environment, it is sugge
 
 1. [REST APIs with Flask and Python](https://rest-apis-flask.teclado.com/)
 
+### Mail
+
+1. [Email Verification](https://stackoverflow.com/questions/63581599/email-verification-with-flask-mail)
+2. [Zoho Mail API](https://blog.xa0.de/post/Zoho-Mail-API-example-in-Python-Flask/)
+
+### Passwords
+
+1. [Hashing Passwords Tutorial](https://dev.to/goke/securing-your-flask-application-hashing-passwords-tutorial-2f0p)
+
 ## Technologies Used
 
 - Python
