@@ -21,3 +21,7 @@ def buy():
 @main.route("/sell")
 def sell():
     return render_template('sell.html')
+
+@main.route("/profile")
+def profile():
+    return render_template('profile.html')

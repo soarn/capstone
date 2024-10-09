@@ -26,7 +26,7 @@
           />
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon"></span>
         </button>
         <!-- Navigation Bar -->
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -34,18 +34,18 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('main.portfolio') }}">Portfolio</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Logout</a>
+            </li>
              <!-- {# {% if user.role == "admin" %}
-              <li class="nav-item">
+              <li class="nav-item"> !!EITHER DO SOMETHING LIKE THIS OR CHECK COOKIES!!
                 <a class="nav-link" href="{{ url_for('main.admin') }}">Admin Page</a>
               </li>
              {% endif %} #} -->
           </ul>
-        </div>
-
-        <!-- Profile and Logout Buttons -->
-        <div class="d-flex align-items-center ms-auto">
-          <button class="btn btn-outline-primary btn-custom">Profile</button>
-          <button class="btn btn-outline-secondary btn-custom">Logout</button>
         </div>
       </div>
     </nav>
