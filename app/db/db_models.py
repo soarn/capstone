@@ -1,15 +1,5 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-import os
-from dotenv import load_dotenv
+from db.db import db
 from werkzeug.security import generate_password_hash, check_password_hash
-
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("CONNECTION_STRING")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
 
 # Create User Model (User)
 class User(db.Model):
@@ -68,7 +58,7 @@ class Transaction(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False)
     
 # Create Database Tables
-@app.route("/")
-def index():
-    db.create_all()
-    return "Database tables created!"
+# @app.route("/")
+# def index():
+#     db.create_all()
+#     return "Database tables created!"
