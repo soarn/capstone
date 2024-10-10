@@ -69,12 +69,20 @@ To better understand how to use this repository in your environment, it is sugge
 
 1. [Hashing Passwords Tutorial](https://dev.to/goke/securing-your-flask-application-hashing-passwords-tutorial-2f0p)
 
-### Swagger API Documentation
+### API Documentation
 
 1. [StackOverflow Question](https://stackoverflow.com/questions/75840827/how-to-properly-generate-a-documentation-with-swagger-for-flask)
 2. [Integrating Swagger UI with Your Python Flask](https://freedium.cfd/https://peyrone.medium.com/integrating-swagger-ui-with-your-python-flask-487698a11ea)
 3. [Flask Python- Swagger for rest apis](https://freedium.cfd/https://diptochakrabarty.medium.com/flask-python-swagger-for-rest-apis-6efdf0100bd7)
 4. [Flask Python: creating REST API and Swagger Documentation](https://www.imaginarycloud.com/blog/flask-python)
+5. [Fork of Flask-RESTPlus: Fully featured framework for fast, easy and documented API development with Flask](https://github.com/python-restx/flask-restx)
+6. [Flask Pluggable Views](https://flask.palletsprojects.com/en/2.0.x/views/)
+7. [Example of Flask Routes](https://hackersandslackers.com/flask-routes/)
+8. [REST Resource Naming](https://restfulapi.net/resource-naming/)
+9. [Flask Mega Tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
+10. [Okta Guide for RESTful APIs](https://auth0.com/blog/developing-restful-apis-with-python-and-flask/)
+11. [Build APIs with Flask (video)](https://www.youtube.com/watch?v=mt-0F_5KvQw)
+12. [Restful APIs](https://www.moesif.com/blog/technical/api-development/Building-RESTful-API-with-Flask/)
 
 ## Technologies Used
 
