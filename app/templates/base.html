@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light main-content">
       <div class="container-fluid">
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ url_for('main.home') }}" id="logo">
+        <a class="navbar-brand" href="{{ url_for('web.home') }}" id="logo">
           <img
             src="{{ url_for('static', filename='logo.png') }}"
             alt="TradingPro Logo"
@@ -32,17 +32,17 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.portfolio') }}">Portfolio</a>
+              <a class="nav-link" href="{{ url_for('web.portfolio') }}">Portfolio</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+              <a class="nav-link" href="{{ url_for('web.profile') }}">Profile</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Logout</a>
             </li>
              <!-- {# {% if user.role == "admin" %}
               <li class="nav-item"> !!EITHER DO SOMETHING LIKE THIS OR CHECK COOKIES!!
-                <a class="nav-link" href="{{ url_for('main.admin') }}">Admin Page</a>
+                <a class="nav-link" href="{{ url_for('web.admin') }}">Admin Page</a>
               </li>
              {% endif %} #} -->
           </ul>
