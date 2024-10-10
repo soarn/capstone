@@ -69,6 +69,13 @@ To better understand how to use this repository in your environment, it is sugge
 
 1. [Hashing Passwords Tutorial](https://dev.to/goke/securing-your-flask-application-hashing-passwords-tutorial-2f0p)
 
+### Swagger API Documentation
+
+1. [StackOverflow Question](https://stackoverflow.com/questions/75840827/how-to-properly-generate-a-documentation-with-swagger-for-flask)
+2. [Integrating Swagger UI with Your Python Flask](https://freedium.cfd/https://peyrone.medium.com/integrating-swagger-ui-with-your-python-flask-487698a11ea)
+3. [Flask Python- Swagger for rest apis](https://freedium.cfd/https://diptochakrabarty.medium.com/flask-python-swagger-for-rest-apis-6efdf0100bd7)
+4. [Flask Python: creating REST API and Swagger Documentation](https://www.imaginarycloud.com/blog/flask-python)
+
 ## Technologies Used
 
 - Python
