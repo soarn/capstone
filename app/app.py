@@ -5,9 +5,14 @@ from routes.api_v1 import api_v1
 import os
 from dotenv import load_dotenv
 from db.db import db
+from flasgger import Swagger
 
 def create_app():
+    # Initialize Flask App
     app = Flask(__name__)
+
+    # Initialize Swagger
+    swagger = Swagger(app)
 
     # Load configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("CONNECTION_STRING")
