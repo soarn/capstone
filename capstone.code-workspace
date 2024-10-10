@@ -106,6 +106,7 @@
     "python.terminal.activateEnvInCurrentTerminal": false,
     "cSpell.words": [
       "autofetch",
+      "flasgger",
       "jsonify",
       "sqlalchemy",
       "venv",
