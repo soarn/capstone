@@ -8,11 +8,10 @@ web = Blueprint('web', __name__)
 @web.route("/")
 def home():
     #defining whats popular
-    popular_symbols = ['AAPL', 'AMZN', 'GOOGL', 'TSLA']
+    popular_symbols = ['AAPL', 'AMZN', 'GOOG', 'TSLA', 'NVDA']
     #query the database for the popular stocks
     popular_stocks = Stock.query.filter(Stock.symbol.in_(popular_symbols)).all()
     # Query all stocks from the database
-    # popular_stocks = Stock.query.filter(Stock.symbol.in_(['AAPL', 'AMZN', 'GOOGL', 'TSLA'])).all()
     all_stocks = Stock.query.all()
 
     # Pass the stocks to the template

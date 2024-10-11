@@ -1,34 +1,38 @@
-{% extends "base.html" %} {% block title %}Home - Stock Trading System{%
-endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}Home - Stock Trading System{% endblock %}
+
+{% block content %}
 <body>
   <!-- Main Content -->
   <div class="container main-content mt-4">
     <div class="row">
       <!-- Popular Stocks Section -->
-      <div class="col-md-6" id="popular-stocks">
-        <div class="stock-box">
-          <h4>Popular Stocks</h4>
-          <ul> <!-- # TODO: #8 Replace hardcoded stocks with stocks from the database  -->
-            {% for stock in popular_stocks %}
-            <li>{{ stock.company }} ({{ stock.symbol }}): <span id="{{ stock.symbol }}-price">${{ stock.price }}</span></li>
-            {% endfor %}
+<div class="col-md-6" id="popular-stocks">
+  <div class="stock-box">
+    <h4>Popular Stocks</h4>
+    <ul>
+      {% for stock in popular_stocks %}
+      <li>{{ stock.company }} ({{ stock.symbol }}): 
+        <span id="popular-{{ stock.symbol }}-price">${{ stock.price }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
 
-          </ul>
-        </div>
-      </div>
+<!-- All Stocks Section -->
+<div class="col-md-6" id="all-stocks">
+  <div class="stock-box">
+    <h4>All Stocks</h4>
+    <ul>
+      {% for stock in all_stocks %}
+      <li>{{ stock.company }} ({{ stock.symbol }}): 
+        <span id="all-{{ stock.symbol }}-price">${{ stock.price }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
 
-      <!-- All Stocks Section -->
-      <div class="col-md-6" id="all-stocks">
-        <div class="stock-box">
-          <h4>All Stocks</h4>
-          <ul>
-           {% for stock in all_stocks %}
-            <li>{{ stock.company }} ({{ stock.symbol }}): <span id="{{ stock.symbol }}-price">${{ stock.price }}</span></li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-    </div>
 
     <!-- Buy and Sell Buttons at Bottom -->
     <div id="action-buttons" class="mt-5">
@@ -48,20 +52,20 @@ endblock %} {% block content %}
       "{{ stock.symbol }}": {{ stock.price }},
       {% endfor %}
     };
-
+  
     // Function to update the stock prices randomly
     function updateStockPrices() {
       for (let stock in stockPrices) {
         // Randomly increase or decrease stock price by 0.5% to 1.5%
         let fluctuation = Math.random() * 0.02 - 0.01; // +/- 1% change
         stockPrices[stock] = (stockPrices[stock] * (1 + fluctuation)).toFixed(2);
-
-        // Update price in Popular Stocks section if exists
+  
+        // Update price in Popular Stocks section
         const popularPriceElement = document.getElementById(`popular-${stock}-price`);
         if (popularPriceElement) {
           popularPriceElement.textContent = `$${stockPrices[stock]}`;
         }
-
+  
         // Update price in All Stocks section
         const allPriceElement = document.getElementById(`all-${stock}-price`);
         if (allPriceElement) {
@@ -69,7 +73,7 @@ endblock %} {% block content %}
         }
       }
     }
-
+  
     // Update stock prices every 3 seconds
     setInterval(updateStockPrices, 3000);
   </script>
