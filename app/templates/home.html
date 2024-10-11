@@ -42,17 +42,11 @@ endblock %} {% block content %}
 
   <!-- JavaScript for Market Price Fluctuation -->
   <script>
-    // Initial stock prices
+    // Initialize stock prices from server-side rendered data
     const stockPrices = {
-      aapl: 150,
-      amzn: 3200,
-      googl: 2800,
-      tsla: 720,
-      msft: 300,
-      nflx: 520,
-      meta: 340,
-      twtr: 45,
-      intc: 55,
+      {% for stock in all_stocks %}
+      "{{ stock.symbol }}": {{ stock.price }},
+      {% endfor %}
     };
 
     // Function to update the stock prices randomly
@@ -60,14 +54,19 @@ endblock %} {% block content %}
       for (let stock in stockPrices) {
         // Randomly increase or decrease stock price by 0.5% to 1.5%
         let fluctuation = Math.random() * 0.02 - 0.01; // +/- 1% change
-        stockPrices[stock] = (stockPrices[stock] * (1 + fluctuation)).toFixed(
-          2
-        );
+        stockPrices[stock] = (stockPrices[stock] * (1 + fluctuation)).toFixed(2);
 
-        // Update the price in the HTML
-        document.getElementById(
-          `${stock}-price`
-        ).textContent = `$${stockPrices[stock]}`;
+        // Update price in Popular Stocks section if exists
+        const popularPriceElement = document.getElementById(`popular-${stock}-price`);
+        if (popularPriceElement) {
+          popularPriceElement.textContent = `$${stockPrices[stock]}`;
+        }
+
+        // Update price in All Stocks section
+        const allPriceElement = document.getElementById(`all-${stock}-price`);
+        if (allPriceElement) {
+          allPriceElement.textContent = `$${stockPrices[stock]}`;
+        }
       }
     }
 
