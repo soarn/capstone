@@ -4,14 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Stock Trading System{% endblock %}</title>
-    <link
+    <!-- <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" /> -->
+    <link
       rel="stylesheet"
-    />
+      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/sandstone/bootstrap.min.css"
+      integrity="sha384-zEpdAL7W11eTKeoBJK1g79kgl9qjP7g84KfK3AZsuonx38n8ad+f5ZgXtoSDxPOh"
+      crossorigin="anonymous" />
+    <!-- <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css"
+      integrity="sha384-nEnU7Ae+3lD52AK+RGNzgieBWMnEfgTbRHIwEvp1XXPdqdO6uLTd/NwXbzboqjc2"
+      crossorigin="anonymous" /> -->
     <link
       ref="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
+      href="{{ url_for('static', filename='styles.css') }}" />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='logo.png') }}" />
   </head>
   <body>
     <!-- Header -->
@@ -22,25 +33,35 @@
           <img
             src="{{ url_for('static', filename='logo.png') }}"
             alt="TradingPro Logo"
-            height="75"
-          />
+            height="75" />
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
         </button>
         <!-- Navigation Bar -->
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('web.portfolio') }}">Portfolio</a>
+              <a class="nav-link" href="{{ url_for('web.portfolio') }}"
+                >Portfolio</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('web.profile') }}">Profile</a>
+              <a class="nav-link" href="{{ url_for('web.profile') }}"
+                >Profile</a
+              >
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Logout</a>
             </li>
-             <!-- {# {% if user.role == "admin" %}
+            <!-- {# {% if user.role == "admin" %}
               <li class="nav-item"> !!EITHER DO SOMETHING LIKE THIS OR CHECK COOKIES!!
                 <a class="nav-link" href="{{ url_for('web.admin') }}">Admin Page</a>
               </li>
