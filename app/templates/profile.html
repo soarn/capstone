@@ -1,0 +1,175 @@
+{% extends "base.html" %} {% block title %}Profile - Customize Your Experience{%
+endblock %} {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Left-side navigation -->
+    <nav id="profile-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+      <div class="position-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="#account-settings">
+              <span data-feather="home"></span>
+              Account Settings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#theme-settings">
+              <span data-feather="file"></span>
+              Theme Settings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#privacy-settings">
+              <span data-feather="file"></span>
+              Privacy Settings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#notifications">
+              <span data-feather="file"></span>
+              Notification Settings
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content for settings -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2">Profile Settings</h1>
+        <div id="last-login">
+          <h4>Last Login</h4>
+          <p>{{ current_user.last_login or "This is your first login!" }}</p>
+        </div>
+      </div>
+
+      <!-- Account Settings Section -->
+      <section id="account-settings">
+        <h2>Account Settings</h2>
+        <form method="POST" action="{{ url_for('profile.profile_page') }}">
+          <div class="form-group mb-3">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              value="{{ current_user.username }}"
+              required />
+          </div>
+          <div class="form-group mb-3">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              value="{{ current_user.email }}"
+              required />
+          </div>
+          <div class="form-group mb-3">
+            <label for="password">Change Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Leave blank to keep current password" />
+          </div>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </section>
+
+      <hr />
+
+      <!-- Theming Settings Section -->
+      <section id="theme-settings">
+        <h2>Theme Settings</h2>
+        <form method="POST" action="{{ url_for('profile.update_theme_settings') }}">
+          <div class="form-group">
+            <label for="theme">Select Theme</label>
+            <select class="form-select" id="theme" name="theme">
+              {% if themes %}
+                {% for theme in themes %}
+                <option value="{{ theme.name }}" {% if current_user.theme == theme.name %} selected {% endif %}>
+                  {{ theme.name }} - {{ theme.description }}
+                </option>
+                {% endfor %}
+              {% else %}
+              <option value="default">No themes available</option>
+              {% endif %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Save Theme</button>
+        </form>
+      </section>
+
+      <hr />
+
+      <!-- Privacy Settings Section -->
+      <section id="privacy-settings">
+        <h2>Privacy Settings</h2>
+        <form method="POST" action="{{ url_for('profile.update_privacy_settings') }}">
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="dataSharing"
+                name="data_sharing"
+                {%
+                if
+                current_user.data_sharing
+                %}
+                checked
+                {%
+                endif
+                %} />
+              <label class="form-check-label" for="dataSharing"
+                >Allow data sharing for analytics</label
+              >
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">
+            Save Privacy Settings
+          </button>
+        </form>
+      </section>
+
+      <hr />
+
+      <!-- Notification Settings Section -->
+      <section id="notifications">
+        <h2>Notification Settings</h2>
+        <form method="POST" action="{{ url_for('profile.update_notification_settings') }}">
+          <div class="form-group">
+            <div class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="emailNotifications"
+                name="email_notifications"
+                {%
+                if
+                current_user.notifications
+                %}
+                checked
+                {%
+                endif
+                %} />
+              <label class="form-check-label" for="emailNotifications"
+                >Receive email notifications</label
+              >
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">
+            Save Notification Settings
+          </button>
+        </form>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

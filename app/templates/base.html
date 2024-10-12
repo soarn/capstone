@@ -4,27 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Stock Trading System{% endblock %}</title>
-    <!-- <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet" /> -->
+    <!-- Dynamically Load Bootswatch Theme -->
+    {% if current_user.is_authenticated and session['theme'] %} {% for theme in themes %} {% if session['theme']
+    == theme.name %}
+    <link rel="stylesheet" href="{{ theme.cssCdn }}" crossorigin="anonymous" />
+    {% endif %} {% endfor %} {% else %}
     <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/sandstone/bootstrap.min.css"
-      integrity="sha384-zEpdAL7W11eTKeoBJK1g79kgl9qjP7g84KfK3AZsuonx38n8ad+f5ZgXtoSDxPOh"
-      crossorigin="anonymous" />
-    <!-- <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css"
-      integrity="sha384-nEnU7Ae+3lD52AK+RGNzgieBWMnEfgTbRHIwEvp1XXPdqdO6uLTd/NwXbzboqjc2"
-      crossorigin="anonymous" /> -->
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    {% endif %}
     <link
       ref="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}" />
+      href="{{ url_for('static', filename='style.css') }}" />
     <link
       rel="shortcut icon"
       href="{{ url_for('static', filename='logo.png') }}" />
   </head>
   <body>
+    <!-- Flash Messages -->
+    <div
+      id="flash-messages"
+      class="position-fixed top-0 start-50 translate-middle-x mt-3"
+      style="z-index: 1050">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="container">
+        {% for category, message in messages %}
+        <div
+          class="alert alert-{{ category }} alert-dismissible fade show"
+          role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+    </div>
+
     <!-- Header -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light main-content">
       <div class="container-fluid">
@@ -53,26 +68,51 @@
                 >Portfolio</a
               >
             </li>
+            {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('web.profile') }}"
                 >Profile</a
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Logout</a>
+              <a class="nav-link" href="{{ url_for('web.logout' ) }}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('web.login') }}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('web.register') }}">Register</a>
             </li>
             <!-- {# {% if user.role == "admin" %}
               <li class="nav-item"> !!EITHER DO SOMETHING LIKE THIS OR CHECK COOKIES!!
                 <a class="nav-link" href="{{ url_for('web.admin') }}">Admin Page</a>
               </li>
              {% endif %} #} -->
+             {% endif %}
           </ul>
         </div>
       </div>
     </nav>
+
     <!-- Main Content Block -->
     <div class="container mt-4">{% block content %}{% endblock %}</div>
 
+    <script>
+      // Auto dismiss flash messages after 3 seconds
+      setTimeout(function () {
+        let alerts = document.querySelectorAll(".alert");
+        alerts.forEach(function (alert) {
+          alert.classList.add("fade"); // Add the "fade" class for smooth transition
+          alert.classList.remove("show"); // Remove the "show" class to hide the alert
+
+          // Remove the element from the DOM after the transition
+          setTimeout(function () {
+            alert.remove();
+          }, 1500); // Remove after the transition
+        });
+      }, 3000); // Adjust this duration as needed (3000ms = 3 seconds)
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
