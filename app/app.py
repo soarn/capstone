@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from routes.web import web
 from routes.api_v1 import api_v1
+from routes.profile import profile
 import os
 from dotenv import load_dotenv
 from db.db import db
@@ -25,6 +26,7 @@ def create_app():
     # Register blueprints
     app.register_blueprint(web)
     app.register_blueprint(api_v1)
+    app.register_blueprint(profile)
 
     return app
 
