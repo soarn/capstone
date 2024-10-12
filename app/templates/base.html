@@ -7,16 +7,12 @@
     <!-- <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet" /> -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/sandstone/bootstrap.min.css"
-      integrity="sha384-zEpdAL7W11eTKeoBJK1g79kgl9qjP7g84KfK3AZsuonx38n8ad+f5ZgXtoSDxPOh"
-      crossorigin="anonymous" />
     <!-- <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css"
-      integrity="sha384-nEnU7Ae+3lD52AK+RGNzgieBWMnEfgTbRHIwEvp1XXPdqdO6uLTd/NwXbzboqjc2"
+      href="https://cdn.jsdelivr.net/npm/bootswatch@.5.2/dist/sandstone/bootstrap.min.css"
+      integrity="sha384-zEpdAL7W11eTKeoBJK1g79kgl9qjP7g84KfK3AZsuonx38n8ad+f5ZgXtoSDxPOh"
       crossorigin="anonymous" /> -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" integrity="sha256-qR01fmz4XOCNC3dVfO+qjS6hX2BbJjqGD8WGd5sG19o=" crossorigin="anonymous">
     <link
       ref="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}" />
@@ -25,15 +21,6 @@
       href="{{ url_for('static', filename='logo.png') }}" />
   </head>
   <body>
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %}
-    <div class="alert alert-info">
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    </div>
-    {% endif %} {% endwith %}
-
     <!-- Header -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light main-content">
       <div class="container-fluid">
@@ -79,9 +66,36 @@
         </div>
       </div>
     </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+      {% if messages %}
+        <div class="container mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %} 
+    {% endwith %}
     <!-- Main Content Block -->
     <div class="container mt-4">{% block content %}{% endblock %}</div>
+    
+    <script>
+      // Auto dismiss flash messages after 3 seconds
+      setTimeout(function() {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+          alert.classList.add('fade');  // Add the "fade" class for smooth transition
+          alert.classList.remove('show');  // Remove the "show" class to hide the alert
 
+          // Remove the element from the DOM after the transition
+          setTimeout(function() {
+            alert.remove();
+          }, 1500);  // Remove after the transition
+        });
+      }, 3000);  // Adjust this duration as needed (3000ms = 3 seconds)
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, flash, url_for
+from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages
 from flask_login import login_user, logout_user, login_required
 from db.db_models import Stock, User
 from db.db import db
@@ -49,10 +49,23 @@ def login():
             # Update the last login time
             user.last_login = datetime.now()
             db.session.commit()
+
             # Log the user in
             login_user(user)
-            flash("Login successful!", "success")
-            # Redirect to the profile page after login
+
+            # Clear any flashed messages
+            get_flashed_messages()
+
+            # Get the 'next' argument to see where the user was redirected from
+            next_page = request.args.get('next')
+
+            # Only flash if user was not redirected to login
+            if not next_page:
+                flash("Login successful!", "success")
+
+            # Redirect to the next page if it exists, otherwise, redirect to profile by default
+            if next_page:
+                return redirect(next_page)
             return redirect(url_for('profile.profile_page'))
         else:
             flash("Invalid username or password. Please try again.", "danger")
