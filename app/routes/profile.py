@@ -19,6 +19,7 @@ def update_account_settings():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
+    
     # Update the current user's username and email
     current_user.username = username
     current_user.email = email
@@ -51,11 +52,9 @@ def update_theme_settings():
 @profile.route('/profile/update-privacy', methods=['POST'])
 @login_required
 def update_privacy_settings():
-    email_visibility = 'email_visibility' in request.form
     data_sharing = 'data_sharing' in request.form
 
     # Update user's privacy settings in the database
-    current_user.email_visibility = email_visibility
     current_user.data_sharing = data_sharing
     db.session.commit()
 
@@ -67,11 +66,9 @@ def update_privacy_settings():
 @login_required
 def update_notification_settings():
     email_notifications = 'email_notifications' in request.form
-    sms_notifications = 'sms_notifications' in request.form
 
     # Update user's notification settings in the database
-    current_user.email_notifications = email_notifications
-    current_user.sms_notifications = sms_notifications
+    current_user.notifications = email_notifications
     db.session.commit()
 
     flash("Notification settings updated successfully!", "success")

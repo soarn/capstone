@@ -16,6 +16,9 @@ class User(UserMixin, db.Model):
     role          = db.Column(db.String(50), nullable=False, default='user')
     status        = db.Column(db.String(20), nullable=False, default='active')
     balance       = db.Column(db.Float, nullable=False, default=0.0)
+    notifications = db.Column(db.Boolean, nullable=False)
+    theme               = db.Column(db.String(20), default="default")
+    data_sharing        = db.Column(db.Boolean, default=False)
 
     # Hash the password before storing it
     def set_password(self, password):
@@ -24,15 +27,6 @@ class User(UserMixin, db.Model):
     # Check the password against the stored hash
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-# Create Account Settings (Account_Settings)
-class AccountSettings(db.Model):
-    id            = db.Column(db.Integer, primary_key=True)
-    user          = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    notifications = db.Column(db.Boolean, nullable=False)
-    theme               = db.Column(db.String(20), default="default")
-    email_visibility    = db.Column(db.Boolean, default=False)
-    data_sharing        = db.Column(db.Boolean, default=False)
 
 # Create Portfolio Model (Portfolio)
 class Portfolio(db.Model):
