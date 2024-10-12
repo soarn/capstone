@@ -1,16 +1,18 @@
-from datetime import datetime
 from db.db import db
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 # Create User Model (User)
-class User(db.Model):
+class User(UserMixin, db.Model):
+    # UserMixin provides default implementations for the methods required by Flask-Login
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(80), nullable=False, unique=True)
     password_hash = db.Column(db.String(200), nullable=False)
     email         = db.Column(db.String(120), nullable=False, unique=True)
     verified      = db.Column(db.Boolean, nullable=False, default=False)
     created_at    = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    last_login    = db.Column(db.DateTime)
+    last_login    = db.Column(db.DateTime, nullable=True)
     role          = db.Column(db.String(50), nullable=False, default='user')
     status        = db.Column(db.String(20), nullable=False, default='active')
     balance       = db.Column(db.Float, nullable=False, default=0.0)

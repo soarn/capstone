@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for
 from flask_login import login_user, logout_user, login_required
 from db.db_models import Stock, User
@@ -45,6 +46,9 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
+            # Update the last login time
+            user.last_login = datetime.now()
+            db.session.commit()
             # Log the user in
             login_user(user)
             flash("Login successful!", "success")
