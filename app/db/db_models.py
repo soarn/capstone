@@ -27,9 +27,7 @@ class AccountSettings(db.Model):
     id            = db.Column(db.Integer, primary_key=True)
     user          = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     notifications = db.Column(db.Boolean, nullable=False)
-    theme               = db.Column(db.String(20), default="default")
-    email_visibility    = db.Column(db.Boolean, default=False)
-    data_sharing        = db.Column(db.Boolean, default=False)
+    theme         = db.Column(db.Boolean, nullable=False)
 
 # Create Portfolio Model (Portfolio)
 class Portfolio(db.Model):

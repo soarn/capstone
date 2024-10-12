@@ -30,6 +30,6 @@ def buy():
 def sell():
     return render_template('sell.html')
 
-# @web.route("/profile")
-# def profile():
-#     return render_template('profile.html')
+@web.route("/profile")
+def profile():
+    return render_template('profile.html')
