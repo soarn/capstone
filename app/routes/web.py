@@ -22,14 +22,17 @@ def home():
     
 
 @web.route("/portfolio")
+@login_required
 def portfolio():
     return render_template('portfolio.html')
 
 @web.route("/buy")
+@login_required
 def buy():
     return render_template('buy.html')
 
 @web.route("/sell")
+@login_required
 def sell():
     return render_template('sell.html')
 
@@ -43,6 +46,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        remember = request.form.get('remember')
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
@@ -50,8 +54,8 @@ def login():
             user.last_login = datetime.now()
             db.session.commit()
 
-            # Log the user in
-            login_user(user)
+            # Log the user in, remember me is optional
+            login_user(user, remember=remember)
 
             # Clear any flashed messages
             get_flashed_messages()

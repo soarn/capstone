@@ -30,14 +30,13 @@ def create_app():
     # Calls db from db\db.py to avoid circular imports
     db.init_app(app)
 
-    # Initialize Login Manager
-    login_manager = LoginManager(app)
-
     # Register blueprints
     app.register_blueprint(web)
     app.register_blueprint(api_v1)
     app.register_blueprint(profile)
 
+    # Initialize Login Manager
+    login_manager = LoginManager(app)
     # Redirect users to the login page if they are not logged in
     login_manager.login_view = 'web.login'
     login_manager.login_message = "Please log in to access this page."
