@@ -16,9 +16,9 @@ class User(UserMixin, db.Model):
     role          = db.Column(db.String(50), nullable=False, default='user')
     status        = db.Column(db.String(20), nullable=False, default='active')
     balance       = db.Column(db.Float, nullable=False, default=0.0)
-    notifications = db.Column(db.Boolean, nullable=False)
+    notifications = db.Column(db.Boolean, nullable=False, default=True)
     theme               = db.Column(db.String(20), default="default")
-    data_sharing        = db.Column(db.Boolean, default=False)
+    data_sharing        = db.Column(db.Boolean, default=True)
 
     # Hash the password before storing it
     def set_password(self, password):

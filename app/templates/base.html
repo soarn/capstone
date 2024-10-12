@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Stock Trading System{% endblock %}</title>
     <!-- Dynamically Load Bootswatch Theme -->
-    {% if current_user.is_authenticated and session['theme'] %} {% for theme in themes %} {% if session['theme']
-    == theme.name %}
+    {% if current_user.is_authenticated and session['theme'] %} {% for theme in
+    themes %} {% if session['theme'] == theme.name %}
     <link rel="stylesheet" href="{{ theme.cssCdn }}" crossorigin="anonymous" />
     {% endif %} {% endfor %} {% else %}
     <link
@@ -63,12 +63,12 @@
         <!-- Navigation Bar -->
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
+            {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('web.portfolio') }}"
                 >Portfolio</a
               >
             </li>
-            {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('web.profile') }}"
                 >Profile</a
@@ -82,14 +82,16 @@
               <a class="nav-link" href="{{ url_for('web.login') }}">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('web.register') }}">Register</a>
+              <a class="nav-link" href="{{ url_for('web.register') }}"
+                >Register</a
+              >
             </li>
             <!-- {# {% if user.role == "admin" %}
               <li class="nav-item"> !!EITHER DO SOMETHING LIKE THIS OR CHECK COOKIES!!
                 <a class="nav-link" href="{{ url_for('web.admin') }}">Admin Page</a>
               </li>
              {% endif %} #} -->
-             {% endif %}
+            {% endif %}
           </ul>
         </div>
       </div>
