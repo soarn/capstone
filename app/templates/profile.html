@@ -87,24 +87,19 @@ endblock %} {% block content %}
       <!-- Theming Settings Section -->
       <section id="theme-settings">
         <h2>Theme Settings</h2>
-        <form method="POST" action="{{ url_for('profile.profile_page') }}">
+        <form method="POST" action="{{ url_for('profile.update_theme_settings') }}">
           <div class="form-group">
             <label for="theme">Select Theme</label>
             <select class="form-select" id="theme" name="theme">
-                <option value="cerulean" {% if session['bootswatch_theme'] == 'cerulean' %} selected {% endif %}>Cerulean</option>
-                <option value="cosmo" {% if session['bootswatch_theme'] == 'cosmo' %} selected {% endif %}>Cosmo</option>
-                <option value="cyborg" {% if session['bootswatch_theme'] == 'cyborg' %} selected {% endif %}>Cyborg</option>
-                <option value="flatly" {% if session['bootswatch_theme'] == 'flatly' %} selected {% endif %}>Flatly</option>
-                <option value="journal" {% if session['bootswatch_theme'] == 'journal' %} selected {% endif %}>Journal</option>
-                <option value="litera" {% if session['bootswatch_theme'] == 'litera' %} selected {% endif %}>Litera</option>
-                <option value="lux" {% if session['bootswatch_theme'] == 'lux' %} selected {% endif %}>Lux</option>
-                <option value="minty" {% if session['bootswatch_theme'] == 'minty' %} selected {% endif %}>Minty</option>
-                <option value="pulse" {% if session['bootswatch_theme'] == 'pulse' %} selected {% endif %}>Pulse</option>
-                <option value="sandstone" {% if session['bootswatch_theme'] == 'sandstone' %} selected {% endif %}>Sandstone</option>
-                <option value="simplex" {% if session['bootswatch_theme'] == 'simplex' %} selected {% endif %}>Simplex</option>
-                <option value="sketchy" {% if session['bootswatch_theme'] == 'sketchy' %} selected {% endif %}>Sketchy</option>
-                <option value="spacelab" {% if session['bootswatch_theme'] == 'spacelab' %} selected {% endif %}>Spacelab</option>
-                <option value="united" {% if session['bootswatch_theme'] == 'united' %} selected {% endif %}>United</option>
+              {% if themes %}
+                {% for theme in themes %}
+                <option value="{{ theme.name }}" {% if current_user.theme == theme.name %} selected {% endif %}>
+                  {{ theme.name }} - {{ theme.description }}
+                </option>
+                {% endfor %}
+              {% else %}
+              <option value="default">No themes available</option>
+              {% endif %}
             </select>
           </div>
           <button type="submit" class="btn btn-primary mt-3">Save Theme</button>

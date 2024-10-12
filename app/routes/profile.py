@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from werkzeug.security import generate_password_hash
 from db.db_models import User, db
 from flask_login import login_required, current_user
+from utils import fetch_bootswatch_themes
 
 # Create a blueprint for profile-related routes
 profile = Blueprint('profile', __name__)
@@ -10,7 +11,13 @@ profile = Blueprint('profile', __name__)
 @profile.route('/profile')
 @login_required  # Ensure user is logged in
 def profile_page():
-    return render_template('profile.html', user=current_user)
+    themes = fetch_bootswatch_themes() # Fetch Bootswatch themes
+
+    # Ensure that themes is always a valid list
+    if not themes:
+        flash("Unable to fetch Bootswatch themes. Please try again later.", "danger")
+    
+    return render_template('profile.html', user=current_user, themes=themes)
 
 # Route to update account settings
 @profile.route('/profile/update-account', methods=['POST'])
@@ -19,7 +26,7 @@ def update_account_settings():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
-    
+
     # Update the current user's username and email
     current_user.username = username
     current_user.email = email
@@ -36,13 +43,13 @@ def update_account_settings():
 @profile.route('/profile/update-theme', methods=['POST'])
 @login_required
 def update_theme_settings():
-    theme = request.form['theme']
+    theme_name = request.form['theme']
 
     # Store the selected theme in the session
-    session['bootswatch_theme'] = theme
+    session['theme'] = theme_name
 
-    # Optionally, you can save the user's theme preference to the database
-    current_user.theme = theme
+    # Save the user's theme preference to the database
+    current_user.theme = theme_name
     db.session.commit()
 
     flash("Theme updated successfully!", "success")

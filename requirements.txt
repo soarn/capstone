@@ -7,3 +7,4 @@ flasgger
 jinja2
 pymysql
 flask_login
+requests
