@@ -8,9 +8,9 @@ profile = Blueprint('profile', __name__)
 
 # Route to display the profile page
 @profile.route('/profile')
-# @login_required  # Ensure user is logged in
+@login_required  # Ensure user is logged in
 def profile_page():
-    return render_template('profile.html')
+    return render_template('profile.html', user=current_user)
 
 # Route to update account settings
 @profile.route('/profile/update-account', methods=['POST'])
@@ -19,7 +19,6 @@ def update_account_settings():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
-
     # Update the current user's username and email
     current_user.username = username
     current_user.email = email
