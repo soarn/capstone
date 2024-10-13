@@ -36,10 +36,6 @@ def buy():
 def sell():
     return render_template('sell.html')
 
-# @web.route("/profile")
-# def profile():
-#     return render_template('profile.html')
-
 # LOGIN ROUTE
 @web.route("/login", methods=['GET', 'POST'])
 def login():
