@@ -10,6 +10,7 @@ from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
+from utils import fetch_bootswatch_themes
 
 def create_app():
     # Initialize Flask App
@@ -45,6 +46,13 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+
+    # Context Processor to provide themes globally
+    @app.context_processor
+    def inject_themes():
+        themes = fetch_bootswatch_themes()
+        return dict(themes=themes)
+    
     return app
 
 if __name__ == '__main__':

@@ -44,10 +44,7 @@ def update_account_settings():
 @login_required
 def update_theme_settings():
     theme_name = request.form['theme']
-
-    # Store the selected theme in the session
-    session['theme'] = theme_name
-
+    
     # Save the user's theme preference to the database
     current_user.theme = theme_name
     db.session.commit()
