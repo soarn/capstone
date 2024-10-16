@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, redirect, flash, url_for,
 from flask_login import login_user, logout_user, login_required
 from db.db_models import Stock, User
 from db.db import db
+from routes.api_v1 import get_stocks
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -26,10 +27,36 @@ def home():
 def portfolio():
     return render_template('portfolio.html')
 
-@web.route("/buy")
-@login_required
+@web.route('/buy', methods=['GET', 'POST'])
 def buy():
-    return render_template('buy.html')
+    stocks = get_stocks()  # Fetch stocks from the API or another app
+    if request.method == 'POST':
+        stock_symbol = request.form.get('stock')
+        quantity = int(request.form.get('quantity'))
+
+        # Find the stock by symbol
+        stock = next((item for item in stocks if item["symbol"] == stock_symbol), None)
+
+        if stock:
+            total_cost = stock['price'] * quantity
+
+            if portfolio['cash'] >= total_cost:
+                portfolio['cash'] -= total_cost
+                portfolio['stocks'][stock_symbol] = portfolio['stocks'].get(stock_symbol, 0) + quantity
+                flash(f"Successfully purchased {quantity} shares of {stock['name']} for ${total_cost}", 'success')
+            else:
+                flash("Not enough cash to complete the purchase", 'danger')
+
+        return redirect(url_for('buy'))
+
+    # Calculate portfolio value including cash and stocks
+    """ RAN INTO AN ERROR HERE """
+    portfolio_value = sum(
+        next((stock['price'] for stock in stocks if stock['symbol'] == stock_symbol), 0) * quantity
+        for stock_symbol, quantity in portfolio['stocks'].items()
+    ) + portfolio['cash']
+
+    return render_template('buy.html', stocks=stocks, portfolio_value=portfolio_value)
 
 @web.route("/sell")
 @login_required
