@@ -1,11 +1,6 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages
-from flask_login import login_user, logout_user, login_required
 from db.db_models import Stock, User, Portfolio, Transaction
 from db.db import db
-
-buy_blueprint = Blueprint('buy', __name__)
-
 
 def buy_stock(user_id, stock_symbol, quantity):
     # Fetch the user from the database
@@ -79,26 +74,24 @@ def check_user_balance(user_id):
         return user.balance
     return 0
 
-# @buy_blueprint.route("/buy", methods=["GET", "POST"])
-# @login_required
-# def buy_page():
-#     if request.method == "POST":
-#         # Get the stock symbol and quantity from the form
-#         stock_symbol = request.form.get("stock.symbol")
-#         quantity = int(request.form.get("stock.quantity"))
+# Update user portfolio
+def update_portfolio(user_id, stock_id, quantity, purchase_price):
+    # Check if the user already has this stock in their portfolio
+    portfolio_entry = Portfolio.query.filter_by(user=user_id, stock=stock_id).first()
 
-#         # Call the buy_stock function to handle the purchase
-#         result = buy_stock(id, stock_symbol, quantity)
+    if portfolio_entry:
+        # Update the quantity and the price
+        portfolio_entry.quantity += quantity
+        # Update the price to the latest purchase price
+        portfolio_entry.price = purchase_price
+    else:
+        # Create a new portfolio entry
+        new_portfolio_entry = Portfolio(
+            user=user_id,
+            stock=stock_id,
+            quantity=quantity,
+            price=purchase_price
+        )
+        db.session.add(new_portfolio_entry)
 
-#         if result["status"] == "error":
-#             flash(result["message"], "danger")
-#         else:
-#             flash(result["message"], "success")
-
-#         return redirect(url_for('buy.buy_page'))
-
-#     # Get the list of available stocks
-#     stocks = Stock.query.all()
-    
-
-#     return render_template('buy.html', stocks=stocks)
+    db.session.commit()

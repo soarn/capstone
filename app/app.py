@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from routes.profile import profile
 from routes.web import web
 from routes.api_v1 import api_v1
-from routes.buy import buy_blueprint
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -36,7 +35,6 @@ def create_app():
     app.register_blueprint(web)
     app.register_blueprint(api_v1)
     app.register_blueprint(profile)
-    app.register_blueprint(buy_blueprint)
 
     # Initialize Login Manager
     login_manager = LoginManager(app)
