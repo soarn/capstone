@@ -1,12 +1,91 @@
 {% extends "base.html" %}
-
-{% block title %}Admin Page - Stock Trading System{% endblock %}
-
+{% block title %}Admin Panel - Stock Trading System{% endblock %}
 {% block content %}
-    <div class="container mt-5">
-        <h1>Admin Page</h1>
-        <p>Admin Duties</p>
-    </div>
-    </body>
-    </html>
-    {% endblock %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Left-side navigation -->
+    <nav id="admin-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+      <div class="position-sticky">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="#user-management">User Management</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#stock-management">Stock Management</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1 class="h2">Admin Dashboard</h1>
+      </div>
+
+      <!-- User Management Section -->
+      <section id="user-management">
+        <h2>User Management</h2>
+        <table class="table table-striped table-bordered mt-3">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Balance</th>
+              <th>Last Login</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in all_users %}
+            <tr>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.role }}</td>
+              <td>{{ user.status }}</td>
+              <td>${{ user.balance }}</td>
+              <td>{{ user.last_login or "Never" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <hr />
+
+      <!-- Stock Management Section -->
+      <section id="stock-management">
+        <h2>Stock Management</h2>
+        <form method="POST" action="{{ url_for('admin.admin_update_stock') }}">
+          <div class="form-group">
+            <label for="stock_id">Select Stock</label>
+            <select name="stock_id" class="form-select" required>
+              {% for stock in all_stocks %}
+              <option value="{{ stock.id }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="new_price">New Price</label>
+            <input type="number" step="0.01" name="new_price" class="form-control" required>
+          </div>
+
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" name="is_manual" id="is_manual">
+            <label class="form-check-label" for="is_manual">Set Price Manually</label>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="fluctuation_multiplier">Fluctuation Multiplier</label>
+            <input type="number" step="0.01" name="fluctuation_multiplier" class="form-control" value="1.0" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-4">Update Stock</button>
+        </form>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

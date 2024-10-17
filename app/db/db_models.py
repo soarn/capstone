@@ -17,8 +17,8 @@ class User(UserMixin, db.Model):
     status        = db.Column(db.String(20), nullable=False, default='active')
     balance       = db.Column(db.Float, nullable=False, default=0.0)
     notifications = db.Column(db.Boolean, nullable=False, default=True)
-    theme               = db.Column(db.String(20), default="default")
-    data_sharing        = db.Column(db.Boolean, default=True)
+    theme         = db.Column(db.String(20), default="default")
+    data_sharing  = db.Column(db.Boolean, default=True)
 
     # Hash the password before storing it
     def set_password(self, password):
@@ -38,11 +38,22 @@ class Portfolio(db.Model):
 
 # Create Stock Model (Stock)
 class Stock(db.Model):
-    id       = db.Column(db.Integer, primary_key=True)
-    symbol   = db.Column(db.String(10), unique=True, nullable=False)
-    company  = db.Column(db.String(100), nullable=False)
-    price    = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Float, nullable=False)
+    id                     = db.Column(db.Integer, primary_key=True)
+    symbol                 = db.Column(db.String(10), unique=True, nullable=False)
+    company                = db.Column(db.String(100), nullable=False)
+    price                  = db.Column(db.Float, nullable=False)                    # Current Price
+    quantity               = db.Column(db.Float, nullable=False)                    # Available stock quantity
+    manual_price           = db.Column(db.Float, nullable=True)                     # Admin-controlled price
+    is_manual              = db.Column(db.Boolean, nullable=False, default=False)   # Whether the price is manually set
+    fluctuation_multiplier = db.Column(db.Float, default=1.0)                       # Multiplier for good/bad days
+
+# Create StockHistory Model (StockHistory)
+class StockHistory(db.Model):
+    # Use a composite primary key
+    stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), primary_key=True)
+    timestamp = db.Column(db.DateTime, nullable=False, primary_key=True, default=datetime.now())
+    price     = db.Column(db.Float, nullable=False)
+    quantity  = db.Column(db.Float, nullable=False)
 
 # Create Transaction Model (Transaction)
 

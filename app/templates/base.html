@@ -62,6 +62,13 @@
         <!-- Navigation Bar -->
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
+            {% if current_user.is_authenticated and current_user.role == 'admin' %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.admin_page') }}"
+                >Admin Panel</a
+              >
+            </li>
+            {% endif %}
             {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('web.portfolio') }}"
