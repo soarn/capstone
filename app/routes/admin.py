@@ -8,7 +8,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_user.role != 'admin':
-            flash*("Unauthorized", "danger")
+            flash("Unauthorized", "danger")
             return redirect(url_for('web.home'))
         return f(*args, **kwargs)
     return decorated_function
@@ -32,10 +32,12 @@ def admin_page():
 # Route to update stock information
 @admin.route("/admin/update-stock", methods=['POST'])
 @login_required
+@admin_required
 def admin_update_stock():
     stock_id = request.form['stock_id']
     new_price = request.form['new_price']
-    is_manual = request.form['is_manual'] == 'on'
+    # is_manual = request.form['is_manual'] == 'on'
+    is_manual = 'is_manual' in request.form
     fluctuation_multiplier = request.form['fluctuation_multiplier']
 
     stock = Stock.query.get(stock_id)
