@@ -27,36 +27,9 @@ def home():
 def portfolio():
     return render_template('portfolio.html')
 
-@web.route('/buy', methods=['GET', 'POST'])
+@web.route('/buy')
 def buy():
-    stocks = get_stocks()  # Fetch stocks from the API or another app
-    if request.method == 'POST':
-        stock_symbol = request.form.get('stock')
-        quantity = int(request.form.get('quantity'))
-
-        # Find the stock by symbol
-        stock = next((item for item in stocks if item["symbol"] == stock_symbol), None)
-
-        if stock:
-            total_cost = stock['price'] * quantity
-
-            if portfolio['cash'] >= total_cost:
-                portfolio['cash'] -= total_cost
-                portfolio['stocks'][stock_symbol] = portfolio['stocks'].get(stock_symbol, 0) + quantity
-                flash(f"Successfully purchased {quantity} shares of {stock['name']} for ${total_cost}", 'success')
-            else:
-                flash("Not enough cash to complete the purchase", 'danger')
-
-        return redirect(url_for('buy'))
-
-    # Calculate portfolio value including cash and stocks
-    """ RAN INTO AN ERROR HERE """
-    portfolio_value = sum(
-        next((stock['price'] for stock in stocks if stock['symbol'] == stock_symbol), 0) * quantity
-        for stock_symbol, quantity in portfolio['stocks'].items()
-    ) + portfolio['cash']
-
-    return render_template('buy.html', stocks=stocks, portfolio_value=portfolio_value)
+    return render_template('buy.html')
 
 @web.route("/sell")
 @login_required
