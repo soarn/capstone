@@ -1,10 +1,10 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages
 from flask_login import current_user, login_user, logout_user, login_required
-from db.db_models import Stock, User
+from db.db_models import Portfolio, Stock, User
 from db.db import db
 from routes.api_v1 import get_stocks
-from routes.buy import buy_stock
+from buy import buy_stock
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -21,12 +21,6 @@ def home():
 
     # Pass the stocks to the template
     return render_template('home.html', popular_stocks=popular_stocks, all_stocks=all_stocks)
-    
-
-@web.route("/portfolio")
-@login_required
-def portfolio():
-    return render_template('portfolio.html')
 
 @web.route("/sell")
 @login_required
@@ -126,3 +120,26 @@ def buy_page():
 
     # Return the buy page with stocks and user balance
     return render_template('buy.html', stocks=stocks, balance=balance)
+
+# Route to Portfolio Page
+@web.route("/portfolio")
+@login_required
+def portfolio():
+    user_id = current_user.id
+
+    # Query the user's portfolio and join with the stock table to get stock details
+    portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
+
+    # Render the portfolio template with the portfolio data
+    portfolio = []
+    for entry in portfolio_data:
+        portfolio_entry = {
+            'symbol': entry.Stock.symbol,
+            'name': entry.Stock.company,
+            'shares': entry.Portfolio.quantity,
+            'price': entry.Portfolio.price,
+            'total_value': entry.Portfolio.quantity * entry.Stock.price
+        }
+        portfolio.append(portfolio_entry)
+
+    return render_template('portfolio.html', portfolio=portfolio)
