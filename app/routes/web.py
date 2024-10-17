@@ -1,9 +1,10 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages
-from flask_login import login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user, login_required
 from db.db_models import Stock, User
 from db.db import db
 from routes.api_v1 import get_stocks
+from routes.buy import buy_stock
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -26,10 +27,6 @@ def home():
 @login_required
 def portfolio():
     return render_template('portfolio.html')
-
-@web.route('/buy')
-def buy():
-    return render_template('buy.html')
 
 @web.route("/sell")
 @login_required
@@ -106,22 +103,26 @@ def register():
 @web.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy_page():
-    # if request.method == "POST":
-    #     # Get the stock symbol and quantity from the form
-    #     stock_symbol = request.form.get("stock.symbol")
-    #     quantity = int(request.form.get("stock.quantity"))
+    if request.method == "POST":
+        # Get the stock symbol and quantity from the form
+        stock_symbol = request.form.get("stock_symbol")
+        quantity = int(request.form.get("quantity"))
 
-    #     # Call the buy_stock function to handle the purchase
-    #     result = buy_stock(id, stock_symbol, quantity)
+        # Call the buy_stock function to handle the purchase
+        result = buy_stock(current_user.id, stock_symbol, quantity)
 
-    #     if result["status"] == "error":
-    #         flash(result["message"], "danger")
-    #     else:
-    #         flash(result["message"], "success")
+        if result["status"] == "error":
+            flash(result["message"], "danger")
+        else:
+            flash(result["message"], "success")
 
-    #     return redirect(url_for('buy.buy_page'))
+        return redirect(url_for('web.buy_page'))
 
     # Get the list of available stocks
     stocks = Stock.query.all()
 
-    return render_template('buy.html', stocks=stocks)
+    # Get the user's balance
+    balance = current_user.balance
+
+    # Return the buy page with stocks and user balance
+    return render_template('buy.html', stocks=stocks, balance=balance)
