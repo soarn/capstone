@@ -58,7 +58,7 @@ def buy_stock(user_id, stock_symbol, quantity):
         type="buy",
         quantity=quantity,
         price=stock.price,
-        amount=total_price,
+        amount=total_price, 
         timestamp=datetime.now()
     )
     db.session.add(new_transaction)
@@ -79,26 +79,26 @@ def check_user_balance(user_id):
         return user.balance
     return 0
 
-@buy_blueprint.route("/buy", methods=["GET", "POST"])
-@login_required
-def buy_page():
-    if request.method == "POST":
-        # Get the stock symbol and quantity from the form
-        stock_symbol = request.form.get("stock.symbol")
-        quantity = int(request.form.get("quantity"))
+# @buy_blueprint.route("/buy", methods=["GET", "POST"])
+# @login_required
+# def buy_page():
+#     if request.method == "POST":
+#         # Get the stock symbol and quantity from the form
+#         stock_symbol = request.form.get("stock.symbol")
+#         quantity = int(request.form.get("stock.quantity"))
 
-        # Call the buy_stock function to handle the purchase
-        result = buy_stock(id, stock_symbol, quantity)
+#         # Call the buy_stock function to handle the purchase
+#         result = buy_stock(id, stock_symbol, quantity)
 
-        if result["status"] == "error":
-            flash(result["message"], "danger")
-        else:
-            flash(result["message"], "success")
+#         if result["status"] == "error":
+#             flash(result["message"], "danger")
+#         else:
+#             flash(result["message"], "success")
 
-        return redirect(url_for('buy.buy_page'))
+#         return redirect(url_for('buy.buy_page'))
 
-    # Get the list of available stocks
-    stocks = all_stocks()
+#     # Get the list of available stocks
+#     stocks = Stock.query.all()
     
 
-    return render_template('buy.html', stocks=stocks)
+#     return render_template('buy.html', stocks=stocks)

@@ -5,14 +5,18 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Buy Stocks</h2>
-
-    <form method="POST" action="{{ url_for('buy.buy_page') }}">
+    <p>{{ stocks }}</p>
+    <form method="POST" action="{{ url_for('web.buy_page') }}">
         <div class="form-group">
             <label for="stock_symbol">Select Stock</label>
             <select name="stock_symbol" class="form-control" required>
+            {% if stocks %}
                 {% for stock in stocks %}
                     <option value="{{ stock.symbol }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
                 {% endfor %}
+            {% else %}
+                <option>No stocks available</option>
+            {% endif %}
             </select>
         </div>
 
