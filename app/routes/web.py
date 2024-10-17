@@ -102,3 +102,26 @@ def register():
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for('web.login'))
     return render_template('register.html')
+
+@web.route("/buy", methods=["GET", "POST"])
+@login_required
+def buy_page():
+    # if request.method == "POST":
+    #     # Get the stock symbol and quantity from the form
+    #     stock_symbol = request.form.get("stock.symbol")
+    #     quantity = int(request.form.get("stock.quantity"))
+
+    #     # Call the buy_stock function to handle the purchase
+    #     result = buy_stock(id, stock_symbol, quantity)
+
+    #     if result["status"] == "error":
+    #         flash(result["message"], "danger")
+    #     else:
+    #         flash(result["message"], "success")
+
+    #     return redirect(url_for('buy.buy_page'))
+
+    # Get the list of available stocks
+    stocks = Stock.query.all()
+
+    return render_template('buy.html', stocks=stocks)
