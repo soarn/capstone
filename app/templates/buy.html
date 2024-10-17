@@ -3,11 +3,29 @@
 {% block title %}Buy stocks - Stock Trading System{% endblock %}
 
 {% block content %}
-    <div class="container mt-5">
-        <h1>Buy Stocks</h1>
-        <p>Select stocks to buy or sell.</p>
-        <!-- Buy functionality will be expanded here -->
+<div class="container mt-5">
+    <h2>Buy Stocks</h2>
+
+    <form method="POST" action="{{ url_for('buy.buy_page') }}">
+        <div class="form-group">
+            <label for="stock_symbol">Select Stock</label>
+            <select name="stock_symbol" class="form-control" required>
+                {% for stock in stocks %}
+                    <option value="{{ stock.symbol }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" name="quantity" class="form-control" min="1" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Buy</button>
+    </form>
+
+    <div class="mt-4">
+        <p><strong>Your Balance:</strong> ${{ balance }}</p>
     </div>
-</body>
-</html>
+</div>
 {% endblock %}
