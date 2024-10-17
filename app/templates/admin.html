@@ -60,7 +60,8 @@
         <form method="POST" action="{{ url_for('admin.admin_update_stock') }}">
           <div class="form-group">
             <label for="stock_id">Select Stock</label>
-            <select name="stock_id" class="form-select" required>
+            <label for="stock_id">Select Stock</label>
+            <select id="stock_id" name="stock_id" class="form-select" required>
               {% for stock in all_stocks %}
               <option value="{{ stock.id }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
               {% endfor %}
@@ -69,7 +70,7 @@
 
           <div class="form-group mt-3">
             <label for="new_price">New Price</label>
-            <input type="number" step="0.01" name="new_price" class="form-control" required>
+            <input type="number" step="0.01" name="new_price" class="form-control" title="Enter the new price" placeholder="Enter new price">
           </div>
 
           <div class="form-check mt-3">
@@ -79,7 +80,7 @@
 
           <div class="form-group mt-3">
             <label for="fluctuation_multiplier">Fluctuation Multiplier</label>
-            <input type="number" step="0.01" name="fluctuation_multiplier" class="form-control" value="1.0" required>
+            <input type="number" step="0.01" name="fluctuation_multiplier" class="form-control" value="1.0" required title="Enter the fluctuation multiplier" placeholder="Enter fluctuation multiplier">
           </div>
 
           <button type="submit" class="btn btn-primary mt-4">Update Stock</button>
