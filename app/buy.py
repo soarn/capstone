@@ -61,7 +61,16 @@ def buy_stock(user_id, stock_symbol, quantity):
     # Commit all changes to the database
     db.session.commit()
 
-    return {"status": "success", "message": f"Successfully purchased {quantity} shares of {stock.company}."}
+    return {
+        "status": "success", 
+        "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
+        "details": {
+            "symbol": stock_symbol,
+            "company": stock.company,
+            "quantity": quantity,
+            "total_price": total_price
+        }
+    }
 
 # Fetch available stocks for the buy page
 def all_stocks():
