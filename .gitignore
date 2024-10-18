@@ -1,5 +1,10 @@
 # Custom
 .history/
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
+.hintrc
 
 # BEGIN NODE
 
@@ -302,7 +307,3 @@ cython_debug/
 #.idea/
 
 # END PYTHON
-.env*
-.flaskenv*
-!.env.project
-!.env.vault
