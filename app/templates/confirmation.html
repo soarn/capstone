@@ -7,7 +7,7 @@
     <h2>Order Confirmation</h2>
     <p><strong>Stock:</strong> {{ details.company }} ({{ details.symbol }})</p>
     <p><strong>Quantity:</strong> {{ details.quantity }}</p>
-    <p><strong>Total Cost:</strong> ${{ details.total_cost }}</p>
+    <p><strong>Total Cost:</strong> ${{ details.total_price }}</p>
 
     <a href="{{ url_for('web.buy_page') }}" class="btn btn-secondary mt-3">Buy More Stocks</a>
     <a href="/" class="btn btn-primary mt-3">Go to Dashboard</a>

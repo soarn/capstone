@@ -110,7 +110,7 @@ def buy_page():
         else:
             flash(result["message"], "success")
 
-        # Optionally, redirect to a confirmation page
+        # Redirect to a confirmation page
             return render_template('confirmation.html', details=result["details"])
 
         return redirect(url_for('web.buy_page'))
