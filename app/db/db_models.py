@@ -2,6 +2,7 @@ from db.db import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+import uuid
 
 # Create User Model (User)
 class User(UserMixin, db.Model):
@@ -59,6 +60,7 @@ class StockHistory(db.Model):
 
 class Transaction(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
+    order_number = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user      = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     stock     = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     type      = db.Column(db.String(10), nullable=False)

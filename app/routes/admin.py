@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, flash, url_for
 from flask_login import current_user, login_required
 from functools import wraps
-from db.db_models import Stock, User
+from db.db_models import Stock, User, Transaction
 from db.db import db
+import uuid
 
 def admin_required(f):
     @wraps(f)
@@ -54,3 +55,25 @@ def admin_update_stock():
     
     flash("Stock updated successfully!", "success")
     return redirect(url_for('admin.admin_page'))
+
+# Update transaction order numbers if they are null
+@admin.route("/null_transactions_update")
+@login_required
+@admin_required
+def populate_order_numbers():
+    # Fetch all transactions with null order numbers
+    transactions = Transaction.query.filter(Transaction.order_number.is_(None)).all()
+
+    if not transactions:
+        print("No transactions with null order numbers found.")
+        return "No transactions to update."
+
+    for transaction in transactions:
+        # Assign a unique UUID to the order_number field
+        transaction.order_number = str(uuid.uuid4())
+
+    # Commit the changes to the database
+    db.session.commit()
+    print(f"Updated {len(transactions)} transactions with new order numbers.")
+
+    return "Order numbers populated successfully."
