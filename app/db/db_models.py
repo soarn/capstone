@@ -51,9 +51,9 @@ class Stock(db.Model):
 
 # Create StockHistory Model (StockHistory)
 class StockHistory(db.Model):
-    # Use a composite primary key
-    stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), primary_key=True)
-    timestamp = db.Column(db.DateTime, nullable=False, primary_key=True, default=datetime.now())
+    id        = db.Column(db.Integer, primary_key=True)
+    stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now())
     price     = db.Column(db.Float, nullable=False)
     quantity  = db.Column(db.Float, nullable=False)
 
