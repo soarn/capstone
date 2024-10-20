@@ -9,3 +9,4 @@ pymysql
 flask_login
 requests
 cryptography
+flask-migrate

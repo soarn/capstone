@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from routes.profile import profile
 from routes.web import web
 from routes.api_v1 import api_v1
@@ -33,6 +34,9 @@ def create_app():
     # Initialize the database with the app
     # Calls db from db\db.py to avoid circular imports
     db.init_app(app)
+
+    # Initialize Migrate
+    migrate = Migrate(app, db)
 
     # Register blueprints
     app.register_blueprint(web)
