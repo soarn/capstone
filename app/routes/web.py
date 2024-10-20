@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages
+from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from db.db_models import Portfolio, Stock, User
 from db.db import db
@@ -105,13 +105,25 @@ def buy_page():
         # Call the buy_stock function to handle the purchase
         result = buy_stock(current_user.id, stock_symbol, quantity)
 
-        if result["status"] == "error":
-            flash(result["message"], "danger")
-        else:
+        # Return JSON response with transaction details for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            if result["status"] == "success":
+                return jsonify({
+                    "status": "success",
+                    "details": result["details"]
+                })
+            else:
+                return jsonify({
+                    "status": "error",
+                    "message": result["message"]
+                })
+        
+        # Redirect to the confirmation page for non-AJAX requests
+        if result["status"] == "success":
             flash(result["message"], "success")
-
-        # Redirect to a confirmation page
             return render_template('confirmation.html', details=result["details"])
+        else:
+            flash(result["message"], "danger")
 
         return redirect(url_for('web.buy_page'))
 
