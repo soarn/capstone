@@ -68,6 +68,57 @@
         // Show the modal
         var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
         confirmationModal.show();
+
+        // Trigger confetti animation
+            // Check if confetti is enabled for the user
+        {% if current_user.confetti_enabled %}
+            launchConfetti();
+        {% endif %}
+    }
+
+    // Function to launch confetti animation
+    function launchConfetti() {
+        // Basic confetti burst
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 } // Middle of the screen
+        });
+
+        // Add a series of confetti bursts for a better effect
+        setTimeout(function() {
+            confetti({
+                particleCount: 100,
+                spread: 120,
+                origin: { y: 0.6 }
+            });
+        }, 200);
+
+        setTimeout(function() {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }, 400);
+
+        const colors = ['#FFC107', '#FF5722', '#8BC34A', '#2196F3', '#9C27B0'];
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            colors: colors
+        });
+
+        // Additional bursts for a more exciting effect
+        setTimeout(function() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: colors
+            });
+        }, 200);
     }
 
     // Capture form submission to show the modal instead of redirecting
