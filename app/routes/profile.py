@@ -52,6 +52,19 @@ def update_theme_settings():
     flash("Theme updated successfully!", "success")
     return redirect(url_for('profile.profile_page'))
 
+# Route to update confetti settings
+@profile.route('/profile/update-confetti', methods=['POST'])
+@login_required
+def update_confetti():
+    confetti_enabled = 'confetti_enabled' in request.form
+
+    # Update user's confetti settings in the database
+    current_user.confetti_enabled = confetti_enabled
+    db.session.commit()
+
+    flash("Confetti settings updated successfully!", "success")
+    return redirect(url_for('profile.profile_page'))
+
 # Route to update privacy settings
 @profile.route('/profile/update-privacy', methods=['POST'])
 @login_required
