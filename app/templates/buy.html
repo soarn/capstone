@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h2>Buy Stocks</h2>
 
-    <form method="POST" action="{{ url_for('web.buy_page') }}">
+    <form id="buy-form" method="POST" action="{{ url_for('web.buy_page') }}">
         <div class="form-group">
             <label for="stock_symbol">Select Stock</label>
             <select name="stock_symbol" class="form-control" required title="Select Stock">
@@ -20,16 +20,78 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mt-3">
             <label for="quantity">Quantity</label>
             <input type="number" name="quantity" class="form-control" min="1" required title="Enter quantity" placeholder="Enter quantity">
         </div>
 
-        <button type="submit" class="btn btn-primary">Buy</button>
+        <button type="submit" class="btn btn-primary mt-4">Buy</button>
     </form>
 
     <div class="mt-4">
         <p><strong>Your Balance:</strong> ${{ balance }}</p>
     </div>
 </div>
+    <!-- Order Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Order received:</strong> <span id="order-number"></span></p>
+                <p><strong>Symbol:</strong> <span id="order-symbol"></span></p>
+                <p><strong>Action:</strong> Buy</p>
+                <p><strong>Quantity:</strong> <span id="order-quantity"></span> @ <span id="order-price"></span> each</p>
+                <p><strong>Total:</strong> $<span id="order-total"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('web.portfolio') }}" class="btn btn-primary">Go to Portfolio</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to show the confirmation modal
+    function showConfirmationModal(details) {
+        // Populate the modal with transaction details
+        document.getElementById('order-number').textContent = details.order_number;
+        document.getElementById('order-symbol').textContent = details.symbol;
+        document.getElementById('order-quantity').textContent = details.quantity;
+        document.getElementById('order-price').textContent = details.price;
+        document.getElementById('order-total').textContent = details.total_price;
+
+        // Show the modal
+        var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        confirmationModal.show();
+    }
+
+    // Capture form submission to show the modal instead of redirecting
+    document.getElementById('buy-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+
+        // Send the form data using fetch API
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showConfirmationModal(data.details);
+            } else {
+                alert(data.message);  // Handle error messages
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 {% endblock %}

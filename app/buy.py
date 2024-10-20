@@ -1,6 +1,7 @@
 from datetime import datetime
 from db.db_models import Stock, User, Portfolio, Transaction
 from db.db import db
+import uuid
 
 def buy_stock(user_id, stock_symbol, quantity):
     # Fetch the user from the database
@@ -47,6 +48,7 @@ def buy_stock(user_id, stock_symbol, quantity):
         db.session.add(new_portfolio_item)
 
     # Create a new transaction record for the purchase
+    order_number = str(uuid.uuid4())
     new_transaction = Transaction(
         user=user.id,
         stock=stock.id,
@@ -54,6 +56,7 @@ def buy_stock(user_id, stock_symbol, quantity):
         quantity=quantity,
         price=stock.price,
         amount=total_price, 
+        order_number=order_number,
         timestamp=datetime.now()
     )
     db.session.add(new_transaction)
@@ -65,9 +68,11 @@ def buy_stock(user_id, stock_symbol, quantity):
         "status": "success", 
         "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
         "details": {
+            "order_number": order_number,
             "symbol": stock_symbol,
             "company": stock.company,
             "quantity": quantity,
+            "price": stock.price,
             "total_price": total_price
         }
     }
