@@ -38,7 +38,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <a href="{{ url_for('web.buy_page') }}" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></a>
             </div>
             <div class="modal-body">
                 <p><strong>Order received:</strong> <span id="order-number"></span></p>
@@ -48,7 +48,7 @@
                 <p><strong>Total:</strong> $<span id="order-total"></span></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('web.buy_page') }}" class="btn btn-secondary" data-bs-dismiss="modal">Close</a>
                 <a href="{{ url_for('web.portfolio') }}" class="btn btn-primary">Go to Portfolio</a>
             </div>
         </div>
