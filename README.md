@@ -86,11 +86,14 @@ To better understand how to use this repository in your environment, it is sugge
 
 ## Technologies Used
 
+- VS Code
+- dotenv Vault
 - Python
 - Flask
 - MySQL
 - Jinja2
 - Bootstrap
+  - Bootswatch Theming
 - HTML
 - CSS
 - TODO: #2 Finish Technologies Section in README
