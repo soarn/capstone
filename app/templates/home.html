@@ -40,42 +40,5 @@
       <a href="{{ url_for('web.sell') }}" class="btn btn-danger btn-large">Sell</a>
     </div>
   </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- JavaScript for Market Price Fluctuation
- <script>
-  // Initialize stock prices from server-side rendered data
-  const stockPrices = {
-    {% for stock in all_stocks %}
-    "{{ stock.symbol }}": {{ stock.price }},
-    {% endfor %}
-  };
-
-  // Function to update the stock prices randomly
-  function updateStockPrices() {
-    for (let stock in stockPrices) {
-      // Randomly increase or decrease stock price by 0.5% to 1.5%
-      let fluctuation = Math.random() * 0.02 - 0.01; // +/- 1% change
-      stockPrices[stock] = (stockPrices[stock] * (1 + fluctuation)).toFixed(2);
-
-      // Update price in Popular Stocks section
-      const popularPriceElement = document.getElementById(`popular-${stock}-price`);
-      if (popularPriceElement) {
-        popularPriceElement.textContent = `$${stockPrices[stock]}`;
-      }
-
-      // Update price in All Stocks section
-      const allPriceElement = document.getElementById(`all-${stock}-price`);
-      if (allPriceElement) {
-        allPriceElement.textContent = `$${stockPrices[stock]}`;
-      }
-    }
-  }
-
-  // Update stock prices every 3 seconds
-  setInterval(updateStockPrices, 3000);
-</script> -->
 </body>
 {% endblock %}
