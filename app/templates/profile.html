@@ -48,7 +48,7 @@ endblock %} {% block content %}
       <!-- Account Settings Section -->
       <section id="account-settings">
         <h2>Account Settings</h2>
-        <form method="POST" action="{{ url_for('profile.profile_page') }}">
+        <form method="POST" action="{{ url_for('profile.update_account_settings') }}">
           <div class="form-group mb-3">
             <label for="username">Username</label>
             <input
