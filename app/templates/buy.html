@@ -5,14 +5,14 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Buy Stocks</h2>
-
+<!-- # TODO: #15 IMPLEMENT ORDER CONFIRMATION -->
     <form id="buy-form" method="POST" action="{{ url_for('web.buy_page') }}">
         <div class="form-group">
             <label for="stock_symbol">Select Stock</label>
             <select name="stock_symbol" class="form-control" required title="Select Stock">
             {% if stocks %}
                 {% for stock in stocks %}
-                    <option value="{{ stock.symbol }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
+                    <option value="{{ stock.symbol }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }} - {{ stock.quantity }} shares available</option>
                 {% endfor %}
             {% else %}
                 <option disabled>No stocks available</option>

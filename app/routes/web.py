@@ -129,6 +129,8 @@ def buy_page():
 
     # Get the list of available stocks
     stocks = Stock.query.all()
+    # Sort the stocks by company name
+    stocks.sort(key=lambda x: x.company)
 
     # Get the user's balance
     balance = current_user.balance
