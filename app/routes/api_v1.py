@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify
-from db.db_models import Stock, db
+from flask import Blueprint, jsonify, request
+from db.db_models import db, Stock, StockHistory
 from flasgger import swag_from
 
 # Create a blueprint for API version 1
@@ -125,3 +125,31 @@ def add_stock(symbol, company, price, quantity):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+# Route to get stock history
+@api_v1.route('/stock-history/<int:stock_id>', methods=['GET'])
+def get_stock_history(stock_id):
+    """
+    Get historical data for a specific stock
+    ---
+    tags:
+      - Stocks
+    parameters:
+      - in: path
+        name: stock_id
+        schema:
+          type: integer
+        required: true
+        description: ID of the stock
+    responses:
+      200:
+        description: Historical data for the stock
+    """
+    history = StockHistory.query.filter_by(stock_id=stock_id).order_by(StockHistory.timestamp).all()
+    history_data = [
+        # {"timestamp": h.timestamp, "price": h.price, "quantity": h.quantity}
+        {"timestamp": h.timestamp.isoformat(), "price": h.price, "quantity": h.quantity}
+        for h in history
+    ]
+    return jsonify(history_data)
+    
