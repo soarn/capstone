@@ -3,104 +3,248 @@
 {% block title %}Portfolio - Stock Trading System{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Your Stock Portfolio</h1>
+<h1>Your Stock Portfolio</h1>
 
-    <!-- Stock List -->
-    <div class="row">
-        <div class="col-md-4">
-            <h4>Owned Stocks List</h4>
-            <ul class="list-group" id="stock-list">
-                {% for stock in portfolio %}
-                <li class="list-group-item d-flex justify-content-between align-items-center stock-item"
-                    data-stock-id="{{ stock.id }}"
-                    data-stock-symbol="{{ stock.symbol }}">
-                    {{ stock.symbol }} - {{ stock.name }}
-                    <span class="badge bg-primary rounded-pill">{{ stock.shares }}</span>
-                    <!-- <span class="badge bg-primary badge-pill">{{ stock.shares }}</span> Rounded icons instead-->
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+<div class="row">
+    <!-- Buy/Sell Toggle -->
+    <div class="col-12 mb-3 d-flex justify-content-end">
+        <button id="buy-mode" class="btn btn-success me-2">Buy</button>
+        <button id="sell-mode" class="btn btn-danger">Sell</button>
+    </div>
 
-        <!-- Chart Section -->
-        <div class="col-md-8">
-            <h4>Stock History</h4>
-            <!-- Add a wrapper to control the canvas size -->
-            <div style="position: relative; height: 400px; width: 100%;">
-                <canvas id="stockChart"></canvas>
-            </div>
-        </div>
-    </div>        
+    <!-- Owned/All Stocks List -->
+    <div class="col-md-4">
+        <h4 id="stock-list-title">Owned Stocks</h4>
+        <ul id="stock-list" class="list-group">
+            <!-- Stock items will be dynamically injected here -->
+        </ul>
+    </div>
+
+    <!-- Stock History Chart -->
+    <div class="col-md-8">
+        <h4>Stock History</h4>
+        <canvas id="chart-canvas" style="height: 400px; width: 100%;"></canvas>
+    </div>
 </div>
 
+<!-- Buy/Sell Modal -->
+<div class="modal fade" id="buySellModal" tabindex="-1" aria-labelledby="buySellModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buySellModalLabel">Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-form">
+                    <div class="mb-3">
+                        <label for="transaction-quantity" class="form-label">Quantity</label>
+                        <input type="number" class="form-control" id="transaction-quantity" name="quantity" min="1" required>
+                    </div>
+                    <input type="hidden" id="transaction-stock-id" name="stock_id">
+                    <input type="hidden" id="transaction-stock-symbol" name="stock_symbol">
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- Chart.js Library -->
+<!-- Transaction Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Order received:</strong> <span id="order-number"></span></p>
+                <p><strong>Symbol:</strong> <span id="order-symbol"></span></p>
+                <p><strong>Action:</strong> <span id="order-action"></span></p>
+                <p><strong>Quantity:</strong> <span id="order-quantity"></span> @ <span id="order-price"></span> each</p>
+                <p><strong>Total:</strong> $<span id="order-total"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="/" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+    .list-group-item:focus {
+        background-color: #e0e0e0;
+        outline: none;
+    }
+    .badge {
+        margin-right: 10px;
+    }
+    .buy-sell-btn {
+        margin-left: 10px;
+    }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize variables
-        let stockChart;
-        const stockList = document.querySelectorAll(".stock-item");
+document.addEventListener("DOMContentLoaded", function() {
+    const portfolioStocks = {{ portfolio|tojson }};
+    const allStocks = {{ all_stocks|tojson }};
+    const stockList = document.getElementById("stock-list");
+    const buyModeBtn = document.getElementById("buy-mode");
+    const sellModeBtn = document.getElementById("sell-mode");
+    const stockListTitle = document.getElementById("stock-list-title");
+    const buySellModal = new bootstrap.Modal(document.getElementById("buySellModal"));
+    const confirmationModal = new bootstrap.Modal(document.getElementById("confirmationModal"));
+    let isBuyMode = false;
 
-        // Create or update the chart
-        function updateChart(data, symbol) {
-            const ctx = document.getElementById('stockChart').getContext('2d');
-            const labels = data.map(item => new Date(item.timestamp).toLocaleString());
-            const prices = data.map(item => item.price);
+    // Extract colors from CSS variables
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+    const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
+    const successColor = getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim();
+    const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger-color').trim();
+    const infoColor = getComputedStyle(document.documentElement).getPropertyValue('--info-color').trim();
 
-            if (stockChart) {
-                stockChart.destroy();
-            }
-
-            stockChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: `Price of ${symbol}`,
-                        data: prices,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false,
-                    }]
+    // Initialize the chart
+    const ctx = document.getElementById('chart-canvas').getContext('2d');
+    let stockChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Stock Price',
+                data: [],
+                borderColor: primaryColor,
+                backgroundColor: secondaryColor + '33', // Lighter shade of secondary color
+                borderWidth: 2,
+                fill: false,
+                tension: 0.1 // Adds a slight curve to the line
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { 
+                    title: { display: true, text: 'Time', color: secondaryColor }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { title: { display: true, text: 'Timestamp' }},
-                        y: { title: { display: true, text: 'Price' }}
-                    }
+                y: { 
+                    title: { display: true, text: 'Price ($)', color: secondaryColor },
+                    ticks: { color: primaryColor }
                 }
-            });
-        }
-
-        // Fetch historical data for a stock
-        function fetchStockHistory(stockId, symbol) {
-            fetch(`/api/v1/stock-history/${stockId}`)
-                .then(response => response.json())
-                .then(data => updateChart(data, symbol))
-                .catch(error => console.error('Error fetching stock history:', error));
-        }
-
-        // Handle stock list click events
-        stockList.forEach(item => {
-            item.addEventListener('click', function() {
-                const stockId = this.dataset.stockId;
-                const symbol = this.dataset.stockSymbol;
-                fetchStockHistory(stockId, symbol);
-            });
-        });
-
-        // Auto-select the first stock to display its history
-        if (stockList.length > 0) {
-            const firstStock = stockList[0];
-            const stockId = firstStock.dataset.stockId;
-            const symbol = firstStock.dataset.stockSymbol;
-            fetchStockHistory(stockId, symbol);
+            },
+            plugins: {
+                legend: { labels: { color: secondaryColor } },
+                tooltip: { 
+                    backgroundColor: primaryColor,
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            }
         }
     });
+
+
+    populateStockList(portfolioStocks, false);
+
+    buyModeBtn.addEventListener("click", function() {
+        isBuyMode = true;
+        stockListTitle.textContent = "All Stocks";
+        populateStockList(allStocks, true);
+    });
+
+    sellModeBtn.addEventListener("click", function() {
+        isBuyMode = false;
+        stockListTitle.textContent = "Owned Stocks";
+        populateStockList(portfolioStocks, false);
+    });
+
+    function populateStockList(stocks, isBuyMode) {
+        stockList.innerHTML = "";
+        stocks.forEach(stock => {
+            addStockItem(stock, isBuyMode);
+        });
+    }
+
+    function addStockItem(stock, isBuyMode) {
+        const listItem = document.createElement("li");
+        listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "stock-item");
+        listItem.dataset.stockId = stock.id;
+        listItem.dataset.stockSymbol = stock.symbol;
+        listItem.setAttribute("tabindex", "0");
+
+        listItem.innerHTML = `
+            ${stock.symbol} - ${stock.company || stock.name}
+            <span class="badge bg-primary rounded-pill">${stock.quantity || stock.shares}</span>
+            <button class="btn btn-sm btn-outline-secondary buy-sell-btn">${isBuyMode ? "Buy" : "Sell"}</button>
+        `;
+
+        listItem.querySelector(".buy-sell-btn").addEventListener("click", function(e) {
+            e.stopPropagation();
+            openTransactionModal(stock.id, stock.symbol);
+        });
+
+        listItem.addEventListener("click", function() {
+            if (stock.history) {
+                updateChart(stock.history);
+            }
+        });
+
+        stockList.appendChild(listItem);
+    }
+
+    function updateChart(history) {
+        const labels = history.map(entry => entry.timestamp);
+        const prices = history.map(entry => entry.price);
+
+        stockChart.data.labels = labels;
+        stockChart.data.datasets[0].data = prices;
+        stockChart.update();
+    }
+
+    function openTransactionModal(stockId, stockSymbol) {
+        document.getElementById("transaction-stock-id").value = stockId;
+        document.getElementById("transaction-stock-symbol").value = stockSymbol;
+        buySellModal.show();
+    }
+
+    document.getElementById("transaction-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const actionUrl = isBuyMode ? "/buy" : "/sell";
+
+        if (confirm("Are you sure you want to proceed with this transaction?")) {
+            fetch(actionUrl, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    showConfirmationModal(data.details);
+                } else {
+                    alert(data.message);
+                }
+                buySellModal.hide();
+                document.getElementById("transaction-quantity").value = ""; // Clear input field
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+
+    function showConfirmationModal(details) {
+        document.getElementById("order-number").textContent = details.order_number;
+        document.getElementById("order-symbol").textContent = details.symbol;
+        document.getElementById("order-action").textContent = isBuyMode ? "Buy" : "Sell";
+        document.getElementById("order-quantity").textContent = details.quantity;
+        document.getElementById("order-price").textContent = details.price;
+        document.getElementById("order-total").textContent = details.total_price;
+        confirmationModal.show();
+    }
+});
 </script>
 {% endblock %}
