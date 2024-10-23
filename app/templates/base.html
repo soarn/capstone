@@ -18,6 +18,36 @@
     <link
       rel="shortcut icon"
       href="{{ url_for('static', filename='logo.png') }}" />
+
+    <!-- Use theme colors across the site -->
+      <style>
+        /* Default Bootstrap primary color */
+        :root {
+          --primary-color: #007bff;  
+          --secondary-color: #6c757d;
+          --success-color: #28a745;
+          --danger-color: #dc3545;
+          --info-color: #17a2b8;
+        }
+      </style>
+    
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          // Extract primary color from the theme's Bootstrap variables
+          const primaryColor = getComputedStyle(document.body).getPropertyValue('--bs-primary') || '#007bff';
+          const secondaryColor = getComputedStyle(document.body).getPropertyValue('--bs-secondary') || '#6c757d';
+          const successColor = getComputedStyle(document.body).getPropertyValue('--bs-success') || '#28a745';
+          const dangerColor = getComputedStyle(document.body).getPropertyValue('--bs-danger') || '#dc3545';
+          const infoColor = getComputedStyle(document.body).getPropertyValue('--bs-info') || '#17a2b8';
+    
+          // Set CSS variables for use in JS
+          document.documentElement.style.setProperty('--primary-color', primaryColor);
+          document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+          document.documentElement.style.setProperty('--success-color', successColor);
+          document.documentElement.style.setProperty('--danger-color', dangerColor);
+          document.documentElement.style.setProperty('--info-color', infoColor);
+        });
+      </script>
   </head>
   <body>
     <!-- Flash Messages -->
