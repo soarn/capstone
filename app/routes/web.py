@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
-from db.db_models import Portfolio, Stock, User
+from db.db_models import Portfolio, Stock, User, StockHistory
 from db.db import db
 from routes.api_v1 import get_stocks
 from buy import buy_stock
@@ -150,16 +150,39 @@ def portfolio():
     portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
 
     # Render the portfolio template with the portfolio data
-    portfolio = []
-    for entry in portfolio_data:
-        portfolio_entry = {
-            'id': entry.Stock.id,
-            'symbol': entry.Stock.symbol,
-            'name': entry.Stock.company,
-            'shares': entry.Portfolio.quantity,
-            'price': entry.Portfolio.price,
-            'total_value': entry.Portfolio.quantity * entry.Stock.price
+    portfolio = [
+        {
+            "id": entry.Stock.id,
+            "symbol": entry.Stock.symbol,
+            "name": entry.Stock.company,
+            "shares": entry.Portfolio.quantity,
+            "history": [
+                {
+                    "timestamp": history.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                    "price": history.price
+                }
+                for history in StockHistory.query.filter_by(stock_id=entry.Stock.id).order_by(StockHistory.timestamp).all()
+            ]            
         }
-        portfolio.append(portfolio_entry)
+        for entry in portfolio_data
+    ]
 
-    return render_template('portfolio.html', portfolio=portfolio)
+    # Query all stocks for buying
+    all_stocks = [
+        {
+            "id": stock.id,
+            "symbol": stock.symbol,
+            "company": stock.company,
+            "quantity": stock.quantity,
+            "history": [
+                {
+                    "timestamp": history.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+                    "price": history.price
+                }
+                for history in StockHistory.query.filter_by(stock_id=stock.id).order_by(StockHistory.timestamp).all()
+            ]
+        }
+        for stock in Stock.query.all()
+    ]
+
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks)
