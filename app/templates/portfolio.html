@@ -9,7 +9,7 @@
     <!-- Stock List -->
     <div class="row">
         <div class="col-md-4">
-            <h4>Owned Stocks</h4>
+            <h4>Owned Stocks List</h4>
             <ul class="list-group" id="stock-list">
                 {% for stock in portfolio %}
                 <li class="list-group-item d-flex justify-content-between align-items-center stock-item"
@@ -34,55 +34,6 @@
     </div>        
 </div>
 
-<!-- Buy Modal -->
-<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ url_for('web.buy_page') }}">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="buyModalLabel">Buy Stocks</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="stock_id" id="buy-stock-id">
-                    <div class="form-group">
-                        <label for="buy-quantity">Quantity</label>
-                        <input type="number" name="quantity" id="buy-quantity" class="form-control" min="1" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Buy</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Sell Modal -->
-<div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST" action="{{ url_for('web.sell_page') }}">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="sellModalLabel">Sell Stocks</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="stock_id" id="sell-stock-id">
-                    <div class="form-group">
-                        <label for="sell-quantity">Quantity</label>
-                        <input type="number" name="quantity" id="sell-quantity" class="form-control" min="1" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Sell</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -141,20 +92,6 @@
                 const symbol = this.dataset.stockSymbol;
                 fetchStockHistory(stockId, symbol);
             });
-        });
-
-        // Handle Buy Modal
-        document.getElementById('buyModal').addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const stockId = button.getAttribute('data-stock-id');
-            document.getElementById('buy-stock-id').value = stockId;
-        });
-
-        // Handle Sell Modal
-        document.getElementById('sellModal').addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const stockId = button.getAttribute('data-stock-id');
-            document.getElementById('sell-stock-id').value = stockId;
         });
 
         // Auto-select the first stock to display its history
