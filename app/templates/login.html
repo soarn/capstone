@@ -8,21 +8,22 @@
     <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
       <div class="card-body">
         <h2 class="card-title text-center mb-4">Login</h2>
-        <form method="POST">
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
-            <label for="username">Username</label>
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="form-group">
+              {{ form.username(class="form-control", placeholder="Username", required=True) }}
+              {{ form.username.label }}
           </div>
-          <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-            <label for="password">Password</label>
+          <div class="form-group">
+              {{ form.password(class="form-control", placeholder="Password", required=True) }}
+              {{ form.password.label }}
           </div>
-          <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-            <label class="form-check-label" for="remember">Remember Me</label>
+          <div class="form-check">
+              {{ form.remember(class="form-check-input") }}
+              {{ form.remember.label }}
           </div>
-          <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
+          {{ form.submit(class="btn btn-primary w-100") }}
+        </form>      
         <div class="mt-4 text-center">
           <a href="{{ url_for('web.register') }}">Don't have an account?</a>
         </div>

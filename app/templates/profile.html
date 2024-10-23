@@ -48,142 +48,58 @@ endblock %} {% block content %}
       <!-- Account Settings Section -->
       <section id="account-settings">
         <h2>Account Settings</h2>
-        <form method="POST" action="{{ url_for('profile.update_account_settings') }}">
+        <form method="POST" novalidate>
+          {{ form.hidden_tag() }}
           <div class="form-group mb-3">
-            <label for="username">Username</label>
-            <input
-              type="text"
-              class="form-control"
-              id="username"
-              name="username"
-              value="{{ current_user.username }}"
-              required />
+              {{ form.username.label }}
+              {{ form.username(class="form-control", required=True) }}
           </div>
           <div class="form-group mb-3">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              class="form-control"
-              id="email"
-              name="email"
-              value="{{ current_user.email }}"
-              required />
+              {{ form.email.label }}
+              {{ form.email(class="form-control", required=True) }}
           </div>
           <div class="form-group mb-3">
-            <label for="password">Change Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              name="password"
-              placeholder="Leave blank to keep current password" />
+              {{ form.password.label }}
+              {{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}
           </div>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
-      </section>
 
-      <hr />
+          <hr />
+          <h2>Theme Settings</h2>
 
-      <!-- Theming Settings Section -->
-      <section id="theme-settings">
-        <h2>Theme Settings</h2>
-        <form method="POST" action="{{ url_for('profile.update_theme_settings') }}">
-          <div class="form-group">
-            <label for="theme">Select Theme</label>
-            <select class="form-select" id="theme" name="theme">
-              {% if themes %}
-                {% for theme in themes %}
-                <option value="{{ theme.name }}" {% if current_user.theme == theme.name %} selected {% endif %}>
-                  {{ theme.name }} - {{ theme.description }}
-                </option>
-                {% endfor %}
-              {% else %}
+          <div class="form-group mb-3">
+              {{ form.theme.label }}
+              {{ form.theme(class="form-select") }}
+          </div>
+          <select class="form-select" id="theme" name="theme">
+            {% for theme in themes %}
+            <option value="{{ theme['name'] }}" {% if current_user.theme == theme['name'] %} selected {% endif %}>
+              {{ theme['name'] }} - {{ theme['description'] }}
+              </option>
+            {% else %}
               <option value="default">No themes available</option>
-              {% endif %}
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary mt-3">Save Theme</button>
-        </form>
+            {% endfor %}
+          </select>
 
-        <!-- Confetti Toggle -->
-        <form method="POST" action="{{ url_for('profile.update_confetti') }}">
-          <div class="form-check form-switch mt-3">
-              <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  id="confettiToggle" 
-                  name="confetti_enabled" 
-                  {% if user.confetti_enabled %} checked {% endif %}>
-              <label class="form-check-label" for="confettiToggle">Enable Confetti</label>
+          <hr />
+          <h2>Privacy Settings</h2>
+
+          <div class="form-check mb-3">
+              {{ form.notifications(class="form-check-input") }}
+              {{ form.notifications.label }}
           </div>
-          <button type="submit" class="btn btn-primary mt-3">Save Settings</button>
+          <div class="form-check mb-3">
+              {{ form.data_sharing(class="form-check-input") }}
+              {{ form.data_sharing.label }}
+          </div>
+
+          <hr />
+          <h2>Accessability Settings</h2>
+
+          <div class="form-check mb-3">
+              {{ form.confetti_enabled(class="form-check-input") }}
+              {{ form.confetti_enabled.label }}
+          </div>
+          {{ form.submit(class="btn btn-primary mt-3") }}
       </form>
       </section>
-
-      <hr />
-
-      <!-- Privacy Settings Section -->
-      <section id="privacy-settings">
-        <h2>Privacy Settings</h2>
-        <form method="POST" action="{{ url_for('profile.update_privacy_settings') }}">
-          <div class="form-group">
-            <div class="form-check">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="dataSharing"
-                name="data_sharing"
-                {%
-                if
-                current_user.data_sharing
-                %}
-                checked
-                {%
-                endif
-                %} />
-              <label class="form-check-label" for="dataSharing"
-                >Allow data sharing for analytics</label
-              >
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary mt-3">
-            Save Privacy Settings
-          </button>
-        </form>
-      </section>
-
-      <hr />
-
-      <!-- Notification Settings Section -->
-      <section id="notifications">
-        <h2>Notification Settings</h2>
-        <form method="POST" action="{{ url_for('profile.update_notification_settings') }}">
-          <div class="form-group">
-            <div class="form-check">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                id="emailNotifications"
-                name="email_notifications"
-                {%
-                if
-                current_user.notifications
-                %}
-                checked
-                {%
-                endif
-                %} />
-              <label class="form-check-label" for="emailNotifications"
-                >Receive email notifications</label
-              >
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary mt-3">
-            Save Notification Settings
-          </button>
-        </form>
-      </section>
-    </main>
-  </div>
-</div>
 {% endblock %}

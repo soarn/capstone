@@ -57,34 +57,26 @@
       <!-- Stock Management Section -->
       <section id="stock-management">
         <h2>Stock Management</h2>
-        <form method="POST" action="{{ url_for('admin.admin_update_stock') }}">
+        <form method="POST" action="{{ url_for('admin.admin_update_stock') }}" novalidate>
+          {{ form.hidden_tag() }}
           <div class="form-group">
-            <label for="stock_id">Select Stock</label>
-            <label for="stock_id">Select Stock</label>
-            <select id="stock_id" name="stock_id" class="form-select" required>
-              {% for stock in all_stocks %}
-              <option value="{{ stock.id }}">{{ stock.company }} ({{ stock.symbol }}) - ${{ stock.price }}</option>
-              {% endfor %}
-            </select>
+              {{ form.stock_id(class="form-select", required=True) }}
+              {{ form.stock_id.label }}
           </div>
-
           <div class="form-group mt-3">
-            <label for="new_price">New Price</label>
-            <input type="number" step="0.01" name="new_price" class="form-control" title="Enter the new price" placeholder="Enter new price">
+              {{ form.new_price(class="form-control", required=True, step="0.01", placeholder="Enter new price") }}
+              {{ form.new_price.label }}
           </div>
-
           <div class="form-check mt-3">
-            <input class="form-check-input" type="checkbox" name="is_manual" id="is_manual">
-            <label class="form-check-label" for="is_manual">Set Price Manually</label>
+              {{ form.is_manual(class="form-check-input") }}
+              {{ form.is_manual.label }}
           </div>
-
           <div class="form-group mt-3">
-            <label for="fluctuation_multiplier">Fluctuation Multiplier</label>
-            <input type="number" step="0.01" name="fluctuation_multiplier" class="form-control" value="1.0" required title="Enter the fluctuation multiplier" placeholder="Enter fluctuation multiplier">
+              {{ form.fluctuation_multiplier(class="form-control", required=True, step="0.01", placeholder="Enter fluctuation multiplier") }}
+              {{ form.fluctuation_multiplier.label }}
           </div>
-
-          <button type="submit" class="btn btn-primary mt-4">Update Stock</button>
-        </form>
+          {{ form.submit(class="btn btn-primary mt-4") }}
+         </form>      
       </section>
     </main>
   </div>

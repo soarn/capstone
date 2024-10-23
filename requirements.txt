@@ -10,3 +10,5 @@ flask_login
 requests
 cryptography
 flask-migrate
+flask-wtf
+email-validator
