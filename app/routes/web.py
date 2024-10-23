@@ -5,6 +5,7 @@ from db.db_models import Portfolio, Stock, User, StockHistory
 from db.db import db
 from routes.api_v1 import get_stocks
 from buy import buy_stock
+from forms import LoginForm, RegisterForm, TransactionForm
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -31,10 +32,11 @@ def sell_page():
 # LOGIN ROUTE
 @web.route("/login", methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        remember = request.form.get('remember') == 'on'
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        remember = form.remember.data
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
@@ -61,7 +63,7 @@ def login():
             return redirect(url_for('profile.profile_page'))
         else:
             flash("Invalid username or password. Please try again.", "danger")
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 # LOGOUT ROUTE
 @web.route("/logout")
@@ -75,10 +77,11 @@ def logout():
 # REGISTER ROUTE
 @web.route("/register", methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
+    form = RegisterForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
 
         # Check if the username is already taken
         existing_user = User.query.filter_by(username=username).first()
@@ -90,55 +93,35 @@ def register():
             new_user.set_password(password) # Hash the password
             db.session.add(new_user)
             db.session.commit()
-
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for('web.login'))
-    return render_template('register.html')
+
+    return render_template('register.html', form=form)
 
 # BUY ROUTE
-@web.route("/buy", methods=["GET", "POST"])
+@web.route("/buy", methods=["POST"])
 @login_required
 def buy_page():
-    if request.method == "POST":
-        # Get the stock symbol and quantity from the form
-        stock_symbol = request.form.get("stock_symbol")
-        quantity = int(request.form.get("quantity"))
 
-        # Call the buy_stock function to handle the purchase
-        result = buy_stock(current_user.id, stock_symbol, quantity)
+    form = TransactionForm()
 
-        # Return JSON response with transaction details for AJAX requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            if result["status"] == "success":
-                return jsonify({
-                    "status": "success",
-                    "details": result["details"]
-                })
-            else:
-                return jsonify({
-                    "status": "error",
-                    "message": result["message"]
-                })
+    if form.validate_on_submit():
+        stock_id = form.stock_id.data
+        quantity = form.quantity.data
+        stock = Stock.query.get(stock_id)
+
+        if not stock:
+            flash("Stock not found.", "danger")
+            return redirect(url_for('web.portfolio'))
         
-        # Redirect to the confirmation page for non-AJAX requests
+        result = buy_stock(current_user.id, stock.symbol, quantity)
+
         if result["status"] == "success":
-            flash(result["message"], "success")
-            return render_template('confirmation.html', details=result["details"])
+            return jsonify({"status": "success", "details": result["details"]})
         else:
-            flash(result["message"], "danger")
-
-        return redirect(url_for('web.buy_page'))
-
-    # Get the list of available stocks
-    stocks = Stock.query.all()
-    # Sort the stocks by company name
-    stocks.sort(key=lambda x: x.company)
-
-    # Get the user's balance
-    balance = current_user.balance
-
-    # Return the buy page with stocks and user balance
-    return render_template('buy.html', stocks=stocks, balance=balance)
+            return jsonify({"status": "error", "message": result["message"]})
+    
+    return jsonify({"status": "error", "message": "Invalid form data."})
 
 # PORTFOLIO ROUTE
 @web.route("/portfolio")
@@ -185,4 +168,6 @@ def portfolio():
         for stock in Stock.query.all()
     ]
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks)
+    form = TransactionForm()
+
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form)

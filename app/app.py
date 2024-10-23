@@ -15,6 +15,7 @@ from db.db_models import User
 from utils import fetch_bootswatch_themes
 from pricing import start_price_updater, start_history_recorder
 from cleanup import start_cleanup_task
+from flask_wtf.csrf import CSRFProtect
 
 def create_app():
     # Initialize Flask App
@@ -31,6 +32,9 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
     app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=7)  # If using remember me feature
 
+    # CSRF Protection
+    csrf = CSRFProtect(app)
+    
     # Initialize the database with the app
     # Calls db from db\db.py to avoid circular imports
     db.init_app(app)

@@ -3,90 +3,38 @@ from werkzeug.security import generate_password_hash
 from db.db_models import User, db
 from flask_login import login_required, current_user
 from utils import fetch_bootswatch_themes
+from forms import UpdateAccountForm, UpdateProfileForm
 
 # Create a blueprint for profile-related routes
 profile = Blueprint('profile', __name__)
 
 # Route to display the profile page
-@profile.route('/profile')
+@profile.route('/profile', methods=['GET', 'POST'])
 @login_required  # Ensure user is logged in
 def profile_page():
-    themes = fetch_bootswatch_themes() # Fetch Bootswatch themes
+    # Fetch Bootswatch themes
+    themes = fetch_bootswatch_themes()
 
-    # Ensure that themes is always a valid list
-    if not themes:
+    # Ensure 'themes' is a list of dictionaries with 'name' keys
+    if not themes or not all(isinstance(theme, dict) and 'name' in theme for theme in  themes):
         flash("Unable to fetch Bootswatch themes. Please try again later.", "danger")
+        themes = [{'name': 'default'}]
+
+    form = UpdateProfileForm(obj=current_user)
+    form.theme.choices = [(theme['name'], theme['name']) for theme in themes]
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        if form.password.data:
+            current_user.set_password(form.password.data)
+        current_user.theme = form.theme.data
+        current_user.notifications = form.notifications.data
+        current_user.data_sharing = form.data_sharing.data
+        current_user.confetti_enabled = form.confetti_enabled.data
+
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('profile.profile_page'))
     
-    return render_template('profile.html', user=current_user, themes=themes)
-
-# Route to update account settings
-@profile.route('/profile/update-account', methods=['POST'])
-@login_required
-def update_account_settings():
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-
-    # Update the current user's username and email
-    current_user.username = username
-    current_user.email = email
-
-    # If the user provided a new password, hash it and update the user's password
-    if password:
-        current_user.password_hash = generate_password_hash(password)
-
-    db.session.commit()
-    flash("Account settings updated successfully!", "success")
-    return redirect(url_for('profile.profile_page'))
-
-# Route to update theme settings
-@profile.route('/profile/update-theme', methods=['POST'])
-@login_required
-def update_theme_settings():
-    theme_name = request.form['theme']
-    
-    # Save the user's theme preference to the database
-    current_user.theme = theme_name
-    db.session.commit()
-
-    flash("Theme updated successfully!", "success")
-    return redirect(url_for('profile.profile_page'))
-
-# Route to update confetti settings
-@profile.route('/profile/update-confetti', methods=['POST'])
-@login_required
-def update_confetti():
-    confetti_enabled = 'confetti_enabled' in request.form
-
-    # Update user's confetti settings in the database
-    current_user.confetti_enabled = confetti_enabled
-    db.session.commit()
-
-    flash("Confetti settings updated successfully!", "success")
-    return redirect(url_for('profile.profile_page'))
-
-# Route to update privacy settings
-@profile.route('/profile/update-privacy', methods=['POST'])
-@login_required
-def update_privacy_settings():
-    data_sharing = 'data_sharing' in request.form
-
-    # Update user's privacy settings in the database
-    current_user.data_sharing = data_sharing
-    db.session.commit()
-
-    flash("Privacy settings updated successfully!", "success")
-    return redirect(url_for('profile.profile_page'))
-
-# Route to update notification settings
-@profile.route('/profile/update-notifications', methods=['POST'])
-@login_required
-def update_notification_settings():
-    email_notifications = 'email_notifications' in request.form
-
-    # Update user's notification settings in the database
-    current_user.notifications = email_notifications
-    db.session.commit()
-
-    flash("Notification settings updated successfully!", "success")
-    return redirect(url_for('profile.profile_page'))
+    return render_template('profile.html', user=current_user, themes=themes, form=form)

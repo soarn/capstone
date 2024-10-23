@@ -4,6 +4,7 @@ from functools import wraps
 from db.db_models import Stock, User, Transaction
 from db.db import db
 import uuid
+from forms import UpdateStockForm
 
 def admin_required(f):
     @wraps(f)
@@ -27,34 +28,24 @@ def admin_page():
     # Query all stocks from the database
     all_stocks = Stock.query.all()
 
-    # Pass the users and stocks to the template
-    return render_template('admin.html', all_users=all_users, all_stocks=all_stocks)
+    form = UpdateStockForm()
+    form.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
 
-# Route to update stock information
-@admin.route("/admin/update-stock", methods=['POST'])
-@login_required
-@admin_required
-def admin_update_stock():
-    stock_id = request.form['stock_id']
-    new_price = request.form['new_price']
-    # is_manual = request.form['is_manual'] == 'on'
-    is_manual = 'is_manual' in request.form
-    fluctuation_multiplier = request.form['fluctuation_multiplier']
-
-    stock = Stock.query.get(stock_id)
-    if stock:
-        if is_manual:
-            stock.manual_price = float(new_price)
-            stock.is_manual = True
-            stock.price = float(new_price)
+    if form.validate_on_submit():
+        stock = Stock.query.get(form.stock_id.data)
+        if stock:
+            stock.price = form.new_price.data
+            stock.is_manual = form.is_manual.data
+            stock.fluctuation_multiplier = form.fluctuation_multiplier.data
+            db.session.commit()
+            flash(f"Stock {stock.symbol} updated successfully!", "success")
         else:
-            stock.is_manual = False
+            flash("Stock not found", "danger")
         
-        stock.fluctuation_multiplier = float(fluctuation_multiplier)
-        db.session.commit()
+        return redirect(url_for('admin.admin_page'))
     
-    flash("Stock updated successfully!", "success")
-    return redirect(url_for('admin.admin_page'))
+    # Pass the users and stocks to the template
+    return render_template('admin.html', all_users=all_users, all_stocks=all_stocks, form=form)
 
 # Update transaction order numbers if they are null
 @admin.route("/null_transactions_update")
