@@ -1,34 +1,25 @@
-{% extends "base.html" %} {% block title %}Profile - Customize Your Experience{%
-endblock %} {% block content %}
-<div class="container-fluid">
+{% extends "base.html" %}
+
+{% block title %}Profile - Customize Your Experience{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
   <div class="row">
     <!-- Left-side navigation -->
     <nav id="profile-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
       <div class="position-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" href="#account-settings">
-              <span data-feather="home"></span>
-              Account Settings
-            </a>
+            <a class="nav-link active" href="#account-settings">Account Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#theme-settings">
-              <span data-feather="file"></span>
-              Theme Settings
-            </a>
+            <a class="nav-link" href="#theme-settings">Theme Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#privacy-settings">
-              <span data-feather="file"></span>
-              Privacy Settings
-            </a>
+            <a class="nav-link" href="#privacy-settings">Privacy Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#notifications">
-              <span data-feather="file"></span>
-              Notification Settings
-            </a>
+            <a class="nav-link" href="#notifications">Notification Settings</a>
           </li>
         </ul>
       </div>
@@ -36,20 +27,21 @@ endblock %} {% block content %}
 
     <!-- Main content for settings -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
         <h1 class="h2">Profile Settings</h1>
-        <div id="last-login">
-          <h4>Last Login</h4>
+        <div id="last-login" class="text-muted">
+          <h6>Last Login</h6>
           <p>{{ current_user.last_login or "This is your first login!" }}</p>
         </div>
       </div>
 
-      <!-- Account Settings Section -->
-      <section id="account-settings">
-        <h2>Account Settings</h2>
-        <form method="POST" novalidate>
-          {{ form.hidden_tag() }}
+      <!-- Full Profile Update Form -->
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- Account Settings Section -->
+        <section id="account-settings" class="mb-5">
+          <h2 class="mb-4">Account Settings</h2>
           <div class="form-group mb-3">
               {{ form.username.label }}
               {{ form.username(class="form-control", required=True) }}
@@ -62,44 +54,93 @@ endblock %} {% block content %}
               {{ form.password.label }}
               {{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}
           </div>
+        </section>
 
-          <hr />
-          <h2>Theme Settings</h2>
-
+        <!-- Theme Settings Section -->
+        <section id="theme-settings" class="mb-5">
+          <h2 class="mb-4">Theme Settings</h2>
           <div class="form-group mb-3">
               {{ form.theme.label }}
               {{ form.theme(class="form-select") }}
           </div>
-          <select class="form-select" id="theme" name="theme">
-            {% for theme in themes %}
-            <option value="{{ theme['name'] }}" {% if current_user.theme == theme['name'] %} selected {% endif %}>
-              {{ theme['name'] }} - {{ theme['description'] }}
-              </option>
-            {% else %}
-              <option value="default">No themes available</option>
-            {% endfor %}
-          </select>
+        </section>
 
-          <hr />
-          <h2>Privacy Settings</h2>
-
-          <div class="form-check mb-3">
-              {{ form.notifications(class="form-check-input") }}
-              {{ form.notifications.label }}
-          </div>
+        <!-- Privacy Settings Section -->
+        <section id="privacy-settings" class="mb-5">
+          <h2 class="mb-4">Privacy Settings</h2>
           <div class="form-check mb-3">
               {{ form.data_sharing(class="form-check-input") }}
               {{ form.data_sharing.label }}
           </div>
+        </section>
 
-          <hr />
-          <h2>Accessability Settings</h2>
+        <!-- Notification Settings Section -->
+        <section id="notifications" class="mb-5">
+          <h2 class="mb-4">Notification Settings</h2>
+          <div class="form-check mb-3">
+            {{ form.notifications(class="form-check-input") }}
+            {{ form.notifications.label }}
+          </div>
+        </section>
 
+        <!-- Accessibility Settings Section -->
+        <section id="accessibility-settings" class="mb-5">
+          <h2 class="mb-4">Accessibility Settings</h2>
           <div class="form-check mb-3">
               {{ form.confetti_enabled(class="form-check-input") }}
               {{ form.confetti_enabled.label }}
           </div>
-          {{ form.submit(class="btn btn-primary mt-3") }}
+        </section>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-3">Update Profile</button>
       </form>
-      </section>
+    </main>
+  </div>
+</div>
+
+<style>
+  /* Theme-based colors */
+  :root {
+    --primary-color: {{ current_user.theme_primary_color }};
+    --secondary-color: {{ current_user.theme_secondary_color }};
+    --light-bg: {{ current_user.theme_light_bg }};
+    --dark-text: {{ current_user.theme_dark_text }};
+    --border-color: {{ current_user.theme_border }};
+  }
+
+  h2 {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    color: var(--primary-color);
+  }
+
+  section {
+    padding: 20px;
+    background-color: var(--light-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+  }
+
+  .form-group, .form-check {
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    margin-top: 20px;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+  }
+
+  .form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--secondary-color), 0.25);
+  }
+</style>
 {% endblock %}
