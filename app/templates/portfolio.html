@@ -3,27 +3,167 @@
 {% block title %}Portfolio - Stock Trading System{% endblock %}
 
 {% block content %}
-<h1>Your Stock Portfolio</h1>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Symbol</th>
-            <th>Name</th>
-            <th>Shares</th>
-            <th>Price per Share ($)</th>
-            <th>Total Value ($)</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for stock in portfolio %}
-        <tr>
-            <td>{{ stock.symbol }}</td>
-            <td>{{ stock.name }}</td>
-            <td>{{ stock.shares }}</td>
-            <td>{{ stock.price }}</td>
-            <td>{{ stock.total_value }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-4">
+    <h1>Your Stock Portfolio</h1>
+
+    <!-- Stock List -->
+    <div class="row">
+        <div class="col-md-4">
+            <h4>Owned Stocks</h4>
+            <ul class="list-group" id="stock-list">
+                {% for stock in portfolio %}
+                <li class="list-group-item d-flex justify-content-between align-items-center stock-item"
+                    data-stock-id="{{ stock.id }}"
+                    data-stock-symbol="{{ stock.symbol }}">
+                    {{ stock.symbol }} - {{ stock.name }}
+                    <span class="badge bg-primary rounded-pill">{{ stock.shares }}</span>
+                    <!-- <span class="badge bg-primary badge-pill">{{ stock.shares }}</span> Rounded icons instead-->
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="col-md-8">
+            <h4>Stock History</h4>
+            <!-- Add a wrapper to control the canvas size -->
+            <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+    </div>        
+</div>
+
+<!-- Buy Modal -->
+<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('web.buy_page') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buyModalLabel">Buy Stocks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="stock_id" id="buy-stock-id">
+                    <div class="form-group">
+                        <label for="buy-quantity">Quantity</label>
+                        <input type="number" name="quantity" id="buy-quantity" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Buy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('web.sell_page') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sellModalLabel">Sell Stocks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="stock_id" id="sell-stock-id">
+                    <div class="form-group">
+                        <label for="sell-quantity">Quantity</label>
+                        <input type="number" name="quantity" id="sell-quantity" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Sell</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize variables
+        let stockChart;
+        const stockList = document.querySelectorAll(".stock-item");
+
+        // Create or update the chart
+        function updateChart(data, symbol) {
+            const ctx = document.getElementById('stockChart').getContext('2d');
+            const labels = data.map(item => new Date(item.timestamp).toLocaleString());
+            const prices = data.map(item => item.price);
+
+            if (stockChart) {
+                stockChart.destroy();
+            }
+
+            stockChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Price of ${symbol}`,
+                        data: prices,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Timestamp' }},
+                        y: { title: { display: true, text: 'Price' }}
+                    }
+                }
+            });
+        }
+
+        // Fetch historical data for a stock
+        function fetchStockHistory(stockId, symbol) {
+            fetch(`/api/v1/stock-history/${stockId}`)
+                .then(response => response.json())
+                .then(data => updateChart(data, symbol))
+                .catch(error => console.error('Error fetching stock history:', error));
+        }
+
+        // Handle stock list click events
+        stockList.forEach(item => {
+            item.addEventListener('click', function() {
+                const stockId = this.dataset.stockId;
+                const symbol = this.dataset.stockSymbol;
+                fetchStockHistory(stockId, symbol);
+            });
+        });
+
+        // Handle Buy Modal
+        document.getElementById('buyModal').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const stockId = button.getAttribute('data-stock-id');
+            document.getElementById('buy-stock-id').value = stockId;
+        });
+
+        // Handle Sell Modal
+        document.getElementById('sellModal').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const stockId = button.getAttribute('data-stock-id');
+            document.getElementById('sell-stock-id').value = stockId;
+        });
+
+        // Auto-select the first stock to display its history
+        if (stockList.length > 0) {
+            const firstStock = stockList[0];
+            const stockId = firstStock.dataset.stockId;
+            const symbol = firstStock.dataset.stockSymbol;
+            fetchStockHistory(stockId, symbol);
+        }
+    });
+</script>
 {% endblock %}

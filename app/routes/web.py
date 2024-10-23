@@ -24,7 +24,7 @@ def home():
 
 @web.route("/sell")
 @login_required
-def sell():
+def sell_page():
     return render_template('sell.html')
 
 # LOGIN ROUTE
@@ -151,6 +151,7 @@ def portfolio():
     portfolio = []
     for entry in portfolio_data:
         portfolio_entry = {
+            'id': entry.Stock.id,
             'symbol': entry.Stock.symbol,
             'name': entry.Stock.company,
             'shares': entry.Portfolio.quantity,
