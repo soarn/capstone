@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 from db.db_models import User, db
 from flask_login import login_required, current_user
 from utils import fetch_bootswatch_themes
-from forms import UpdateAccountForm, UpdateProfileForm
+from forms import UpdateProfileForm
 
 # Create a blueprint for profile-related routes
 profile = Blueprint('profile', __name__)
@@ -21,6 +21,9 @@ def profile_page():
         themes = [{'name': 'default'}]
 
     form = UpdateProfileForm(obj=current_user)
+    form.data_sharing.default = current_user.data_sharing
+    form.notifications.default = current_user.notifications
+    form.confetti_enabled.default = current_user.confetti_enabled
     form.theme.choices = [(theme['name'], theme['name']) for theme in themes]
 
     if form.validate_on_submit():
