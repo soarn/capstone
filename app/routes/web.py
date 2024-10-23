@@ -9,7 +9,7 @@ from buy import buy_stock
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
 
-# Route to Home Page
+# HOME ROUTE
 @web.route("/")
 def home():
     #defining whats popular
@@ -22,6 +22,7 @@ def home():
     # Pass the stocks to the template
     return render_template('home.html', popular_stocks=popular_stocks, all_stocks=all_stocks)
 
+# SELL ROUTE
 @web.route("/sell")
 @login_required
 def sell_page():
@@ -94,6 +95,7 @@ def register():
             return redirect(url_for('web.login'))
     return render_template('register.html')
 
+# BUY ROUTE
 @web.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy_page():
@@ -138,7 +140,7 @@ def buy_page():
     # Return the buy page with stocks and user balance
     return render_template('buy.html', stocks=stocks, balance=balance)
 
-# Route to Portfolio Page
+# PORTFOLIO ROUTE
 @web.route("/portfolio")
 @login_required
 def portfolio():
