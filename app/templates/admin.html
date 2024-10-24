@@ -1,14 +1,15 @@
-{% extends "base.html" %}
-{% block title %}Admin Panel - Stock Trading System{% endblock %}
-{% block content %}
-<div class="container-fluid">
+{% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{%
+endblock %} {% block content %}
+<div class="container-fluid mt-4">
   <div class="row">
     <!-- Left-side navigation -->
     <nav id="admin-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
       <div class="position-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" href="#user-management">User Management</a>
+            <a class="nav-link active" href="#user-management"
+              >User Management</a
+            >
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#stock-management">Stock Management</a>
@@ -19,7 +20,8 @@
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
         <h1 class="h2">Admin Dashboard</h1>
       </div>
 
@@ -54,30 +56,37 @@
 
       <hr />
 
-      <!-- Stock Management Section -->
-      <section id="stock-management">
-        <h2>Stock Management</h2>
-        <form method="POST" action="{{ url_for('admin.admin_update_stock') }}" novalidate>
-          {{ form.hidden_tag() }}
-          <div class="form-group">
-              {{ form.stock_id(class="form-select", required=True) }}
-              {{ form.stock_id.label }}
+      <!-- Full Admin Update Form -->
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- Stock Management Section -->
+        <section id="stock-management" class="mb-5">
+          <h2 class="mb-4">Stock Management</h2>
+          <div class="form-group mb-3">
+            {{ form.stock_id(class="form-select", required=True) }} {{
+            form.stock_id.label }}
           </div>
-          <div class="form-group mt-3">
-              {{ form.new_price(class="form-control", required=True, step="0.01", placeholder="Enter new price") }}
-              {{ form.new_price.label }}
+          <div class="form-group mb-3">
+            {{ form.new_price(class="form-control", required=True, step="0.01",
+            placeholder="Enter new price") }} {{ form.new_price.label }}
           </div>
-          <div class="form-check mt-3">
-              {{ form.is_manual(class="form-check-input") }}
-              {{ form.is_manual.label }}
+          <div class="form-check mb-3">
+            {{ form.is_manual(class="form-check-input") }} {{
+            form.is_manual.label }}
           </div>
-          <div class="form-group mt-3">
-              {{ form.fluctuation_multiplier(class="form-control", required=True, step="0.01", placeholder="Enter fluctuation multiplier") }}
-              {{ form.fluctuation_multiplier.label }}
+          <div class="form-group mb-3">
+            {{ form.fluctuation_multiplier(class="form-control", required=True,
+            step="0.01", placeholder="Enter fluctuation multiplier") }} {{
+            form.fluctuation_multiplier.label }}
           </div>
-          {{ form.submit(class="btn btn-primary mt-4") }}
-         </form>      
-      </section>
+          <div id="submit-section" class="mb-3">
+            <button type="submit" class="btn btn-primary mt-3">
+              Update Stock
+            </button>
+          </div>
+        </section>
+      </form>
     </main>
   </div>
 </div>
