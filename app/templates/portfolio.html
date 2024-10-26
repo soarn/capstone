@@ -41,7 +41,8 @@
           {{ form.csrf_token }}
           {{ form.stock_id(id="transaction-stock-id") }}
           {{ form.stock_symbol(id="transaction-stock-symbol") }}
-          <input type="hidden" id="transaction-action" name="action"> <!-- Hidden field for action type -->
+          <!-- Hidden field for action type -->
+          <input type="hidden" id="transaction-action" name="action"> 
           <div class="mb-3">
             <label for="transaction-quantity" class="form-label">Quantity</label>
             {{ form.quantity(class="form-control", id="transaction-quantity") }}

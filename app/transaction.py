@@ -101,3 +101,22 @@ def update_portfolio(user_id, stock_id, quantity, purchase_price):
         db.session.add(new_portfolio_entry)
 
     db.session.commit()
+
+# Sell stock
+def sell_stock(user_id, stock_id, stock_symbol, quantity):
+    return {"status": "error", "message": "Not implemented yet."}
+    # Commit all changes to the database
+    # db.session.commit()
+
+    # return {
+    #     "status": "success", 
+    #     "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
+    #     "details": {
+    #         "order_number": order_number,
+    #         "symbol": stock_symbol,
+    #         "company": stock.company,
+    #         "quantity": quantity,
+    #         "price": stock.price,
+    #         "total_price": total_price
+    #     }
+    # }

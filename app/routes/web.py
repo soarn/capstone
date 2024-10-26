@@ -4,7 +4,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from db.db_models import Portfolio, Stock, User, StockHistory
 from db.db import db
 from routes.api_v1 import get_stocks
-from buy import buy_stock
+from transaction import buy_stock, sell_stock
 from forms import LoginForm, RegisterForm, TransactionForm
 
 # Create a blueprint for web routes
@@ -22,12 +22,6 @@ def home():
 
     # Pass the stocks to the template
     return render_template('home.html', popular_stocks=popular_stocks, all_stocks=all_stocks)
-
-# SELL ROUTE
-@web.route("/sell")
-@login_required
-def sell_page():
-    return render_template('sell.html')
 
 # LOGIN ROUTE
 @web.route("/login", methods=['GET', 'POST'])
