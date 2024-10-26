@@ -4,10 +4,9 @@ from wtforms.validators import DataRequired, NumberRange, Email, Length, Optiona
 
 # WEB: Transaction Form
 class TransactionForm(FlaskForm):
-    stock_id     = HiddenField("Stock ID", validators=[DataRequired()])
-    stock_symbol = HiddenField("Stock Symbol", validators=[DataRequired()])
-    quantity     = IntegerField("Quantity", validators=[DataRequired(), NumberRange(min=1, message="Quantity must be greater than 0")])
-    submit       = SubmitField("Confirm")
+    stock_id = HiddenField("Stock ID", validators=[DataRequired()], default="")
+    stock_symbol = HiddenField("Stock Symbol", validators=[DataRequired()], default="")
+    quantity = IntegerField("Quantity", validators=[DataRequired(), NumberRange(min=1, message="Quantity must be greater than 0")])
 
 # WEB: Login Form
 class LoginForm(FlaskForm):

@@ -98,24 +98,37 @@ def register():
 
     return render_template('register.html', form=form)
 
-# BUY ROUTE
-@web.route("/buy", methods=["POST"])
+# TRANSACTION ROUTE (buy/sell)
+@web.route("/transaction", methods=["POST"])
 @login_required
-def buy_page():
-
+def transaction():
     form = TransactionForm()
 
     if form.validate_on_submit():
         stock_id = form.stock_id.data
         quantity = form.quantity.data
+        stock_symbol = form.stock_symbol.data
         stock = Stock.query.get(stock_id)
 
-        if not stock:
-            flash("Stock not found.", "danger")
-            return redirect(url_for('web.portfolio'))
-        
-        result = buy_stock(current_user.id, stock.symbol, quantity)
 
+        if not stock:
+            return jsonify({"status": "error", "message": "Stock not found."})
+        
+        action = request.form.get("action")
+        if action == "buy":
+            try:
+                quantity = int(quantity)  # Ensure quantity is an integer
+                result = buy_stock(current_user.id, stock_id, stock_symbol, quantity)
+            except ValueError:
+                return jsonify({"status": "error", "message": "Invalid quantity."})
+        elif action == "sell":
+            # Sell stock
+            # result = sell_stock(current_user.id, stock.symbol, quantity)
+            # TODO: #19 Implement sell_stock function
+            pass
+        else:
+            return jsonify({"status": "error", "message": "Invalid action."})
+        
         if result["status"] == "success":
             return jsonify({"status": "success", "details": result["details"]})
         else:
