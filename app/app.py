@@ -75,6 +75,12 @@ def create_app():
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
 
+    # Register all stocks
+    app.jinja_env.globals.update(all_stocks=db.get_all_stocks())
+
+    # Register user stocks
+    app.jinja_env.globals.update(user_stocks=db.get_user_stocks)
+
     return app
 
 if __name__ == '__main__':
