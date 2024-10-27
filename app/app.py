@@ -12,7 +12,7 @@ from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
-from utils import fetch_bootswatch_themes
+from utils import fetch_bootswatch_themes, get_gravatar_url
 from pricing import start_price_updater, start_history_recorder
 from cleanup import start_cleanup_task
 from flask_wtf.csrf import CSRFProtect
@@ -71,6 +71,9 @@ def create_app():
     start_history_recorder(app)
     # Start the cleanup task
     start_cleanup_task(app)
+
+    # Register the Gravatar URL function as a global Jinja variable
+    app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
 
     return app
 
