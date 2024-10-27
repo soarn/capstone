@@ -42,18 +42,30 @@
         <!-- Account Settings Section -->
         <section id="account-settings" class="mb-5">
           <h2 class="mb-4">Account Settings</h2>
-          <div class="form-group mb-3">
-              {{ form.username.label }}
-              {{ form.username(class="form-control", required=True) }}
+          <div class="row">
+            <div class="col">
+              <div class="form-group mb-3">
+                {{ form.username.label }}
+                {{ form.username(class="form-control", required=True) }}
+              </div>
+              <div class="form-group mb-3">
+                {{ form.email.label }}
+                {{ form.email(class="form-control", required=True) }}
+              </div>
+              <div class="form-group mb-3">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}
+              </div>
+            </div>
+            <div class="col text-center">
+              <div class="profile-picture">
+                <a href="https://en.gravatar.com/" target="_blank" rel="noopener" title="Change Profile Picture">
+                  <img src="{{ get_gravatar_url(current_user.email) }}" alt="Profile Picture" class="img-thumbnail rounded-circle">
+                </a>
+              </div>
+            </div>
           </div>
-          <div class="form-group mb-3">
-              {{ form.email.label }}
-              {{ form.email(class="form-control", required=True) }}
-          </div>
-          <div class="form-group mb-3">
-              {{ form.password.label }}
-              {{ form.password(class="form-control", placeholder="Leave blank to keep current password") }}
-          </div>
+          
         </section>
 
         <!-- Theme Settings Section -->
@@ -98,8 +110,20 @@
     </main>
   </div>
 </div>
-
 <style>
+  /* Profile Picture */
+  .profile-picture {
+    margin: 0 auto;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    :hover {
+      transform: scale(1.1); /* Slight enlargement on hover */
+    }
+  }
+
   /* Theme-based colors */
   :root {
     --primary-color: {{ current_user.theme_primary_color }};
@@ -125,17 +149,6 @@
 
   .form-group, .form-check {
     margin-bottom: 20px;
-  }
-
-  .btn {
-    margin-top: 20px;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-  }
-
-  .btn-primary {
-    background-color: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
   }
 
   .form-control:focus {
