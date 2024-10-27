@@ -135,11 +135,17 @@ The project  is to create a stock trading system  where users can buy and sell s
 ### Design & Develop a Client/Server Application comprise of
 
 - [ ] Graphic User interface (web pages)
-  - [ ] Display available stocks that can be traded.
-    - [ ] Show stock ticker, price, volume, and market capitalization (volume X price)
+  - [x] Display available stocks that can be traded
+    - [ ] Show stock information
+      - [ ] ticker
+      - [ ] price
+      - [ ] volume
+      - [ ] market capitalization (volume X price)
     - [ ] Show opening price for the stock
     - [ ] Show high and low during the day
-  - [ ] Perform the user and administrator functions
-- [ ] Relational Database Backend to store the data.
+  - [ ] User functions
+  - [ ] Administrative functions
+- [x] Relational Database Backend to store the data.
 - [ ] Random Stock Price Generator:
-    Allow the stock prices to fluctuate during the day with a custom random price generator. The price will gradually go up or down throughout the day.
+  - [ ] Fluctuations during market hours
+  - [ ] Implement custom random price generator
