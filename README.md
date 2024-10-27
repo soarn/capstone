@@ -101,3 +101,45 @@ To better understand how to use this repository in your environment, it is sugge
 ## Operational Instructions
 
 - TODO: #3 Finish Operational Instructions Section in README
+
+## Business Case
+
+The company needs to train their stockbroker on how to buy and sell stocks.  The IT department has been asked to design and develop a new technology solution.   Here are the requirements for the new  Stock Trading System.  
+
+### Project Definition
+
+The project  is to create a stock trading system  where users can buy and sell stocks. The system will support two types of users. One is the customer who will buy and sell stocks and second is the administrator of the system who is responsible for creating the stocks and setting the initial price.
+
+### Customer Required Functions
+
+- [ ] Create a user account with full name, username, and email.
+- [ ] Can buy and sell stocks at market price.
+- [ ] The user will have the option to cancel this order before it gets executed.
+- [ ] View their current portfolio of stocks and cash.
+- [ ] View their history of transactions.
+- [ ] Ability to deposit and withdraw cash.
+  - [ ] The user when depositing cash will have the funds go into a cash account.
+  - [ ] The user will only be able to withdraw money from their cash account.
+  - [ ] When stocks are sold the funds will go to cash account.
+
+### Administrators Functions
+
+- [ ] Create new stocks.
+  - [ ] Include Company name, stock ticker, volume, and initial price.
+  - [ ] Volume will be total amount of shares purchased.
+- [ ] Change market hours.
+  - [ ] Users will only be able to execute trades during market hours.
+- [ ] Change market schedule
+  - [ ] Market will only be open during weekdays and closed on holidays.
+
+### Design & Develop a Client/Server Application comprise of
+
+- [ ] Graphic User interface (web pages)
+  - [ ] Display available stocks that can be traded.
+    - [ ] Show stock ticker, price, volume, and market capitalization (volume X price)
+    - [ ] Show opening price for the stock
+    - [ ] Show high and low during the day
+  - [ ] Perform the user and administrator functions
+- [ ] Relational Database Backend to store the data.
+- [ ] Random Stock Price Generator:
+    Allow the stock prices to fluctuate during the day with a custom random price generator. The price will gradually go up or down throughout the day.
