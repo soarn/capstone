@@ -10,6 +10,20 @@
         <h2 class="card-title text-center mb-4">Register</h2>
         <form method="POST" novalidate>
           {{ form.hidden_tag() }}
+          <div class="row">
+            <div class="col">
+              <div class="form-floating mb-3">
+                {{ form.first_name(class="form-control", placeholder="First Name", required=True) }}
+                {{ form.first_name.label }}
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-floating mb-3">
+                  {{ form.last_name(class="form-control", placeholder="Last Name", required=True) }}
+                  {{ form.last_name.label }}
+              </div>
+            </div>
+          </div>
           <div class="form-floating mb-3">
               {{ form.username(class="form-control", placeholder="Username", required=True) }}
               {{ form.username.label }}
@@ -23,7 +37,7 @@
               {{ form.password.label }}
           </div>
           {{ form.submit(class="btn btn-primary w-100") }}
-        </form>      
+        </form>
         <div class="mt-4 text-center">
           <a href="{{ url_for('web.login') }}">Already have an account?</a>
         </div>
