@@ -55,31 +55,25 @@
       transform: scale(1.1);
     }
 
-    /* Stock Ticker Styling */
-    .tickerwrapper {
+   /* Stock Ticker Container Styling */
+   .tickerwrapper {
+      overflow: hidden;
+      position: relative;
+      flex-grow: 1;
       display: flex;
       align-items: center;
-      overflow: hidden;
-      height: 40px;
-      white-space: nowrap;
-      padding: 0 10px;
-      flex-grow: 1;
-      min-width: 0; /* Prevents overflow issues */
     }
 
-    .stock-list {
+    .stock-ticker {
       display: flex;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      align-items: center;
+      white-space: nowrap;
     }
 
     .stock-item {
-      padding: 0 15px;
-      font-size: 16px;
-      color: var(--primary-color);
-      white-space: nowrap; /* Prevents text wrapping */
+      padding: 0 1rem;
+      font-size: 1rem;
+      display: inline-block;
+      white-space: nowrap;
     }
 
   </style>
@@ -108,16 +102,17 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" />
       </a>
 
-      <!-- Stock Ticker
-       <div class="tickerwrapper">
-        <ul class="stock-list">
+      <!-- Stock Ticker -->
+      <div class="tickerwrapper">
+        <div class="stock-ticker">
           {% for stock in stock_data %}
-            <li class="stock-item">
-              <span>{{ stock.symbol }}: ${{ stock.price }}</span>
-            </li>
+            <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
           {% endfor %}
-        </ul>
-       </div> -->
+          {% for stock in stock_data %}
+            <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+          {% endfor %}
+        </div>
+      </div>
 
       <!-- Gravatar Dropdown -->
       {% if current_user.is_authenticated %}
@@ -153,40 +148,40 @@
 
   <script>
     // Stock Ticker Animation
-    $(document).ready(function () {
-      var $tickerWrapper = $(".tickerwrapper");
-      var $list = $tickerWrapper.find("ul.stock-list");
-      var $clonedList = $list.clone();
-      var listWidth = 0;
+    document.addEventListener('DOMContentLoaded', function () {
+      const tickerWrapper = document.querySelector('.tickerwrapper');
+      const stockTicker = document.querySelector('.stock-ticker');
 
-      $list.find("li").each(function(i) {
-        listWidth += $(this, i).outerWidth(true);
-      });
+      if (tickerWrapper && stockTicker) {
+        let tickerSpeed = 1; // Speed of the scrolling in pixels
+        let tickerPosition = 0; // Initial position of the ticker
 
-      $list.add($clonedList).css({
-        "width": listWidth + "px"
-      });
+        function scrollTicker() {
+          tickerPosition -= tickerSpeed; // Move the ticker to the left
+          stockTicker.style.transform = `translateX(${tickerPosition}px)`;
 
-      $clonedList.addClass("cloned").appendTo($tickerWrapper);
+          // Check if the first item is fully out of view
+          const firstItem = stockTicker.firstElementChild;
+          const firstItemRect = firstItem.getBoundingClientRect();
+          const wrapperRect = tickerWrapper.getBoundingClientRect();
 
-      // GSAP Animation
-      var infinite = gsap.timeline({ repeat: -1, paused: true });
-      var time = 30; // Adjust speed
+          if (firstItemRect.right < wrapperRect.left) {
+            // Move the first item to the end of the list
+            stockTicker.appendChild(firstItem);
 
-      infinite
-        .fromTo($list, { x: 0 }, { x: -listWidth, duration: time, ease: "none" })
-        .fromTo($clonedList, { x: listWidth }, { x: 0, duration: time, ease: "none" }, 0);
+            // Reset ticker position to avoid jumps
+            tickerPosition += firstItem.offsetWidth;
+            stockTicker.style.transform = `translateX(${tickerPosition}px)`;
+          }
 
-      infinite.play();
+          // Continuously call scrollTicker
+          requestAnimationFrame(scrollTicker);
+        }
 
-      // Pause/Play on hover
-      $tickerWrapper.on("mouseenter", function() {
-        infinite.pause();
-      }).on("mouseleave", function() {
-        infinite.play();
-      });
+        // Start scrolling
+        requestAnimationFrame(scrollTicker);
+      }
     });
-
 
     // Auto dismiss flash messages after 3 seconds
     setTimeout(function () {
