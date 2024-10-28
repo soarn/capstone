@@ -28,6 +28,36 @@
   </div>
 </div>
 
+<!-- Transaction History -->
+<div class="container">
+  <h4>Transaction History</h4>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Order Number</th>
+        <th>Symbol</th>
+        <th>Action</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in transactions %}
+      <tr>
+        <td>{{ transaction.order_number }}</td>
+        <td>{{ transaction.stock }}</td>
+        <td>{{ transaction.type }}</td>
+        <td>{{ transaction.quantity }}</td>
+        <td>{{ transaction.price }}</td>
+        <td>{{ transaction.amount }}</td>
+        <td>{{ transaction.timestamp }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
 <!-- Buy/Sell Modal -->
 <div class="modal fade" id="buySellModal" tabindex="-1" aria-labelledby="buySellModalLabel" aria-hidden="true">
   <div class="modal-dialog">
