@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy import desc
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
@@ -178,10 +179,7 @@ def portfolio():
     # Paginate transactions table
     page = request.args.get('page', 1, type=int)
     per_page = 10 # Might want to make this dynamic/a user setting
-    transactions_paginated = Transaction.query.filter_by(user=user_id).paginate(page=page, per_page=per_page)
-
-    # Query user transactions
-    # transactions = Transaction.query.filter_by(user=user_id).all()
+    transactions_paginated = Transaction.query.filter_by(user=user_id).order_by(desc(Transaction.timestamp)).paginate(page=page, per_page=per_page)
 
     form = TransactionForm()
 
