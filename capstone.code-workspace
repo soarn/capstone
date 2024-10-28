@@ -110,6 +110,7 @@
       "flasgger",
       "jsonify",
       "sqlalchemy",
+      "tickerwrapper",
       "venv",
       "werkzeug"
     ],

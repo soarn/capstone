@@ -24,61 +24,64 @@
     </style>
   {% endif %}
   <link rel="shortcut icon" href="{{ url_for('static', filename='logo.png') }}" />
+
   <style>
-    /* Stock Ticker Styling */
-    .stock-ticker {
-      width: 100%;
-      background-color: var(--primary-color);
-      color: #fff;
-      padding: 8px 0;
-      overflow: hidden;
-      position: relative;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-    }
-
-    .ticker-wrapper {
-      display: inline-block;
-      animation: ticker 30s linear infinite;
-      padding-left: 100%;
-    }
-
-    @keyframes ticker {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-100%); }
-    }
-
-    .ticker-item {
-      display: inline-block;
-      margin: 0 15px;
-      font-weight: bold;
-    }
-
-    /* Gravatar Image Style */
-    .gravatar-img {
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .gravatar-img:hover {
-      transform: scale(1.1); /* Slight enlargement on hover */
-    }
-
+    /* Navbar Styling */
     .navbar-container {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: 100%;
+      padding: 0 1rem;
+      flex-wrap: wrap;
     }
 
-    .dropdown-menu {
-      right: 0;
-      left: auto;
+    .navbar-brand img {
+      width: 75px;
     }
+
+    .gravatar-img {
+      width: 50px;
+    }
+
+    .navbar-brand img,
+    .gravatar-img {
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .gravatar-img:hover, .navbar-brand img:hover {
+      transform: scale(1.1);
+    }
+
+    /* Stock Ticker Styling */
+    .tickerwrapper {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      height: 40px;
+      white-space: nowrap;
+      padding: 0 10px;
+      flex-grow: 1;
+      min-width: 0; /* Prevents overflow issues */
+    }
+
+    .stock-list {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      align-items: center;
+    }
+
+    .stock-item {
+      padding: 0 15px;
+      font-size: 16px;
+      color: var(--primary-color);
+      white-space: nowrap; /* Prevents text wrapping */
+    }
+
   </style>
 </head>
 <body>
@@ -97,61 +100,24 @@
     {% endwith %}
   </div>
 
-  <!-- Stock Ticker -->
-   <div class="stock-ticker" id="stock-ticker">
-    <div class="ticker-wrapper" id="tickerWrapper">
-      {% if current_user.is_authenticated %}
-        {% for stock in user_portfolio %}
-          <span class="ticker-item">
-            {{ stock.symbol }}: ${{ stock.price }}
-          </span>
-        {% endfor %}
-      {% else %}
-        {% for stock in all_stocks %}}
-          <span class="ticker-item">
-            {{ stock.symbol }}: ${{ stock.price }}
-        </span>
-        {% endfor %}  
-      {% endif %}
-    </div>
-   </div>
-
   <!-- Header -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-light bg-light">
     <div class="container-fluid navbar-container">
       <!-- Logo -->
-      <a class="navbar-brand" href="{{ url_for('web.home') }}" id="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" height="75" />
+      <a class="navbar-brand" href="{{ url_for('web.home') }}">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" />
       </a>
 
-      <!-- Navigation Bar
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          {% if current_user.is_authenticated and current_user.role == 'admin' %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin.admin_page') }}">Admin Panel</a>
-          </li>
-          {% endif %}
-          {% if current_user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('web.portfolio') }}">Portfolio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('profile.profile_page') }}">Profile</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('web.logout') }}">Logout</a>
-          </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('web.login') }}">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('web.register') }}">Register</a>
-          </li>
-          {% endif %}
+      <!-- Stock Ticker
+       <div class="tickerwrapper">
+        <ul class="stock-list">
+          {% for stock in stock_data %}
+            <li class="stock-item">
+              <span>{{ stock.symbol }}: ${{ stock.price }}</span>
+            </li>
+          {% endfor %}
         </ul>
-      </div> -->
+       </div> -->
 
       <!-- Gravatar Dropdown -->
       {% if current_user.is_authenticated %}
@@ -166,10 +132,8 @@
           />
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="gravatarDropdown">
             <li><a class="dropdown-item" href="{{ url_for('web.portfolio') }}">Portfolio</a></li>
-            {% if current_user.is_authenticated and current_user.role == 'admin' %}
-            <li>
-              <a class="dropdown-item" href="{{ url_for('admin.admin_page') }}">Admin Panel</a>
-            </li>
+            {% if current_user.role == 'admin' %}
+              <li><a class="dropdown-item" href="{{ url_for('admin.admin_page') }}">Admin Panel</a></li>
             {% endif %}
             <li><a class="dropdown-item" href="{{ url_for('profile.profile_page') }}">Profile</a></li>
             <li><a class="dropdown-item" href="{{ url_for('web.logout') }}">Logout</a></li>
@@ -182,7 +146,48 @@
   <!-- Main Content Block -->
   <div class="container mt-4">{% block content %}{% endblock %}</div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <script>
+    // Stock Ticker Animation
+    $(document).ready(function () {
+      var $tickerWrapper = $(".tickerwrapper");
+      var $list = $tickerWrapper.find("ul.stock-list");
+      var $clonedList = $list.clone();
+      var listWidth = 0;
+
+      $list.find("li").each(function(i) {
+        listWidth += $(this, i).outerWidth(true);
+      });
+
+      $list.add($clonedList).css({
+        "width": listWidth + "px"
+      });
+
+      $clonedList.addClass("cloned").appendTo($tickerWrapper);
+
+      // GSAP Animation
+      var infinite = gsap.timeline({ repeat: -1, paused: true });
+      var time = 30; // Adjust speed
+
+      infinite
+        .fromTo($list, { x: 0 }, { x: -listWidth, duration: time, ease: "none" })
+        .fromTo($clonedList, { x: listWidth }, { x: 0, duration: time, ease: "none" }, 0);
+
+      infinite.play();
+
+      // Pause/Play on hover
+      $tickerWrapper.on("mouseenter", function() {
+        infinite.pause();
+      }).on("mouseleave", function() {
+        infinite.play();
+      });
+    });
+
+
     // Auto dismiss flash messages after 3 seconds
     setTimeout(function () {
       let alerts = document.querySelectorAll(".alert");
@@ -197,8 +202,5 @@
       });
     }, 3000);
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </body>
 </html>
