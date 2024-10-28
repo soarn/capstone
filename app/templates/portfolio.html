@@ -39,7 +39,7 @@
       <tr>
         <th>Order Number</th>
         <th>Symbol</th>
-        <th>Action</th>
+        <th>Type</th>
         <th>Quantity</th>
         <th>Price</th>
         <th>Total</th>
@@ -47,15 +47,15 @@
       </tr>
     </thead>
     <tbody>
-      {% for transaction in transactions %}
+      {% for row in transactions %}
       <tr>
-        <td>{{ transaction.order_number }}</td>
-        <td>{{ transaction.stock }}</td>
-        <td>{{ transaction.type }}</td>
-        <td>{{ transaction.quantity }}</td>
-        <td>{{ transaction.price }}</td>
-        <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ row.Transaction.order_number }}</td>
+        <td>{{ row.stock_symbol }}</td>
+        <td>{{ row.Transaction.type }}</td>
+        <td>{{ row.Transaction.quantity }}</td>
+        <td>{{ row.Transaction.price }}</td>
+        <td>{{ row.Transaction.amount }}</td>
+        <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
       </tr>
       {% endfor %}
     </tbody>
