@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
-from db.db_models import Portfolio, Stock, User, StockHistory
+from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
 from transaction import buy_stock, sell_stock
@@ -175,6 +175,9 @@ def portfolio():
         for stock in Stock.query.all()
     ]
 
+    # Query user transactions
+    transactions = Transaction.query.filter_by(user=user_id).all()
+
     form = TransactionForm()
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form)
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions)
