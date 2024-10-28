@@ -35,6 +35,7 @@ class UpdateProfileForm(FlaskForm):
     email            = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
     password         = PasswordField('New Password', validators=[Optional()])
     theme            = SelectField('Theme', choices=[], validators=[Optional()])
+    pagination       = IntegerField('Pagination', validators=[DataRequired(), NumberRange(min=1)], default=10)
     notifications    = BooleanField('Receive Email Notifications')
     data_sharing     = BooleanField('Allow Data Sharing')
     confetti_enabled = BooleanField('Enable Confetti')
