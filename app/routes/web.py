@@ -179,7 +179,7 @@ def portfolio():
 
     # Paginate transactions table
     page = request.args.get('page', 1, type=int)
-    per_page = 10 # Might want to make this dynamic/a user setting
+    per_page = current_user.pagination # Use the user's pagination setting
 
     # Alias the Stock table for clarity
     StockAlias = aliased(Stock)

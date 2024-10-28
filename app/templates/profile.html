@@ -13,7 +13,7 @@
             <a class="nav-link active" href="#account-settings">Account Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#theme-settings">Theme Settings</a>
+            <a class="nav-link" href="#interface-settings">Interface Settings</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#privacy-settings">Privacy Settings</a>
@@ -68,12 +68,16 @@
           
         </section>
 
-        <!-- Theme Settings Section -->
-        <section id="theme-settings" class="mb-5">
-          <h2 class="mb-4">Theme Settings</h2>
+        <!-- Interface Settings Section -->
+        <section id="interface-settings" class="mb-5">
+          <h2 class="mb-4">Interface Settings</h2>
           <div class="form-group mb-3">
-              {{ form.theme.label }}
-              {{ form.theme(class="form-select") }}
+            {{ form.theme.label }}
+            {{ form.theme(class="form-select") }}
+          </div>
+          <div class="form-group mb-3">
+            {{ form.pagination.label }}
+            {{ form.pagination(class="form-select", step="1") }}
           </div>
         </section>
 

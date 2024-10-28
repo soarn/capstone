@@ -25,6 +25,7 @@ def profile_page():
     form.notifications.default = current_user.notifications
     form.confetti_enabled.default = current_user.confetti_enabled
     form.theme.choices = [(theme['name'], theme['name']) for theme in themes]
+    form.pagination.default = current_user.pagination
 
     if form.validate_on_submit():
         current_user.username = form.username.data
@@ -32,6 +33,7 @@ def profile_page():
         if form.password.data:
             current_user.set_password(form.password.data)
         current_user.theme = form.theme.data
+        current_user.pagination = form.pagination.data
         current_user.notifications = form.notifications.data
         current_user.data_sharing = form.data_sharing.data
         current_user.confetti_enabled = form.confetti_enabled.data
