@@ -3,15 +3,13 @@ from flask import Blueprint, render_template, request, redirect, flash, url_for,
 from flask_login import current_user, login_user, logout_user, login_required
 from db.db_models import Portfolio, Stock, User, StockHistory
 from db.db import db
-from routes.api_v1 import get_stocks
-from transaction import buy_stock, sell_stock
-from forms import LoginForm, RegisterForm, TransactionForm
+from utils import fetch_bootswatch_themes, get_gravatar_url
 
 globals = Blueprint('globals', __name__)
 
-# CONTEXT PROCESSORS
+"""CONTEXT PROCESSORS """
 
-# STOCK DATA FOR ALL TEMPLATES
+# STOCK DATA
 @globals.app_context_processor
 def inject_stock_data():
     if current_user.is_authenticated:
@@ -32,3 +30,8 @@ def inject_stock_data():
         all_stocks = Stock.query.all()
         stock_list = [{"symbol": stock.symbol, "price": stock.price} for stock in all_stocks]
         return {"stock_data": stock_list}
+
+# THEME DATA
+@globals.app_context_processor
+def inject_themes():
+    return {"themes": fetch_bootswatch_themes()}

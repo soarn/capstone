@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from routes.profile import profile
+from routes.globals import globals
 from routes.web import web
 from routes.api_v1 import api_v1
+from routes.profile import profile
 from routes.admin import admin
 import os
 from datetime import timedelta
@@ -43,6 +44,7 @@ def create_app():
     migrate = Migrate(app, db)
 
     # Register blueprints
+    app.register_blueprint(globals)
     app.register_blueprint(web)
     app.register_blueprint(api_v1)
     app.register_blueprint(profile)
@@ -58,12 +60,6 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-
-    # Context Processor to provide themes globally
-    @app.context_processor
-    def inject_themes():
-        themes = fetch_bootswatch_themes()
-        return dict(themes=themes)
     
     # Start the price updater thread
     start_price_updater(app)
@@ -74,12 +70,6 @@ def create_app():
 
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
-
-    # Register all stocks
-    app.jinja_env.globals.update(all_stocks=db.get_all_stocks())
-
-    # Register user stocks
-    app.jinja_env.globals.update(user_stocks=db.get_user_stocks)
 
     return app
 
