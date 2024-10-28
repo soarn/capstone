@@ -175,9 +175,14 @@ def portfolio():
         for stock in Stock.query.all()
     ]
 
+    # Paginate transactions table
+    page = request.args.get('page', 1, type=int)
+    per_page = 10 # Might want to make this dynamic/a user setting
+    transactions_paginated = Transaction.query.filter_by(user=user_id).paginate(page=page, per_page=per_page)
+
     # Query user transactions
-    transactions = Transaction.query.filter_by(user=user_id).all()
+    # transactions = Transaction.query.filter_by(user=user_id).all()
 
     form = TransactionForm()
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions)
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated)
