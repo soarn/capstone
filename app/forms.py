@@ -26,8 +26,6 @@ class RegisterForm(FlaskForm):
 
 # PROFILE: Update Account Form
 class UpdateAccountForm(FlaskForm):
-    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
-    last_name  = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
     username   = StringField('Username', validators=[DataRequired(), Length(max=80)])
     email      = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
     password   = PasswordField('New Password', validators=[Optional()])
@@ -37,6 +35,8 @@ class UpdateAccountForm(FlaskForm):
 
 # PROFILE: Update Profile Form
 class UpdateProfileForm(FlaskForm):
+    first_name       = StringField('First Name', validators=[DataRequired(), Length(max=50)])
+    last_name        = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
     username         = StringField('Username', validators=[DataRequired(), Length(max=80)])
     email            = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
     password         = PasswordField('New Password', validators=[Optional()])
