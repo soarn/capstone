@@ -55,7 +55,7 @@
         <td>{{ transaction.quantity }}</td>
         <td>{{ transaction.price }}</td>
         <td>{{ transaction.amount }}</td>
-        <td>{{ transaction.timestamp }}</td>
+        <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
       </tr>
       {% endfor %}
     </tbody>
