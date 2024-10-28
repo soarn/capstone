@@ -113,7 +113,8 @@ The project  is to create a stock trading system  where users can buy and sell s
 ### Customer Required Functions
 
 - [ ] Create a user account with full name, username, and email.
-- [ ] Can buy and sell stocks at market price.
+- [x] Can buy stocks at market price.
+- [ ] Can sell stocks at market price.
 - [ ] The user will have the option to cancel this order before it gets executed.
 - [x] View their current portfolio of stocks.
 - [ ] View their current cash balance.
@@ -137,10 +138,10 @@ The project  is to create a stock trading system  where users can buy and sell s
 
 - [ ] Graphic User interface (web pages)
   - [x] Display available stocks that can be traded
-    - [ ] Show stock information
-      - [ ] ticker
-      - [ ] price
-      - [ ] volume
+    - [x] Show stock information
+      - [x] ticker
+      - [x] price
+      - [x] volume
       - [ ] market capitalization (volume X price)
     - [ ] Show opening price for the stock
     - [ ] Show high and low during the day
