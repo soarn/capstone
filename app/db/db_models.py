@@ -22,6 +22,8 @@ class User(UserMixin, db.Model):
     data_sharing     = db.Column(db.Boolean, default=True)
     confetti_enabled = db.Column(db.Boolean, nullable=False, default=True)
     pagination       = db.Column(db.Integer, nullable=False, default=10)
+    first_name       = db.Column(db.String(50), nullable=False, default=username)
+    last_name        = db.Column(db.String(50), nullable=False, default=username)
 
     # Hash the password before storing it
     def set_password(self, password):

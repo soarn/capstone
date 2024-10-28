@@ -17,17 +17,23 @@ class LoginForm(FlaskForm):
 
 # WEB: Register Form
 class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(max=80)])
-    email    = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit   = SubmitField('Register')
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
+    last_name  = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
+    username   = StringField('Username', validators=[DataRequired(), Length(max=80)])
+    email      = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    password   = PasswordField('Password', validators=[DataRequired()])
+    submit     = SubmitField('Register')
 
 # PROFILE: Update Account Form
 class UpdateAccountForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(max=80)])
-    email    = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
-    password = PasswordField('New Password', validators=[Optional()])
-    submit   = SubmitField('Update Account')
+    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
+    last_name  = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
+    username   = StringField('Username', validators=[DataRequired(), Length(max=80)])
+    email      = EmailField('Email', validators=[DataRequired(), Email(), Length(max=120)])
+    password   = PasswordField('New Password', validators=[Optional()])
+    submit     = SubmitField('Update Account')
+
+    # TODO: #26 Combine RegisterForm and UpdateAccountForm into a single form
 
 # PROFILE: Update Profile Form
 class UpdateProfileForm(FlaskForm):
