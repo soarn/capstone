@@ -13,6 +13,19 @@ globals = Blueprint('globals', __name__)
 # STOCK DATA
 @globals.app_context_processor
 def inject_stock_data():
+
+    """
+    Injects stock data into the application context.
+    This function checks if the current user is authenticated. If authenticated, it retrieves the user's portfolio
+    and the associated stock data. If the user has no portfolio, it fetches all available stocks. If the user is not
+    authenticated, it fetches all available stocks.
+    Returns:
+        dict: A dictionary containing:
+            - "stock_data": A list of dictionaries with the user's portfolio stock data or all available stocks if the user has no portfolio.
+            - "all_stocks": A list of dictionaries with all available stocks.
+    """
+    
+
     if current_user.is_authenticated:
         # Get the user's portfolio
         user_portfolio = (
@@ -26,17 +39,21 @@ def inject_stock_data():
             for entry in user_portfolio
         ]
         
+        # Fetch all stocks if the user has no portfolio
         if not portfolio_stocks:
             portfolio_stocks = Stock.query.all()
 
+        # Fetch all stocks
         all_stocks = Stock.query.all()
         stock_list = [{"symbol": stock.symbol, "price": stock.price} for stock in all_stocks]
+
         return {"stock_data": portfolio_stocks, "all_stocks": stock_list}
+    
     else:
         # Fetch all stocks if not logged in
         all_stocks = Stock.query.all()
         stock_list = [{"symbol": stock.symbol, "price": stock.price} for stock in all_stocks]
-        return {"stock_data": stock_list}
+        return {"stock_data": stock_list, "all_stocks": stock_list}
 
 # THEME DATA
 @globals.app_context_processor
