@@ -196,3 +196,32 @@ def portfolio():
     form = TransactionForm()
 
     return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated)
+
+@web.route('/update_balance', methods=['POST'])
+def update_balance():
+    if 'user_id' not in db.session:
+        return jsonify({"success": False, "message": "User not logged in."}), 403
+    
+    user_id = db.session['user_id']
+    action = request.json.get('action')
+    amount = request.json.get('amount')
+
+    if amount is None or amount <= 0:
+        return jsonify({"success": False, "Add ": "Invalid amount. Please add more than 0."}), 400
+
+    # Get the user from the database
+    user = User.query.get(user_id)
+
+    if action == 'add':
+        user.balance += amount
+    elif action == 'withdraw':
+        if user.balance < amount:
+            return jsonify({"success": False, "message": "Insufficient funds."}), 400
+        user.balance -= amount
+    else:
+        return jsonify({"success": False, "message": "Invalid action, Please enter a number."}), 400
+
+    # Commit the changes to the database
+    db.session.commit()
+
+    return jsonify({"success": True, "new_balance": user.balance})
