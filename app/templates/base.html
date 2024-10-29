@@ -26,6 +26,26 @@
   <link rel="shortcut icon" href="{{ url_for('static', filename='logo.png') }}" />
 
   <style>
+
+    /* Fun Logo Styling */
+    .fun-logo {
+      width: 75px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .fun-logo:hover {
+      transform: scale(1.2) rotate(15deg); /* Scale and rotate on hover */
+      animation: spin 1s linear;
+
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* Navbar Styling */
     .navbar-container {
       display: flex;
@@ -33,10 +53,6 @@
       justify-content: space-between;
       padding: 0 1rem;
       flex-wrap: nowrap;
-    }
-
-    .navbar-brand img {
-      width: 75px;
     }
 
     .gravatar-img {
@@ -116,6 +132,7 @@
 
   @media (max-width: 768px) {
     .navbar-title h1 {
+      display: none;
       font-size: 1.5rem; /* Adjust font size for mobile */
     }
   }
@@ -143,8 +160,8 @@
     <div class="container-fluid navbar-container">
       <!-- Logo -->
       <a class="navbar-brand" href="{{ url_for('web.home') }}">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" />
-      </a>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" class="fun-logo" />
+      </a>      
       
       <!-- Flash Messages #TODO #24 Fix how flashes render on mobile -->
       <div id="flash-messages" class="position-fixed top-0 start-50 translate-middle-x mt-3">
