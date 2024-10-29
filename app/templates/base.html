@@ -33,6 +33,14 @@
       justify-content: space-between;
       padding: 0 1rem;
       flex-wrap: wrap;
+      overflow: hidden;
+    }
+
+    .btn-container,
+      .mobile-nav {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center; /* Align vertically */
     }
 
     .navbar-brand img {
@@ -62,6 +70,7 @@
       flex-grow: 1;
       display: flex;
       align-items: center;
+      max-width: 100%;
     }
 
     .stock-ticker {
@@ -74,6 +83,31 @@
       font-size: 1rem;
       display: inline-block;
       white-space: nowrap;
+    }
+
+
+
+    /* Responsive Styling */
+    @media (max-width: 768px) {
+      .navbar-container {
+        flex-direction: row; /* Horizontal layout for mobile */
+        align-items: center;
+        justify-content: space-between;
+      }
+    
+      .tickerwrapper {
+        display: none; /* Hide ticker on smaller screens */
+      }
+    
+      .mobile-nav {
+        flex-grow: 1; /* Make it take available space */
+        justify-content: flex-end; /* Align to right */
+      }
+    
+      .btn-container {
+        flex-direction: row; /* Ensure horizontal layout */
+        gap: 0.5rem; /* Space between buttons */
+      }
     }
 
   </style>
@@ -102,35 +136,23 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" />
       </a>
 
-      {% if is_mobile %}
-        {% if not current_user.is_authenticated %}
-        <!-- Login/Registration Buttons -->
-        <div class="d-flex">
-          <a href="{{ url_for('web.login') }}" class="btn btn-primary me-2">Login</a>
-          <a href="{{ url_for('web.register') }}" class="btn btn-secondary">Register</a>
-        </div>
-        {% endif %}
-      {% else %}
       <!-- Stock Ticker -->
-      <div class="tickerwrapper">
-        <div class="stock-ticker">
-          {% for stock in stock_data %}
-            <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-          {% endfor %}
-          {% for stock in stock_data %}
-            <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-          {% endfor %}
-        </div>
+    <div class="tickerwrapper">
+      <div class="stock-ticker">
+        {% for stock in stock_data %}
+          <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+        {% endfor %}
       </div>
-      {% if not current_user.is_authenticated %}
-      <!-- Login/Registration Buttons -->
-        <div class="d-flex">
-          <a href="{{ url_for('web.login') }}" class="btn btn-primary me-2">Login</a>
-          <a href="{{ url_for('web.register') }}" class="btn btn-secondary">Register</a>
-        </div>
-        {% endif %}
-      {% endif %}
+    </div>
 
+    <!-- Login/Register Buttons -->
+    {% if not current_user.is_authenticated %}
+    <div class="btn-container">
+      <a href="{{ url_for('web.login') }}" class="btn btn-primary">Login</a>
+      <a href="{{ url_for('web.register') }}" class="btn btn-secondary">Register</a>
+    </div>
+    {% endif %}
+  </div>
       <!-- Gravatar Dropdown -->
       {% if current_user.is_authenticated %}
         <div class="dropdown">
@@ -154,16 +176,6 @@
       {% endif %}
     </div>
   </nav>
-  {% if is_mobile %}
-    <!-- Stock Ticker -->
-    <div class="tickerwrapper">
-      <div class="stock-ticker">
-        {% for stock in stock_data %}
-          <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
 
 
   <!-- Main Content Block -->
@@ -177,41 +189,41 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <script>
-    // Stock Ticker Animation
     document.addEventListener('DOMContentLoaded', function () {
       const tickerWrapper = document.querySelector('.tickerwrapper');
       const stockTicker = document.querySelector('.stock-ticker');
-
+  
       if (tickerWrapper && stockTicker) {
         let tickerSpeed = 1; // Speed of the scrolling in pixels
         let tickerPosition = 0; // Initial position of the ticker
-
+  
         function scrollTicker() {
           tickerPosition -= tickerSpeed; // Move the ticker to the left
           stockTicker.style.transform = `translateX(${tickerPosition}px)`;
-
+  
           // Check if the first item is fully out of view
           const firstItem = stockTicker.firstElementChild;
           const firstItemRect = firstItem.getBoundingClientRect();
           const wrapperRect = tickerWrapper.getBoundingClientRect();
-
+  
           if (firstItemRect.right < wrapperRect.left) {
             // Move the first item to the end of the list
             stockTicker.appendChild(firstItem);
-
+  
             // Reset ticker position to avoid jumps
             tickerPosition += firstItem.offsetWidth;
             stockTicker.style.transform = `translateX(${tickerPosition}px)`;
           }
-
+  
           // Continuously call scrollTicker
           requestAnimationFrame(scrollTicker);
         }
-
+  
         // Start scrolling
         requestAnimationFrame(scrollTicker);
       }
     });
+  
 
     // Auto dismiss flash messages after 3 seconds
     setTimeout(function () {
