@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, flash, url_for
+from flask import Blueprint, render_template, request, redirect, flash, url_for, jsonify
 from flask_login import current_user, login_required
 from functools import wraps
 from db.db_models import Stock, User, Transaction
 from db.db import db
 import uuid
 from forms import UpdateStockForm
+from sqlalchemy import desc, asc
+from sqlalchemy.orm import aliased
 
 def admin_required(f):
     @wraps(f)
@@ -44,8 +46,73 @@ def admin_page():
         
         return redirect(url_for('admin.admin_page'))
     
-    # Pass the users and stocks to the template
-    return render_template('admin.html', all_users=all_users, all_stocks=all_stocks, form=form)
+
+    """
+    Transaction History
+    """
+
+    # Pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = current_user.pagination
+
+    # Sorting parameters
+    sort_column = request.args.get('sort', 'timestamp') # Default sorting column
+    sort_direction = request.args.get('direction', 'desc') # Default sorting direction
+
+    # Determine sorting order
+    sort_order = desc if sort_direction == 'desc' else asc
+
+    # Aliased tables
+    StockAlias = aliased(Stock)
+    UserAlias = aliased(User)
+
+    # Mapping sort_column to the correct model and column
+    sort_mapping = {
+        'timestamp'   : Transaction.timestamp,
+        'order_number': Transaction.order_number,
+        'quantity'    : Transaction.quantity,
+        'price'       : Transaction.price,
+        'amount'      : Transaction.amount,
+        'type'        : Transaction.type,
+        'stock'       : StockAlias.symbol,
+        'user'        : UserAlias.username
+    }
+
+    # Check if the requested sort column is valid
+    if sort_column in sort_mapping:
+        sort_field = sort_mapping[sort_column]
+    else:
+        # Fallback to default column
+        sort_field = 'timestamp'
+    
+    # Log the sort column and order (for debugging)
+    print(f"Sorting by: {sort_column} ({sort_direction})")
+    print(f"Sorting by: {sort_field} ({sort_direction})")
+
+    # Fetch paginated transactions with joins for stock symbol and user info
+    transactions_paginated = (
+        db.session.query(
+            Transaction,
+            StockAlias.symbol.label('stock_symbol'),
+            UserAlias.username.label('username')
+        )
+        .join(StockAlias, Transaction.stock == StockAlias.id)
+        .join(UserAlias, Transaction.user == UserAlias.id)
+        .order_by(sort_order(sort_field))
+        .paginate(page=page, per_page=per_page)
+    )
+
+    # Return render template
+    return render_template(
+        'admin.html', 
+        all_users=all_users, 
+        all_stocks=all_stocks, 
+        form=form,
+        transactions=transactions_paginated.items,
+        pagination=transactions_paginated,
+        sort_column=sort_column,
+        sort_direction=sort_direction
+    )
 
 # Update transaction order numbers if they are null
 @admin.route("/null_transactions_update")
