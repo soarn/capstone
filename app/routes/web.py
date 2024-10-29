@@ -121,7 +121,7 @@ def transaction():
                 return jsonify({"status": "error", "message": "Invalid quantity."})
         elif action == "sell":
             # Sell stock
-            # result = sell_stock(current_user.id, stock.symbol, quantity)
+            result = sell_stock(current_user.id, stock_id, stock_symbol, quantity)
             # TODO: #19 Implement sell_stock function
             pass
         else:
