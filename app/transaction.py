@@ -104,19 +104,62 @@ def update_portfolio(user_id, stock_id, quantity, purchase_price):
 
 # Sell stock
 def sell_stock(user_id, stock_id, stock_symbol, quantity):
-    return {"status": "error", "message": "Not implemented yet."}
-    # Commit all changes to the database
-    # db.session.commit()
+    # Fetch the user from the database
+    user = User.query.get(user_id)
+    if not user:
+        return {"status": "error", "message": "User not found."}
 
-    # return {
-    #     "status": "success", 
-    #     "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
-    #     "details": {
-    #         "order_number": order_number,
-    #         "symbol": stock_symbol,
-    #         "company": stock.company,
-    #         "quantity": quantity,
-    #         "price": stock.price,
-    #         "total_price": total_price
-    #     }
-    # }
+    # Find the stock by ID
+    stock = Stock.query.filter_by(id=stock_id).first()
+    if not stock:
+        return {"status": "error", "message": "Stock not found."}
+
+    # Check if the user has the stock in their portfolio
+    portfolio_entry = Portfolio.query.filter_by(user=user_id, stock=stock_id).first()
+    if not portfolio_entry or portfolio_entry.quantity < quantity:
+        return {"status": "error", "message": "Insufficient shares to sell."}
+
+    # Calculate the total sale price
+    total_sale_price = stock.price * quantity
+
+    # Increase user's balance with the sale amount
+    user.balance += total_sale_price
+
+    # Increase the stock's available quantity
+    stock.quantity += quantity
+
+    # Update the portfolio by reducing the sold quantity
+    portfolio_entry.quantity -= quantity
+
+    # If the quantity reaches zero, remove the portfolio entry
+    if portfolio_entry.quantity == 0:
+        db.session.delete(portfolio_entry)
+
+    # Log the transaction as a 'sell' operation
+    order_number = str(uuid.uuid4())
+    new_transaction = Transaction(
+        user=user.id,
+        stock=stock.id,
+        type="sell",  # Differentiates this from a buy transaction
+        quantity=quantity,
+        price=stock.price,
+        amount=total_sale_price,
+        order_number=order_number,
+        timestamp=datetime.now()
+    )
+    db.session.add(new_transaction)
+    # Commit all changes to the database
+    db.session.commit()
+
+    return {
+        "status": "success", 
+        "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
+        "details": {
+            "order_number": order_number,
+            "symbol": stock_symbol,
+            "company": stock.company,
+            "quantity": quantity,
+            "price": stock.price,
+            "total_price": total_sale_price
+        }
+    }
