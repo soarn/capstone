@@ -114,7 +114,7 @@ The project  is to create a stock trading system  where users can buy and sell s
 
 - [x] Create a user account with full name, username, and email.
 - [x] Can buy stocks at market price.
-- [ ] Can sell stocks at market price.
+- [x] Can sell stocks at market price.
 - [ ] The user will have the option to cancel this order before it gets executed.
 - [x] View their current portfolio of stocks.
 - [ ] View their current cash balance.
@@ -126,9 +126,9 @@ The project  is to create a stock trading system  where users can buy and sell s
 
 ### Administrators Functions
 
-- [ ] Create new stocks.
-  - [ ] Include Company name, stock ticker, volume, and initial price.
-  - [ ] Volume will be total amount of shares purchased.
+- [x] Create new stocks.
+  - [x] Include Company name, stock ticker, volume, and initial price.
+  - [x] Volume will be total amount of shares purchased.
 - [ ] Change market hours.
   - [ ] Users will only be able to execute trades during market hours.
 - [ ] Change market schedule
