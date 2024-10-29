@@ -2,6 +2,7 @@
 endblock %} {% block content %}
 <head>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <div class="container-fluid mt-4">
   <div class="row">
@@ -129,18 +130,21 @@ endblock %} {% block content %}
 <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-    $('#transactions-table').DataTable({
-      "paging": true,
-      "ordering": true,
-      "info": true,
-      "searching": true,
-      "order": [[7, 'desc']], // Default sort by 'Date' column
-      "columnDefs": [
-        { "orderable": false, "targets": [1, 2] }, // Disable sorting for 'Symbol' and 'Username'
-        { "searchable": true, "targets": [0, 1, 2, 3, 4, 5, 6, 7] } // Enable searching on all columns
-      ]
-    });
+  $('#transactions-table').DataTable({
+    "processing": true,
+    "serverSide": true,
+    "ajax": "/admin/transactions/data",
+    "columns": [
+      { "data": "order_number" },
+      { "data": "username" },
+      { "data": "symbol" },
+      { "data": "type" },
+      { "data": "quantity" },
+      { "data": "price" },
+      { "data": "amount" },
+      { "data": "timestamp" }
+    ],
+    "order": [[7, 'desc']]
   });
 </script>
 {% endblock %}
