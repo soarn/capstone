@@ -54,3 +54,11 @@ class UpdateStockForm(FlaskForm):
     is_manual              = BooleanField('Set Price Manually')
     fluctuation_multiplier = FloatField('Fluctuation Multiplier', validators=[DataRequired(), NumberRange(min=0.01)], default=1.0)
     submit                 = SubmitField('Update Stock')
+
+# ADMIN: Create Stock Form
+class CreateStockForm(FlaskForm):
+    company  = StringField('Company', validators=[DataRequired(), Length(max=100)])
+    symbol   = StringField('Symbol', validators=[DataRequired(), Length(max=10)])
+    price    = FloatField('Price', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)], default=100)
+    submit   = SubmitField('Create Stock')

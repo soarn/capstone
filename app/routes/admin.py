@@ -4,7 +4,7 @@ from functools import wraps
 from db.db_models import Stock, User, Transaction
 from db.db import db
 import uuid
-from forms import UpdateStockForm
+from forms import UpdateStockForm, CreateStockForm
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import aliased
 
@@ -30,29 +30,70 @@ def admin_page():
     # Query all stocks from the database
     all_stocks = Stock.query.all()
 
-    form = UpdateStockForm()
-    form.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
+    # Initialize forms
+    updateForm = UpdateStockForm()
+    updateForm.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
 
-    if form.validate_on_submit():
-        stock = Stock.query.get(form.stock_id.data)
-        if stock:
-            stock.price = form.new_price.data
-            stock.is_manual = form.is_manual.data
-            stock.fluctuation_multiplier = form.fluctuation_multiplier.data
-            db.session.commit()
-            flash(f"Stock {stock.symbol} updated successfully!", "success")
-        else:
-            flash("Stock not found", "danger")
-        
-        return redirect(url_for('admin.admin_page'))
+    newForm = CreateStockForm()
 
     # Return render template
     return render_template(
         'admin.html', 
         all_users=all_users, 
-        all_stocks=all_stocks, 
-        form=form
+        all_stocks=all_stocks,
+        update_form=updateForm,
+        add_form=newForm
     )
+
+# Route to handle the update stock form
+@admin.route("/admin/update_stock", methods=['POST'])
+@login_required
+@admin_required
+def update_stock():
+    all_stocks = Stock.query.all()
+
+    # Instantiate the form
+    updateForm = UpdateStockForm()
+    updateForm.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
+
+    if updateForm.validate_on_submit():
+        stock = Stock.query.get(updateForm.stock_id.data)
+        if stock:
+            stock.price = updateForm.new_price.data
+            stock.is_manual = updateForm.is_manual.data
+            stock.fluctuation_multiplier = updateForm.fluctuation_multiplier.data
+            db.session.commit()
+            flash(f"Stock {stock.symbol} updated successfully!", "success")
+        else:
+            flash("Stock not found", "danger")
+        
+    return redirect(url_for('admin.admin_page'))
+    
+# Route to handle the create stock form
+@admin.route("/admin/create_stock", methods=['POST'])
+@login_required
+@admin_required
+def create_stock():
+
+    # Instantiate the form
+    newForm = CreateStockForm()
+    
+    if newForm.validate_on_submit():
+        if not Stock.query.filter_by(symbol=newForm.symbol.data).first():
+            stock = Stock(
+                company=newForm.company.data,
+                symbol=newForm.symbol.data,
+                quantity=newForm.quantity.data,
+                price=newForm.price.data,
+            )
+            db.session.add(stock)
+            db.session.commit()
+            flash(f"Stock ${stock.symbol} added successfully!", "success")
+        else:
+            flash("Invalid form data", "danger")
+
+    return redirect(url_for('admin.admin_page'))
+
 
 # Transaction Table Route for AJAX
 @admin.route("/admin/transactions/data")
