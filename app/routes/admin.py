@@ -60,14 +60,19 @@ def admin_page():
 @admin_required
 def transaction_data():
     # Pagination parameters
-    page = request.args.get('start', 0, type=int) // request.args.get('length', 10, type=int) + 1
-    per_page = request.args.get('length', 10, type=int)
+    user_pagination = current_user.pagination or 10
+    page = request.args.get('start', 0, type=int) // user_pagination + 1 # Adjust for ceil
+    per_page = request.args.get('length', user_pagination, type=int)
+
+    # Handle "All" option in pagination
+    if per_page == -1:
+        per_page = None
 
     # Map column indexes to corresponding columns or expressions
     column_map = {
         '0': Transaction.order_number,
-        '1': Stock.symbol,
-        '2': User.username,
+        '1': User.username,
+        '2': Stock.symbol,
         '3': Transaction.type,
         '4': Transaction.quantity,
         '5': Transaction.price,
@@ -96,21 +101,33 @@ def transaction_data():
         User.id == Transaction.user
     )
 
+    # Apply search filtering
+    search_value = request.args.get('search[value]', '').strip()
+    if search_value:
+        transactions_query = transactions_query.filter(
+            (Transaction.order_number.ilike(f'%{search_value}%')) |
+            (Stock.symbol.ilike(f'%{search_value}%')) |
+            (User.username.ilike(f'%{search_value}%')) |
+            (Transaction.type.ilike(f'%{search_value}%'))
+        )
+
     # Apply sorting logic
-    if sort_column_index in ['1', '2']:  # Handle sorting for symbol or username
-        transactions_query = transactions_query.order_by(
-            sort_order(sort_column)
-        )
-    else:  # Handle sorting for Transaction fields
-        transactions_query = transactions_query.order_by(
-            sort_order(sort_column)
-        )
-    
-    # Apply  pagination
-    transactions_paginated = transactions_query.paginate(
-        page=page, 
-        per_page=per_page
+    transactions_query = transactions_query.order_by(
+        sort_order(sort_column)
     )
+
+    # Apply pagination
+    if per_page:
+        transactions_paginated = transactions_query.paginate(
+            page=page, 
+            per_page=per_page
+        )
+        transactions_items = transactions_paginated.items
+        total_records = transactions_query.count()
+        total_filtered = transactions_paginated.total
+    else:
+        transactions_items = transactions_query.all()
+        total_records = total_filtered = len(transactions_items)
 
     # Prepare the response data
     transactions_data = [
@@ -124,13 +141,13 @@ def transaction_data():
             "amount": transaction.amount,
             "timestamp": transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         }
-        for transaction, symbol, username in transactions_paginated.items
+        for transaction, symbol, username in transactions_items
     ]
 
     response = {
         "draw": request.args.get('draw', type=int),
-        "recordsTotal": transactions_query.count(),
-        "recordsFiltered": transactions_paginated.total,
+        "recordsTotal": total_records,
+        "recordsFiltered": total_filtered,
         "data": transactions_data
     }
 
