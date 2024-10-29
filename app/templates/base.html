@@ -32,15 +32,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 1rem;
-      flex-wrap: wrap;
-      overflow: hidden;
-    }
-
-    .btn-container,
-      .mobile-nav {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center; /* Align vertically */
+      flex-wrap: nowrap;
     }
 
     .navbar-brand img {
@@ -85,48 +77,66 @@
       white-space: nowrap;
     }
 
+    .pro-highlight {
+    color: var(--danger-color);
+    animation: pulse 1.5s infinite alternate;
+  }
 
+  .navbar-title {
+    flex-grow: 1;
+    text-align: center;
+  }
 
-    /* Responsive Styling */
-    @media (max-width: 768px) {
-      .navbar-container {
-        flex-direction: row; /* Horizontal layout for mobile */
-        align-items: center;
-        justify-content: space-between;
-      }
-    
-      .tickerwrapper {
-        display: none; /* Hide ticker on smaller screens */
-      }
-    
-      .mobile-nav {
-        flex-grow: 1; /* Make it take available space */
-        justify-content: flex-end; /* Align to right */
-      }
-    
-      .btn-container {
-        flex-direction: row; /* Ensure horizontal layout */
-        gap: 0.5rem; /* Space between buttons */
-      }
+  .navbar-title h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    color: var(--primary-color);
+    animation: neon-glow 2s infinite alternate;
+    text-shadow: 2px 2px 4px rgba(0, 123, 255, 0.6);
+  }
+
+  @keyframes neon-glow {
+    from {
+      text-shadow: 2px 2px 8px rgba(0, 123, 255, 0.4);
     }
+    to {
+      text-shadow: 2px 2px 12px rgba(0, 123, 255, 0.8);
+    }
+  }
+
+  @keyframes pulse {
+    from {
+      text-shadow: 2px 2px 8px rgba(220, 53, 69, 0.4);
+    }
+    to {
+      text-shadow: 2px 2px 12px rgba(220, 53, 69, 0.8);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .navbar-title h1 {
+      font-size: 1.5rem; /* Adjust font size for mobile */
+    }
+  }
 
   </style>
 </head>
-<body>
-  <!-- Flash Messages #TODO #24 Fix how flashes render on mobile -->
-  <div id="flash-messages" class="position-fixed top-0 start-50 translate-middle-x mt-3">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="container">
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+<!-- Stock Ticker at Top of Page -->
+<div class="tickerwrapper">
+  <div class="stock-ticker">
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+    {% endfor %}
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+    {% endfor %}
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+    {% endfor %}
   </div>
+</div>
+<body>
 
   <!-- Header -->
   <nav class="navbar navbar-light bg-light">
@@ -135,26 +145,30 @@
       <a class="navbar-brand" href="{{ url_for('web.home') }}">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" />
       </a>
-
-      <!-- Stock Ticker -->
-    <div class="tickerwrapper">
-      <div class="stock-ticker">
-        {% for stock in stock_data %}
-          <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-        {% endfor %}
+      
+      <!-- Flash Messages #TODO #24 Fix how flashes render on mobile -->
+      <div id="flash-messages" class="position-fixed top-0 start-50 translate-middle-x mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="container">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
       </div>
-    </div>
 
-    <!-- Login/Register Buttons -->
-    {% if not current_user.is_authenticated %}
-    <div class="btn-container">
-      <a href="{{ url_for('web.login') }}" class="btn btn-primary">Login</a>
-      <a href="{{ url_for('web.register') }}" class="btn btn-secondary">Register</a>
-    </div>
-    {% endif %}
-  </div>
-      <!-- Gravatar Dropdown -->
+      <!-- Website Title in the Center -->
+      <div class="navbar-title">
+        <h1>StockTrader <span class="pro-highlight">Pro</span></h1>
+      </div>
+
+      <!-- User Profile or Login/Register Buttons -->
       {% if current_user.is_authenticated %}
+        <!-- Gravatar Dropdown -->
         <div class="dropdown">
           <img
             src="{{ get_gravatar_url(current_user.email) }}"
@@ -173,13 +187,18 @@
             <li><a class="dropdown-item" href="{{ url_for('web.logout') }}">Logout</a></li>
           </ul>
         </div>
+        {% else %}
+          <!-- Login/Registration Buttons -->
+          <div class="d-flex">
+            <a href="{{ url_for('web.login') }}" class="btn btn-primary me-2">Login</a>
+            <a href="{{ url_for('web.register') }}" class="btn btn-secondary">Register</a>
+          </div>
       {% endif %}
     </div>
   </nav>
 
 
   <!-- Main Content Block -->
-
 
   <div class="container mt-4">{% block content %}{% endblock %}</div>
 
