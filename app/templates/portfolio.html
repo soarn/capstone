@@ -316,6 +316,7 @@
     function openTransactionModal(stockId, stockSymbol) {
       document.getElementById("transaction-stock-id").value = stockId;
       document.getElementById("transaction-stock-symbol").value = stockSymbol;
+      document.getElementById("buySellModalLabel").textContent = isBuyMode ? "Buy Stock" : "Sell Stock";
       transactionAction.value = isBuyMode ? "buy" : "sell"; // Set action type
       buySellModal.show();
     }

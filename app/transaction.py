@@ -34,7 +34,7 @@ def buy_stock(user_id, stock_id, stock_symbol, quantity):
     # Check if the user already has this stock in their portfolio
     portfolio_entry = Portfolio.query.filter_by(user=user_id, stock=stock_id).first()
     if not portfolio_entry:
-        portfolio_entry = Portfolio(user=user_id, stock=stock_id, quantity=0)
+        portfolio_entry = Portfolio(user=user_id, stock=stock_id, quantity=0, price=stock.price)
         db.session.add(portfolio_entry)
     
     portfolio_entry.quantity += quantity
@@ -58,7 +58,7 @@ def buy_stock(user_id, stock_id, stock_symbol, quantity):
 
     return {
         "status": "success", 
-        "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
+        "message": f"Successfully sold {quantity} shares of {stock_symbol}.",
         "details": {
             "order_number": order_number,
             "symbol": stock_symbol,
@@ -128,7 +128,7 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
     # Increase the stock's available quantity
     stock.quantity += quantity
 
-    # Update the portfolio by reducing the sold quantity
+    # Update the portfolio by subtracting the sold quantity
     portfolio_entry.quantity -= quantity
 
     # If the quantity reaches zero, remove the portfolio entry
@@ -140,7 +140,7 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
     new_transaction = Transaction(
         user=user.id,
         stock=stock.id,
-        type="sell",  # Differentiates this from a buy transaction
+        type="sell",
         quantity=quantity,
         price=stock.price,
         amount=total_sale_price,
@@ -153,7 +153,7 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
 
     return {
         "status": "success", 
-        "message": f"Successfully purchased {quantity} shares of {stock_symbol}.",
+        "message": f"Successfully sold {quantity} shares of {stock_symbol}.",
         "details": {
             "order_number": order_number,
             "symbol": stock_symbol,
