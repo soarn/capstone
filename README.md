@@ -112,7 +112,7 @@ The project  is to create a stock trading system  where users can buy and sell s
 
 ### Customer Required Functions
 
-- [ ] Create a user account with full name, username, and email.
+- [x] Create a user account with full name, username, and email.
 - [x] Can buy stocks at market price.
 - [ ] Can sell stocks at market price.
 - [ ] The user will have the option to cancel this order before it gets executed.

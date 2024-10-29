@@ -75,9 +75,11 @@ def logout():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        username = form.username.data
-        email = form.email.data
-        password = form.password.data
+        first_name = form.first_name.data
+        last_name  = form.last_name.data
+        username   = form.username.data
+        email      = form.email.data
+        password   = form.password.data
 
         # Check if the username is already taken
         existing_user = User.query.filter_by(username=username).first()
@@ -85,7 +87,7 @@ def register():
             flash("Username already exists.", "danger")
         else:
             # Create a new user
-            new_user = User(username=username, email=email)
+            new_user = User(first_name=first_name, last_name=last_name, username=username, email=email)
             new_user.set_password(password) # Hash the password
             db.session.add(new_user)
             db.session.commit()
