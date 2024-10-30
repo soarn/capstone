@@ -66,10 +66,10 @@ class Transaction(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     order_number = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user      = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stock     = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    stock     = db.Column(db.Integer, db.ForeignKey('stock.id'))
     type      = db.Column(db.String(10), nullable=False)
     quantity  = db.Column(db.Integer, nullable=False)
-    price     = db.Column(db.Float, nullable=False)
+    price     = db.Column(db.Float)
     amount    = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
     

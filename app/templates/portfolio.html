@@ -154,11 +154,6 @@
   </div>
 </div>
 
-<!-- Button to Open the Balance Modal -->
-<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#balanceModal">
-  Update Balance
-</button>
-
 <!-- Balance Modal -->
 <div class="modal fade" id="balanceModal" tabindex="-1" aria-labelledby="balanceModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -168,18 +163,45 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Option Select -->
-        <div class="mb-3">
-          <button id="addFundsBtn" class="btn btn-success me-2" onclick="setBalanceAction('add')">Add Funds</button>
-          <button id="withdrawFundsBtn" class="btn btn-danger" onclick="setBalanceAction('withdraw')">Withdraw Funds</button>
-        </div>
-        
-        <!-- Form for Adding or Withdrawing Funds -->
-        <div class="mb-3">
-          <label for="balance-amount" class="form-label">Amount</label>
-          <input type="number" class="form-control" id="balance-amount" name="amount" min="0.01" step="0.01" required>
-        </div>
-        <button type="button" class="btn btn-primary" id="submitBalanceBtn">Submit</button>
+        <form id="balance-form" method="POST" action="{{ url_for('web.update_balance') }}">
+          {{ form.csrf_token }}
+          <!-- Hidden field for action type -->
+           <input type="hidden" id="balance-action" name="action">
+          <div class="mb-3">
+            <label for="balance-display" class="form-label">Current Balance</label>
+            <p id="balance-display">{{ balance }}</p>
+          </div>
+          <div class="mb-3">
+            <label for="balance-amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="balance-amount" name="amount" min="0.01" step="0.01" required>
+          </div>
+          <!-- Option Select -->
+          <div class="mb-3">
+            <button type="submit" id="depositFundsBtn" class="btn btn-success me-2" onclick="setBalanceAction('deposit')">Deposit Funds</button>
+            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger" onclick="setBalanceAction('withdraw')">Withdraw Funds</button>
+          </div>      
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Balance Confirmation Modal -->
+<div class="modal fade" id="balConfirmationModal" tabindex="-1" aria-labelledby="balConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="balConfirmationModalLabel"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Transaction Number:</strong> <span id="bal-order-number"></span></p>
+        <p><strong>Action:</strong> <span id="bal-order-action"></span></p>
+        <p><strong>Amount:</strong> $<span id="bal-order-amount"></span></p>
+        <p><strong>New Balance:</strong> $<span id="bal-order-balance"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -234,6 +256,8 @@
     const buySellModalElement = document.getElementById("buySellModal");
     const confirmationModalElement = document.getElementById("confirmationModal");
     let isBuyMode = false; // Toggle buy/sell mode
+    const balanceForm = document.getElementById("balance-form");
+    const balanceAction = document.getElementById("balance-action");
 
     // Initialize Bootstrap modals
     const buySellModal = new bootstrap.Modal(buySellModalElement);
@@ -392,43 +416,49 @@
       document.getElementById("order-total").textContent = details.total_price;
       confirmationModal.show();
     }
-  });
 
-  // Add event listeners to set the clicking buttons
-  document.getElementById("addFundsBtn").addEventListener("click", function () {
-      document.getElementById("transaction-action").value = "add"; // Set action to add
-    });
-    document.getElementById("withdrawFundsBtn").addEventListener("click", function () {
-      document.getElementById("transaction-action").value = "withdraw"; // Set action to withdraw
-    });
+    // 5. BALANCE HANDLING
 
-    // Update balance function
-    document.getElementById("submitBalanceBtn").addEventListener("click", updateBalance);
+    // Set the balance action type
+    function setBalanceAction(action) {
+      document.getElementById("balance-action").value = action;
+    }
 
-    function updateBalance() {
-      const action = document.getElementById("transaction-action").value; // Retrieve action type
-      const amount = document.getElementById("balance-amount").value; // Use correct ID
+    // Handle form submission
+    balanceForm.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-      fetch("{{ url_for('web.update_balance') }}", {  
+      const formData = new FormData(balanceForm);
+
+      fetch("{{ url_for('web.update_balance') }}", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action, amount }),
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
       })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Update displayed balance
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            showBalConfirmationModal(data.details);
             document.getElementById("balance-display").textContent = data.new_balance;
-            document.getElementById("balance-amount").value = ""; // Clear input field
+            balanceForm.reset(); // Clear form fields
             let balanceModal = new bootstrap.Modal(document.getElementById("balanceModal"));
-            balanceModal.hide(); // Close the modal
+            balanceModal.hide();
           } else {
-            alert("Error: " + data.message);
+            alert(data.message);
           }
         })
-        .catch(error => console.error("Error updating balance:", error));
+        .catch((error) => console.error("Error:", error));
+    });
+
+    // Show balance confirmation modal
+    function showBalConfirmationModal(details) {
+      document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
+      document.getElementById("bal-order-number").textContent = details.order_number;
+      document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
+      document.getElementById("bal-order-amount").textContent = details.amount;
+      document.getElementById("bal-order-balance").textContent = details.new_balance;
+      showBalConfirmationModal.show();
     }
+  });
 </script>
 {% endblock %}

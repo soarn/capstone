@@ -6,8 +6,8 @@ from sqlalchemy.orm import aliased
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
-from transaction import buy_stock, sell_stock
-from forms import LoginForm, RegisterForm, TransactionForm
+from transaction import buy_stock, check_user_balance, sell_stock, update_balance
+from forms import LoginForm, RegisterForm, TransactionForm, BalanceForm
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -122,8 +122,6 @@ def transaction():
         elif action == "sell":
             # Sell stock
             result = sell_stock(current_user.id, stock_id, stock_symbol, quantity)
-            # TODO: #19 Implement sell_stock function
-            pass
         else:
             return jsonify({"status": "error", "message": "Invalid action."})
         
@@ -139,6 +137,7 @@ def transaction():
 @login_required
 def portfolio():
     user_id = current_user.id
+    balance = check_user_balance(user_id)
 
     # Query the user's portfolio and join with the stock table to get stock details
     portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
@@ -195,33 +194,35 @@ def portfolio():
     )
     form = TransactionForm()
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated)
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated, balance=balance)
 
 @web.route('/update_balance', methods=['POST'])
+@login_required
 def update_balance():
-    if 'user_id' not in db.session:
-        return jsonify({"success": False, "message": "User not logged in."}), 403
+
+    form = BalanceForm()
+
+    if form.validate_on_submit():
+        action = form.action.data
+        amount = form.amount.data
+
+        if not amount >= 0:
+            return jsonify({"success": False, "Deposit ": "Invalid amount. Please deposit more than 0."}), 400
+
+        action = request.form.get("action")
+        if action == "deposit":
+            try:
+                amount = float(amount)  # Ensure amount is a float
+                result = update_balance(current_user.id, action, amount)
+            except ValueError:
+                return jsonify({"success": False, "message": "Invalid amount."})
+        elif action == "withdraw":
+            # Withdraw amount
+            result = update_balance(current_user.id, action, amount)
+        
+        if result["status"] == "success":
+            return jsonify({"status": "success", "details": result["details"]})
+        else:
+            return jsonify({"status": "error", "message": result["message"]})
     
-    user_id = db.session['user_id']
-    action = request.json.get('action')
-    amount = request.json.get('amount')
-
-    if amount is None or amount <= 0:
-        return jsonify({"success": False, "Add ": "Invalid amount. Please add more than 0."}), 400
-
-    # Get the user from the database
-    user = User.query.get(user_id)
-
-    if action == 'add':
-        user.balance += amount
-    elif action == 'withdraw':
-        if user.balance < amount:
-            return jsonify({"success": False, "message": "Insufficient funds."}), 400
-        user.balance -= amount
-    else:
-        return jsonify({"success": False, "message": "Invalid action, Please enter a number."}), 400
-
-    # Commit the changes to the database
-    db.session.commit()
-
-    return jsonify({"success": True, "new_balance": user.balance})
+    return jsonify({"status": "error", "message": "Invalid form data."})
