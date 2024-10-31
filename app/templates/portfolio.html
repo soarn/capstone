@@ -50,7 +50,7 @@
       {% for row in transactions %}
       <tr>
         <td>{{ row.Transaction.order_number }}</td>
-        <td>${{ row.stock_symbol if row.stock_symbol else "" }}</td>
+        <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
         <td>{{ row.Transaction.type }}</td>
         <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
         <td>${{ "%.2f" | format(row.Transaction.price) }}</td>
@@ -348,7 +348,7 @@
       listItem.dataset.stockSymbol = stock.symbol;
 
       listItem.innerHTML = `
-        ${stock.symbol} - ${stock.company || stock.name}
+        ${"$" + stock.symbol} - ${stock.company || stock.name}
         <span class="badge bg-primary rounded-pill">${stock.quantity || stock.shares}</span>
         <button class="btn btn-sm btn-outline-secondary buy-sell-btn">${isBuyMode ? "Buy" : "Sell"}</button>
       `;
