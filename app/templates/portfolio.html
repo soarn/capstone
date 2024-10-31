@@ -53,8 +53,8 @@
         <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
         <td>{{ row.Transaction.type }}</td>
         <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
-        <td>${{ "%.2f" | format(row.Transaction.price) }}</td>
-        <td>${{ "%.2f" | format(row.Transaction.amount) }}</td>
+        <td class="currency-cell">${{ "%.2f" | format(row.Transaction.price) }}</td>
+        <td class="currency-cell">${{ "%.2f" | format(row.Transaction.amount) }}</td>
         <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
       </tr>
       {% endfor %}
@@ -208,6 +208,14 @@
 </div>
 
 <style>
+  /* Stock item list */
+  .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+  }
+
   /* Hover and focus styles for stock list items */
   .list-group-item:hover {
     background-color: var(--bs-light);
@@ -230,12 +238,29 @@
     color: var(--bs-white);
   }
 
-  /* Badge and buy/sell button spacing */
+  /* Quantity Badges */
   .badge {
     margin-right: 10px;
+    font-size: 0.9rem;
+    color: white;
   }
+
+  /* Padding for Buy/Sell button */
   .buy-sell-btn {
-    margin-left: 10px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* Background colors */
+  .btn-primary, .btn-success, .btn-danger {
+    color: white;
+    border: none;
+  }
+
+  /* Table Styles */
+  .currency-cell {
+    text-align: right;
+    font-family: monospace;
   }
 </style>
 
@@ -326,12 +351,16 @@
       isBuyMode = true;
       stockListTitle.textContent = "All Stocks";
       populateStockList(allStocks, true);
+      buyModeBtn.classList.add("disabled");
+      sellModeBtn.classList.remove("disabled");
     });
 
     sellModeBtn.addEventListener("click", function () {
       isBuyMode = false;
       stockListTitle.textContent = "Owned Stocks";
       populateStockList(portfolioStocks, false);
+      sellModeBtn.classList.add("disabled");
+      buyModeBtn.classList.remove("disabled");
     });
 
     // Populate stock list based on mode
