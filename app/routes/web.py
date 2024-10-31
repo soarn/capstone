@@ -158,9 +158,10 @@ def portfolio():
             ]            
         }
         for entry in portfolio_data
-    ]
+    ] if portfolio_data else []
 
     # Query all stocks for buying
+    all_stock_data = Stock.query.all()
     all_stocks = [
         {
             "id": stock.id,
@@ -175,8 +176,8 @@ def portfolio():
                 for history in StockHistory.query.filter_by(stock_id=stock.id).order_by(StockHistory.timestamp).all()
             ]
         }
-        for stock in Stock.query.all()
-    ]
+        for stock in all_stock_data
+    ] if all_stock_data else []
 
     # Paginate transactions table
     page = request.args.get('page', 1, type=int)
