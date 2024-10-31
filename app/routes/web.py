@@ -6,7 +6,7 @@ from sqlalchemy.orm import aliased
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
-from transaction import buy_stock, check_user_balance, sell_stock, update_balance
+from transaction import buy_stock, check_user_balance, sell_stock, balance_transaction
 from forms import LoginForm, RegisterForm, TransactionForm, BalanceForm
 
 # Create a blueprint for web routes
@@ -187,7 +187,7 @@ def portfolio():
 
     transactions_paginated = (
         db.session.query(Transaction, StockAlias.symbol.label('stock_symbol'))
-        .join(StockAlias, Transaction.stock == StockAlias.id)
+        .join(StockAlias, Transaction.stock == StockAlias.id, isouter=True) # Left join (include transactions without stock)
         .filter(Transaction.user == user_id)
         .order_by(desc(Transaction.timestamp))
         .paginate(page=page, per_page=per_page)
@@ -196,33 +196,19 @@ def portfolio():
 
     return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated, balance=balance)
 
+# BALANCE UPDATE ROUTE
 @web.route('/update_balance', methods=['POST'])
 @login_required
 def update_balance():
+    action = request.form.get("action")
+    amount = request.form.get("amount", type=float)
 
-    form = BalanceForm()
+    if action not in ['deposit', 'withdraw'] or not amount or amount <= 0:
+        return jsonify({"status": "error", "message": "Invalid action or amount."}), 400
 
-    if form.validate_on_submit():
-        action = form.action.data
-        amount = form.amount.data
-
-        if not amount >= 0:
-            return jsonify({"success": False, "Deposit ": "Invalid amount. Please deposit more than 0."}), 400
-
-        action = request.form.get("action")
-        if action == "deposit":
-            try:
-                amount = float(amount)  # Ensure amount is a float
-                result = update_balance(current_user.id, action, amount)
-            except ValueError:
-                return jsonify({"success": False, "message": "Invalid amount."})
-        elif action == "withdraw":
-            # Withdraw amount
-            result = update_balance(current_user.id, action, amount)
-        
-        if result["status"] == "success":
-            return jsonify({"status": "success", "details": result["details"]})
-        else:
-            return jsonify({"status": "error", "message": result["message"]})
+    result = balance_transaction(current_user.id, action, amount)
     
-    return jsonify({"status": "error", "message": "Invalid form data."})
+    if result["status"] == "success":
+        return jsonify({"status": "success", "details": result["details"]})
+    else:
+        return jsonify({"status": "error", "message": result["message"]})

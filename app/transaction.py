@@ -1,6 +1,7 @@
 from datetime import datetime
 from db.db_models import Stock, User, Portfolio, Transaction
 from db.db import db
+from sqlalchemy.exc import IntegrityError
 import uuid
 
 def buy_stock(user_id, stock_id, stock_symbol, quantity):
@@ -165,12 +166,14 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
     }
 
 # Update User Balance
-def update_balance(user_id, action, amount):
+def balance_transaction (user_id, action, amount):
 
     # Fetch the user from the database
     user = User.query.get(user_id)
     if not user:
         return {"status": "error", "message": "User not found."}
+    
+    print(f"Initial balance: {user.balance}")
 
     if action == 'deposit':
         user.balance += amount
@@ -178,40 +181,50 @@ def update_balance(user_id, action, amount):
         if user.balance < amount:
             return {"status": "error", "message": "Insufficient funds."}
         user.balance -= amount
-    else:
-        return {"status": "error", "message": "Invalid action."}
     
+    # Create a new transaction record for the balance update
     order_number = str(uuid.uuid4())
     new_transaction = Transaction(
         user=user.id,
-        stock="",
+        stock=None,  # Balance transactions may not have a stock ID
         type=action,
-        quantity=1,
+        quantity=0,  # Set quantity to 0 for balance actions
         price=amount,
         amount=user.balance,
         order_number=order_number,
         timestamp=datetime.now()
     )
 
-    # Commit the changes to the database
-    db.session.add(new_transaction)
-    db.session.commit()
+    # Debug transaction fields before adding to session
+    print(f"Prepared transaction: {new_transaction.__dict__}")
 
-    # Return a success message
-    if action == 'deposit':
-        action_type = 'deposited'
-        preposition = 'into'
-    else:
-        action_type = 'withdrew'
-        preposition = 'from'
-
-    return {
-        "status": "success", 
-        "message": f"Successfully {action_type} ${amount} {preposition} your cash account.",
-        "details": {
-            "order_number": order_number,
-            "action": action,
-            "amount": amount,
-            "new_balance": user.balance
+    # Add transaction to session and commit
+    try:
+        db.session.add(new_transaction)
+        db.session.commit()
+        print("Transaction committed successfully.")
+        
+        # Confirm transaction exists in database
+        saved_transaction = Transaction.query.filter_by(order_number=order_number).first()
+        if saved_transaction:
+            print("Transaction saved successfully:", saved_transaction.__dict__)
+        else:
+            print("Transaction not found in database after commit.")
+        
+        return {
+            "status": "success",
+            "details": {
+                "order_number": order_number,
+                "action": action,
+                "amount": amount,
+                "new_balance": user.balance
+            }
         }
-    }
+    except IntegrityError as e:
+        db.session.rollback()
+        print(f"IntegrityError: {e}")
+        return {"status": "error", "message": f"Integrity error: {e}"}
+    except Exception as e:
+        db.session.rollback()
+        print(f"Exception occurred: {e}")
+        return {"status": "error", "message": f"Exception occurred: {e}"}
