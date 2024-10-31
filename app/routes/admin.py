@@ -136,7 +136,8 @@ def transaction_data():
         User.username.label('username')
     ).join(
         Stock, 
-        Stock.id == Transaction.stock
+        Stock.id == Transaction.stock,
+        isouter=True # Left join (include transactions without stock)
     ).join(
         User,
         User.id == Transaction.user
@@ -177,7 +178,7 @@ def transaction_data():
             "symbol": symbol,
             "username": username,
             "type": transaction.type,
-            "quantity": transaction.quantity,
+            "quantity": transaction.quantity if transaction.quantity > 0 else None,
             "price": transaction.price,
             "amount": transaction.amount,
             "timestamp": transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')

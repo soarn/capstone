@@ -50,11 +50,11 @@
       {% for row in transactions %}
       <tr>
         <td>{{ row.Transaction.order_number }}</td>
-        <td>{{ row.stock_symbol }}</td>
+        <td>{{ row.stock_symbol if row.stock_symbol else "" }}</td>
         <td>{{ row.Transaction.type }}</td>
-        <td>{{ row.Transaction.quantity }}</td>
-        <td>{{ row.Transaction.price }}</td>
-        <td>{{ row.Transaction.amount }}</td>
+        <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
+        <td>${{ "%.2f" | format(row.Transaction.price) }}</td>
+        <td>${{ "%.2f" | format(row.Transaction.amount) }}</td>
         <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
       </tr>
       {% endfor %}
@@ -177,8 +177,8 @@
           </div>
           <!-- Option Select -->
           <div class="mb-3">
-            <button type="submit" id="depositFundsBtn" class="btn btn-success me-2" onclick="setBalanceAction('deposit')">Deposit Funds</button>
-            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger" onclick="setBalanceAction('withdraw')">Withdraw Funds</button>
+            <button type="submit" id="depositFundsBtn" class="btn btn-success me-2">Deposit Funds</button>
+            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger">Withdraw Funds</button>
           </div>      
         </form>
       </div>
@@ -258,6 +258,8 @@
     let isBuyMode = false; // Toggle buy/sell mode
     const balanceForm = document.getElementById("balance-form");
     const balanceAction = document.getElementById("balance-action");
+    const depositBtn = document.getElementById("depositFundsBtn");
+    const withdrawBtn = document.getElementById("withdrawFundsBtn");
 
     // Initialize Bootstrap modals
     const buySellModal = new bootstrap.Modal(buySellModalElement);
@@ -421,44 +423,65 @@
 
     // Set the balance action type
     function setBalanceAction(action) {
-      document.getElementById("balance-action").value = action;
+     document.getElementById("balance-action").value = action;
     }
 
-    // Handle form submission
-    balanceForm.addEventListener("submit", function (e) {
+    depositBtn.addEventListener("click", function (e) {
       e.preventDefault();
+      setBalanceAction('deposit');
+      submitBalanceForm();
+    });
 
+    withdrawBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      setBalanceAction('withdraw');
+      submitBalanceForm();
+    });
+
+    // Handle form submission
+    function submitBalanceForm() {
       const formData = new FormData(balanceForm);
 
       fetch("{{ url_for('web.update_balance') }}", {
         method: "POST",
         body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" },
+        headers: { "X-Requested-With": "XMLHttpRequest" }
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
         .then((data) => {
           if (data.status === "success") {
+            // Close the update balance modal
+            const balanceModal = bootstrap.Modal.getInstance(document.getElementById("balanceModal"));
+            if (balanceModal) balanceModal.hide();
+
+            // Update the balance display
+            document.getElementById("balance-display").textContent = data.details.new_balance.toFixed(2);
+
+            // Show the confirmation modal
             showBalConfirmationModal(data.details);
-            document.getElementById("balance-display").textContent = data.new_balance;
-            balanceForm.reset(); // Clear form fields
-            let balanceModal = new bootstrap.Modal(document.getElementById("balanceModal"));
-            balanceModal.hide();
+            balanceForm.reset();  // Clear form fields
           } else {
             alert(data.message);
           }
         })
         .catch((error) => console.error("Error:", error));
-    });
-
-    // Show balance confirmation modal
-    function showBalConfirmationModal(details) {
-      document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
-      document.getElementById("bal-order-number").textContent = details.order_number;
-      document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
-      document.getElementById("bal-order-amount").textContent = details.amount;
-      document.getElementById("bal-order-balance").textContent = details.new_balance;
-      showBalConfirmationModal.show();
     }
-  });
+
+  // Show balance confirmation modal
+  function showBalConfirmationModal(details) {
+    document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
+    document.getElementById("bal-order-number").textContent = details.order_number;
+    document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
+    document.getElementById("bal-order-amount").textContent = details.amount.toFixed(2);
+    document.getElementById("bal-order-balance").textContent = details.new_balance.toFixed(2);
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById("balConfirmationModal"));
+    modal.show();
+  }
+});
 </script>
 {% endblock %}
