@@ -50,7 +50,7 @@
       {% for row in transactions %}
       <tr>
         <td>{{ row.Transaction.order_number }}</td>
-        <td>{{ row.stock_symbol if row.stock_symbol else "" }}</td>
+        <td>${{ row.stock_symbol if row.stock_symbol else "" }}</td>
         <td>{{ row.Transaction.type }}</td>
         <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
         <td>${{ "%.2f" | format(row.Transaction.price) }}</td>
