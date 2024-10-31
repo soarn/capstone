@@ -3,17 +3,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // -----------------
   const portfolioDataElement = document.getElementById("portfolio-data");
   const allStocksDataElement = document.getElementById("all-stocks-data");
-  
-  console.log("Raw portfolio data:", portfolioDataElement.getAttribute("data-portfolio"));
-  console.log("Raw all stocks data:", allStocksDataElement.getAttribute("data-all-stocks"));
+
+  // Get endpoint URLs from HTML
+  const transactionEndpoint = document.getElementById("transaction-endpoint").getAttribute("data-url");
+  const balanceEndpoint = document.getElementById("balance-endpoint").getAttribute("data-url");
   
   // Check if data attributes exist and are not empty before parsing
   const portfolioStocks = portfolioDataElement.getAttribute("data-portfolio")
-  ? JSON.parse(portfolioDataElement.getAttribute("data-portfolio"))
-  : [];
+    ? JSON.parse(portfolioDataElement.getAttribute("data-portfolio"))
+    : [];
   const allStocks = allStocksDataElement.getAttribute("data-all-stocks")
-  ? JSON.parse(allStocksDataElement.getAttribute("data-all-stocks"))
-  : [];
+    ? JSON.parse(allStocksDataElement.getAttribute("data-all-stocks"))
+    : [];
   
   const stockList = document.getElementById("stock-list");
   const buyModeBtn = document.getElementById("buy-mode");
@@ -89,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Populate initial list of owned stocks
   populateStockList(portfolioStocks, false);
   
+  // Toggle between Buy and Sell mode
   buyModeBtn.addEventListener("click", function () {
     isBuyMode = true;
     stockListTitle.textContent = "All Stocks";
@@ -106,82 +108,56 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   
   function populateStockList(stocks, isBuyMode) {
-    stockList.innerHTML = ""; 
+    stockList.innerHTML = ""; // Clear list
     
     stocks.forEach((stock) => {
       const listItem = document.createElement("li");
-      listItem.classList.add("list-group-item", "d-flex", "align-items-start");
-      
-      // Row for stock symbol and name
+      listItem.classList.add("list-group-item");
+
+      // Create the row for layout
       const row = document.createElement("div");
       row.classList.add("row", "w-100");
-      
+
       // Column for stock symbol and name
       const stockInfoCol = document.createElement("div");
-      stockInfoCol.classList.add("col-8");
+      stockInfoCol.classList.add("stock-info");
       stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong> - ${stock.name || stock.company || 'undefined'}`;
 
-      // Column for quantity and Buy/Sell button
-      const buttonCol = document.createElement("div");
-      buttonCol.classList.add("col-auto", "text-center");
+       // Column for quantity badge and button (right-aligned)
+       const buttonCol = document.createElement("div");
+       buttonCol.classList.add("button-col");
 
-      // Quantity badge
-      const quantityBadge = document.createElement("span");
-      quantityBadge.classList.add("badge", "bg-primary", "rounded-pill", "mb-1"); // Margin bottom for spacing
-      quantityBadge.textContent = stock.shares || stock.quantity || 'undefined';
-      
-      // Buy/Sell Button
-      const actionButton = document.createElement("button");
-      actionButton.classList.add("btn", "btn-sm", "btn-outline-secondary", "buy-sell-btn");
-      actionButton.textContent = isBuyMode ? "Buy" : "Sell";
-      actionButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        handleBuySell(isBuyMode ? "buy" : "sell", stock.id, stock.symbol);
-      });
+       // Quantity Badge
+       const badge = document.createElement("span");
+       badge.classList.add("badge", "bg-primary", "rounded-pill", "quantity-badge");
+       badge.textContent = stock.shares || stock.quantity || 'undefined';
 
-      // Append quantity and button to buttonCol
-      buttonCol.appendChild(quantityBadge);
+       // Buy/Sell button
+       const actionButton = document.createElement("button");
+       actionButton.classList.add("btn", "btn-sm", "btn-outline-secondary", "buy-sell-btn");
+       actionButton.textContent = isBuyMode ? "BUY" : "SELL";
+       actionButton.addEventListener("click", (e) => {
+           e.stopPropagation();
+           openTransactionModal(stock.id, stock.symbol);
+       });
+
+      // Append badge and button to button column
+      buttonCol.appendChild(badge);
       buttonCol.appendChild(actionButton);
 
-      // Append columns to row
-      row.appendChild(stockInfoCol);
-      row.appendChild(buttonCol);
-      listItem.appendChild(row);
+      // Append stock info and button columns to the list item
+      listItem.appendChild(stockInfoCol);
+      listItem.appendChild(buttonCol);
 
-      // Update chart on item click      
+      // Update chart on item click
       listItem.addEventListener("click", function () {
-        if (stock.history) updateChart(stock.history);
+          if (stock.history) updateChart(stock.history);
       });
-      
+
       // Append list item to stock list
       stockList.appendChild(listItem);
     });
   }
-  
-  function handleBuySell(action, stockId, stockSymbol) {
-    document.getElementById("transaction-stock-id").value = stockId;
-    document.getElementById("transaction-stock-symbol").value = stockSymbol;
-    document.getElementById("transaction-action").value = action;
-    
-    const modalTitle = action === 'buy' ? 'Buy Stock' : 'Sell Stock';
-    document.getElementById("buySellModalLabel").textContent = modalTitle;
-    
-    buySellModal.show();
-  }
-  
-  // Handle Buy/Sell button click
-  function handleBuySell(action, stockId, stockSymbol) {
-    document.getElementById("transaction-stock-id").value = stockId;
-    document.getElementById("transaction-stock-symbol").value = stockSymbol;
-    document.getElementById("transaction-action").value = action;
-    
-    const modalTitle = action === 'buy' ? 'Buy Stock' : 'Sell Stock';
-    document.getElementById("buySellModalLabel").textContent = modalTitle;
-    
-    const buySellModal = new bootstrap.Modal(document.getElementById("buySellModal"));
-    buySellModal.show();
-  }
-  
   
   // 4. TRANSACTION LOGIC
   // --------------------
@@ -200,13 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
     const formData = new FormData(transactionForm);
     
-    // Log form data
-    console.log("Submitting form data:");
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-    
-    fetch("{{ url_for('web.transaction') }}", {
+    fetch(transactionEndpoint, {  // Using the endpoint URL
       method: "POST",
       body: formData,
       headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -237,9 +207,6 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // 5. BALANCE HANDLING
   // ----------------
-  // Handle balance form submission
-  
-  // Set the balance action type
   function setBalanceAction(action) {
     document.getElementById("balance-action").value = action;
   }
@@ -256,11 +223,10 @@ document.addEventListener("DOMContentLoaded", function () {
     submitBalanceForm();
   });
   
-  // Handle form submission
   function submitBalanceForm() {
     const formData = new FormData(balanceForm);
     
-    fetch("{{ url_for('web.update_balance') }}", {
+    fetch(balanceEndpoint, {  // Using the endpoint URL
       method: "POST",
       body: formData,
       headers: { "X-Requested-With": "XMLHttpRequest" }
@@ -271,16 +237,11 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .then((data) => {
       if (data.status === "success") {
-        // Close the update balance modal
         const balanceModal = bootstrap.Modal.getInstance(document.getElementById("balanceModal"));
         if (balanceModal) balanceModal.hide();
-        
-        // Update the balance display
         document.getElementById("balance-display").textContent = data.details.new_balance.toFixed(2);
-        
-        // Show the confirmation modal
         showBalConfirmationModal(data.details);
-        balanceForm.reset();  // Clear form fields
+        balanceForm.reset();
       } else {
         alert(data.message);
       }
@@ -288,15 +249,12 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch((error) => console.error("Error:", error));
   }
   
-  // Show balance confirmation modal
   function showBalConfirmationModal(details) {
     document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
     document.getElementById("bal-order-number").textContent = details.order_number;
     document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
     document.getElementById("bal-order-amount").textContent = details.amount.toFixed(2);
     document.getElementById("bal-order-balance").textContent = details.new_balance.toFixed(2);
-    
-    // Show modal
     const modal = new bootstrap.Modal(document.getElementById("balConfirmationModal"));
     modal.show();
   }
