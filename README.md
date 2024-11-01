@@ -119,10 +119,10 @@ The project  is to create a stock trading system  where users can buy and sell s
 - [x] View their current portfolio of stocks.
 - [ ] View their current cash balance.
 - [x] View their history of transactions.
-- [ ] Ability to deposit and withdraw cash.
-  - [ ] The user when depositing cash will have the funds go into a cash account.
-  - [ ] The user will only be able to withdraw money from their cash account.
-  - [ ] When stocks are sold the funds will go to cash account.
+- [x] Ability to deposit and withdraw cash.
+  - [x] The user when depositing cash will have the funds go into a cash account.
+  - [x] The user will only be able to withdraw money from their cash account.
+  - [x] When stocks are sold the funds will go to cash account.
 
 ### Administrators Functions
 
