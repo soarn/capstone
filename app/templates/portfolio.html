@@ -114,10 +114,10 @@
 
 <!-- Buy/Sell Modal -->
 <div class="modal fade" id="buySellModal" tabindex="-1" aria-labelledby="buySellModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="buySellModalLabel">Transaction</h5>
+        <h1 class="modal-title" id="buySellModalLabel">Transaction</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -131,7 +131,7 @@
             <label for="transaction-quantity" class="form-label">Quantity</label>
             {{ form.quantity(class="form-control", id="transaction-quantity") }}
           </div>
-          <button type="submit" class="btn btn-primary">Confirm</button>
+          <button type="submit" class="btn btn-primary w-100">Confirm</button>
         </form>
       </div>
     </div>
@@ -140,10 +140,10 @@
 
 <!-- Transaction Confirmation Modal -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
+        <h1 class="modal-title" id="confirmationModalLabel">Order Confirmation</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -162,10 +162,10 @@
 
 <!-- Balance Modal -->
 <div class="modal fade" id="balanceModal" tabindex="-1" aria-labelledby="balanceModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="balanceModalLabel">Update Balance</h5>
+        <h1 class="modal-title" id="balanceModalLabel">Update Balance</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -182,9 +182,9 @@
             <input type="number" class="form-control" id="balance-amount" name="amount" min="0.01" step="0.01" required>
           </div>
           <!-- Option Select -->
-          <div class="mb-3">
-            <button type="submit" id="depositFundsBtn" class="btn btn-success me-2">Deposit Funds</button>
-            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger">Withdraw Funds</button>
+          <div class="mb-3 flex flex-column">
+            <button type="submit" id="depositFundsBtn" class="btn btn-success mb-2 w-100">Deposit Funds</button>
+            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger w-100">Withdraw Funds</button>
           </div>      
         </form>
       </div>
@@ -194,10 +194,10 @@
 
 <!-- Balance Confirmation Modal -->
 <div class="modal fade" id="balConfirmationModal" tabindex="-1" aria-labelledby="balConfirmationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="balConfirmationModalLabel"></h5>
+        <h1 class="modal-title" id="balConfirmationModalLabel"></h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -233,16 +233,6 @@
     color: var(--bs-white);
     outline: none;
   }
-
-  /* Button styles */
-  /* .btn-outline-secondary {
-    border-color: var(--bs-secondary);
-    color: var(--bs-secondary);
-  }
-  .btn-outline-secondary:hover {
-    background-color: var(--bs-secondary);
-    color: var(--bs-white);
-  } */
 
   /* Quantity Badges */
   .quantity-badge {
