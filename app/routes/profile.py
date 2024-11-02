@@ -24,7 +24,7 @@ def profile_page():
     form.data_sharing.default = current_user.data_sharing
     form.notifications.default = current_user.notifications
     form.confetti_enabled.default = current_user.confetti_enabled
-    form.theme.choices = [(theme['name'], theme['name']) for theme in themes]
+    form.theme.choices = [(theme['name'], f"{theme['name']} - {theme.get('description', 'No description')}") for theme in themes]
     form.pagination.default = current_user.pagination
 
     if form.validate_on_submit():
