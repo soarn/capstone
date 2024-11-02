@@ -6,20 +6,20 @@
 <div class="container-fluid mt-4">
   <div class="row">
     <!-- Left-side navigation -->
-    <nav id="profile-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+    <nav id="profile-nav" class="col-md-3 col-lg-2 d-md-block bg-body-tertiary sidebar border-end">
       <div class="position-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
-            <a class="nav-link active" href="#account-settings">Account Settings</a>
+            <a class="nav-link text-body" href="#account-settings">Account Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#interface-settings">Interface Settings</a>
+            <a class="nav-link text-body" href="#interface-settings">Interface Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#privacy-settings">Privacy Settings</a>
+            <a class="nav-link text-body" href="#privacy-settings">Privacy Settings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#notifications">Notification Settings</a>
+            <a class="nav-link text-body" href="#notifications">Notification Settings</a>
           </li>
         </ul>
       </div>
@@ -28,7 +28,7 @@
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-        <h1 class="h2">Profile Settings</h1>
+        <h1 class="h2 text-primary">Profile Settings</h1>
         <div id="last-login" class="text-muted">
           <h6>Last Login</h6>
           <p>{{ current_user.last_login or "This is your first login!" }}</p>
@@ -93,8 +93,8 @@
         </section>
 
         <!-- Interface Settings Section -->
-        <section id="interface-settings" class="mb-5">
-          <h2 class="mb-4">Interface Settings</h2>
+        <section id="interface-settings" class="mb-5 p-3 bg-body border rounded">
+          <h2 class="mb-4 text-primary border-bottom pb-2">Interface Settings</h2>
           <div class="form-group mb-3">
             {{ form.theme.label }}
             {{ form.theme(class="form-select") }}
@@ -106,8 +106,8 @@
         </section>
 
         <!-- Privacy Settings Section -->
-        <section id="privacy-settings" class="mb-5">
-          <h2 class="mb-4">Privacy Settings</h2>
+        <section id="privacy-settings" class="mb-5 p-3 bg-body border rounded">
+          <h2 class="mb-4 text-primary border-bottom pb-2">Privacy Settings</h2>
           <div class="form-check mb-3">
               {{ form.data_sharing(class="form-check-input") }}
               {{ form.data_sharing.label }}
@@ -115,8 +115,8 @@
         </section>
 
         <!-- Notification Settings Section -->
-        <section id="notifications" class="mb-5">
-          <h2 class="mb-4">Notification Settings</h2>
+        <section id="notifications" class="mb-5 p-3 bg-body border rounded">
+          <h2 class="mb-4 text-primary border-bottom pb-2">Notification Settings</h2>
           <div class="form-check mb-3">
             {{ form.notifications(class="form-check-input") }}
             {{ form.notifications.label }}
@@ -124,8 +124,8 @@
         </section>
 
         <!-- Accessibility Settings Section -->
-        <section id="accessibility-settings" class="mb-5">
-          <h2 class="mb-4">Accessibility Settings</h2>
+        <section id="accessibility-settings" class="mb-5 p-3 bg-body border rounded">
+          <h2 class="mb-4 text-primary border-bottom pb-2">Accessibility Settings</h2>
           <div class="form-check mb-3">
               {{ form.confetti_enabled(class="form-check-input") }}
               {{ form.confetti_enabled.label }}
@@ -153,35 +153,40 @@
   }
 
   /* Theme-based colors */
-  :root {
-    --primary-color: {{ current_user.theme_primary_color }};
-    --secondary-color: {{ current_user.theme_secondary_color }};
-    --light-bg: {{ current_user.theme_light_bg }};
-    --dark-text: {{ current_user.theme_dark_text }};
-    --border-color: {{ current_user.theme_border }};
-  }
-
   h2 {
-    border-bottom: 2px solid var(--border-color);
+    /* border-bottom: 2px solid var(--bs-border-color);
     padding-bottom: 8px;
-    margin-bottom: 24px;
-    color: var(--primary-color);
+    margin-bottom: 24px; */
+    color: var(--bs-primary);
   }
 
-  section {
+  /* section {
     padding: 20px;
-    background-color: var(--light-bg);
-    border: 1px solid var(--border-color);
+    background-color: var(--bs-light);
+    border: 1px solid var(--bs-border-color);
     border-radius: 8px;
-  }
+  } */
 
-  .form-group, .form-check {
+  /* .form-group, .form-check {
     margin-bottom: 20px;
-  }
+  } */
 
   .form-control:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 0 0.2rem rgba(var(--secondary-color), 0.25);
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  }
+
+  #profile-nav .nav-link {
+    transition: background-color 0.2s;
+  }
+
+  #profile-nav .nav-link.hover {
+    background-color: var(--bs-body-bg);
+  }
+
+  #profile-nav .nav-link.active {
+    font-weight: bold;
+    color: var(--bs-primary);
   }
 </style>
 {% endblock %}
