@@ -16,7 +16,7 @@ endblock %} {% block content %}
             <a class="nav-link" href="#stock-management">Stock Management</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="#user-management">User Management</a>
+            <a class="nav-link" href="#user-management">User Management</a>
           </li>
           </li class="nav-item">
             <a class="nav-link" href="#transaction-history">Transaction History</a>
@@ -27,19 +27,18 @@ endblock %} {% block content %}
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-        <h1 class="h2">Admin Dashboard</h1>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+        <h1>Admin Dashboard</h1>
       </div>
 
         <!-- Stock Management Section -->
-        <section id="stock-management" class="mb-5">
+        <section id="stock-management" class="mb-5 p-3 bg-body border rounded">
 
           <!-- Update Stock Form -->
           <form method="POST" action="{{ url_for('admin.update_stock') }}" novalidate>
             {{ update_form.hidden_tag() }}
             <input type="hidden" name="form_name" value="update-stock">
-            <h2 class="mb-4">Stock Management</h2>
+            <h2 class="mb-4 text-primary border-bottom pb-2">Stock Management</h2>
             <div class="form-group mb-3">
               {{ update_form.stock_id(class="form-select", required=True) }} {{
                 update_form.stock_id.label }}
@@ -62,10 +61,11 @@ endblock %} {% block content %}
             </div>
           </form>
 
+          <!-- Create Stock Form -->
           <form method="POST" action="{{ url_for('admin.create_stock') }}" novalidate>
             {{ add_form.hidden_tag() }}
             <input type="hidden" name="form_name" value="create-stock">
-            <h2 class="mb-4">Create Stock</h2>
+            <h2 class="mb-4 text-primary border-bottom pb-2">Create Stock</h2>
             <div class="form-group mb-3">
               {{ add_form.company(class="form-control", required=True, placeholder="Enter stock name") }} {{
                 add_form.company.label }}
@@ -93,8 +93,8 @@ endblock %} {% block content %}
       <hr />
 
       <!-- User Management Section -->
-      <section id="user-management">
-        <h2>User Management</h2>
+      <section id="user-management" class="mb-5 p-3 bg-body border rounded">
+        <h2 class="mb-4 text-primary border-bottom pb-2">User Management</h2>
         <div class="table-responsive">
           <table class="table table-striped table-bordered mt-3">
             <thead>
@@ -125,8 +125,8 @@ endblock %} {% block content %}
 
       <hr />
 
-      <section id="transaction-history">
-        <h2>Transaction History</h2>
+      <section id="transaction-history" class="mb-5 p-3 bg-body border rounded">
+        <h2 class="mb-4 text-primary border-bottom pb-2">Transaction History</h2>
         <div class="table-responsive">
           <table id="transactions-table" class="table table-striped table-bordered">
             <thead>
