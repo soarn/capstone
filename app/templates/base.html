@@ -38,6 +38,34 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* Navbar Background and Text Color */
+    .navbar {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+    }
+
+    /* Dark and Light Backgrounds for Main Sections */
+    body {
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Link Styling for Sidebars and Navigation */
+    .nav-link {
+      color: var(--bs-primary);
+      font-weight: 500;
+    }
+
+    .nav-link.active {
+      color: var(--bs-info);
+    }
+
+    /* Set Icon Colors */
+    i.feather {
+      color: var(--bs-body-color);
+    }
+
     /* Navbar Styling */
     .navbar-container {
       display: flex;
@@ -45,6 +73,7 @@
       justify-content: space-between;
       padding: 0 1rem;
       flex-wrap: nowrap;
+      background-color: var(--bs-body-bg);
     }
 
     .gravatar-img {
@@ -71,6 +100,8 @@
       display: flex;
       align-items: center;
       max-width: 100%;
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
     }
 
     .stock-ticker {
@@ -86,53 +117,61 @@
     }
 
     .pro-highlight {
-    color: var(--danger-color);
-    animation: pulse 1.5s infinite alternate;
-  }
-
-  .navbar-title {
-    flex-grow: 1;
-    text-align: center;
-  }
-
-  .navbar-title h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0;
-    color: var(--primary-color);
-    animation: neon-glow 2s infinite alternate;
-    text-shadow: 2px 2px 4px rgba(var(--bs-success-rgb), 0.6);
-  }
-
-  @keyframes neon-glow {
-    from {
-      text-shadow: 2px 2px 8px rgba(var(--bs-success-rgb), 0.4);
+      color: var(--bs-danger);
+      animation: pulse 1.5s infinite alternate;
     }
-    to {
-      text-shadow: 2px 2px 12px rgba(var(--bs-info-rgb), 0.8);
-    }
-  }
 
-  @keyframes pulse {
-    from {
-      text-shadow: 2px 2px 8px rgba(var(--bs-danger-rgb), 0.4);
+    .navbar-title {
+      flex-grow: 1;
+      text-align: center;
     }
-    to {
-      text-shadow: 2px 2px 12px rgba(var(--bs-warning-rgb), 0.8);
-    }
-  }
 
-  @media (max-width: 768px) {
     .navbar-title h1 {
-      display: none;
-      font-size: 1.5rem; /* Adjust font size for mobile */
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0;
+      color: var(--bs-primary);
+      text-shadow: 2px 2px 4px rgba(var(--bs-success-rgb), 0.6);
+      animation: neon-glow 2s infinite alternate;
     }
-  }
 
-  html {
-    transition: background-color 0.3s, color 0.3s;
-  }
+    @keyframes neon-glow {
+      from {
+        text-shadow: 2px 2px 8px rgba(var(--bs-primary-rgb), 0.4);
+      }
+      to {
+        text-shadow: 2px 2px 12px rgba(var(--bs-primary-rgb), 0.8);
+      }
+    }
 
+    @keyframes pulse {
+      from {
+        text-shadow: 2px 2px 8px rgba(var(--bs-danger-rgb), 0.4);
+      }
+      to {
+        text-shadow: 2px 2px 12px rgba(var(--bs-warning-rgb), 0.8);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar-title h1 {
+        display: none;
+        font-size: 1.5rem; /* Adjust font size for mobile */
+      }
+    }
+
+    html {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+
+
+    /* Dark Mode Toggle Styling */
+    #themeToggle {
+      display: flex;
+      align-items: center;
+      color: var(--bs-body-color);
+    }
   </style>
 </head>
 <!-- Stock Ticker at Top of Page -->
