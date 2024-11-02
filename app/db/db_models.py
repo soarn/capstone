@@ -1,5 +1,5 @@
 from db.db import db
-from datetime import datetime
+from datetime import datetime, time
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import uuid
@@ -72,6 +72,12 @@ class Transaction(db.Model):
     price     = db.Column(db.Float, nullable=False)
     amount    = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+
+# Create Admin Model for Market Hours (Admin)
+class AdminSettings(db.Model):
+    id        = db.Column(db.Integer, primary_key=True)
+    market_open = db.Column(db.Time, default= time (8, 0)) 
+    market_close = db.Column(db.Time, default= time (16, 0))
     
 # Create Database Tables
 # @app.route("/")
