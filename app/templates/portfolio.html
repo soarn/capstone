@@ -18,9 +18,9 @@
   </div>
   <div class="row">
     <div class="col-12 mb-3 d-flex justify-content-end">
-      <button id="balance-mode" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#balanceModal">Balance</button>
-      <button id="buy-mode" class="btn btn-success me-2">Buy</button>
-      <button id="sell-mode" class="btn btn-danger">Sell</button>
+      <button type="button" id="balance-mode" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#balanceModal">Balance</button>
+      <button type="button" id="buy-mode" class="btn btn-success me-2">Buy</button>
+      <button type="button" id="sell-mode" class="btn btn-danger">Sell</button>
     </div>
 
     <!-- Owned/All Stocks List -->
@@ -45,32 +45,34 @@
 <!-- Transaction History Table -->
 <div class="container mt-5">
   <h4>Transaction History</h4>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Order Number</th>
-        <th>Symbol</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in transactions %}
-      <tr>
-        <td>{{ row.Transaction.order_number }}</td>
-        <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
-        <td>{{ row.Transaction.type }}</td>
-        <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
-        <td class="currency-cell">${{ "%.2f" | format(row.Transaction.price) }}</td>
-        <td class="currency-cell">${{ "%.2f" | format(row.Transaction.amount) }}</td>
-        <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Symbol</th>
+          <th>Type</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in transactions %}
+        <tr>
+          <td>{{ row.Transaction.order_number }}</td>
+          <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
+          <td>{{ row.Transaction.type }}</td>
+          <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
+          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.price) }}</td>
+          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.amount) }}</td>
+          <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Pagination Controls -->
