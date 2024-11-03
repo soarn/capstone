@@ -8,13 +8,12 @@ from routes.profile import profile
 from routes.admin import admin
 import os
 from datetime import timedelta
-from dotenv import load_dotenv
 from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
-from utils import fetch_bootswatch_themes, get_gravatar_url
-from pricing import start_price_updater, start_history_recorder
+from utils import get_gravatar_url
+from pricing import start_scheduler
 from cleanup import start_cleanup_task
 from flask_wtf.csrf import CSRFProtect
 
@@ -61,10 +60,9 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    # Start the price updater thread
-    start_price_updater(app)
-    # Start the history recorder thread
-    start_history_recorder(app)
+    # Start the pricing scheduler
+    start_scheduler(app)
+    
     # Start the cleanup task
     start_cleanup_task(app)
 

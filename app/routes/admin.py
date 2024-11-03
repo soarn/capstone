@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, flash, url_for, jsonify
 from flask_login import current_user, login_required
 from functools import wraps
-from db.db_models import Stock, User, Transaction
+from db.db_models import Stock, User, Transaction, AdminSettings
 from db.db import db
 import uuid
-from forms import UpdateStockForm, CreateStockForm
+from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import aliased
 
@@ -33,8 +33,8 @@ def admin_page():
     # Initialize forms
     updateForm = UpdateStockForm()
     updateForm.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
-
     newForm = CreateStockForm()
+    updateMarketForm = UpdateMarketForm()
 
     # Return render template
     return render_template(
@@ -42,7 +42,8 @@ def admin_page():
         all_users=all_users, 
         all_stocks=all_stocks,
         update_form=updateForm,
-        add_form=newForm
+        add_form=newForm,
+        update_market_form=updateMarketForm
     )
 
 # Route to handle the update stock form
@@ -94,6 +95,26 @@ def create_stock():
 
     return redirect(url_for('admin.admin_page'))
 
+# Route to handle the market update form
+@admin.route("/admin/update_market", methods=['POST'])
+@login_required
+@admin_required
+def update_market():
+
+    settings = AdminSettings.query.first()
+
+    # Instantiate the form]
+    updateMarketForm = UpdateMarketForm()
+
+    if updateMarketForm.validate_on_submit():
+        settings.market_open = updateMarketForm.market_open.data
+        settings.market_close = updateMarketForm.market_close.data
+        db.session.commit()
+        flash("Market hours updated successfully!", "success")
+    else:
+        flash("Invalid form data", "danger")
+    
+    return redirect(url_for('admin.admin_page'))
 
 # Transaction Table Route for AJAX
 @admin.route("/admin/transactions/data")

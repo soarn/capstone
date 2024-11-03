@@ -47,6 +47,11 @@ class UpdateProfileForm(FlaskForm):
     confetti_enabled = BooleanField('Enable Confetti')
     submit           = SubmitField('Update Profile')
 
+# ADMIN: Update Stock Market Form
+class UpdateMarketForm(FlaskForm):
+    open = IntegerField('Open', validators=[DataRequired(), NumberRange(min=0, max=23)], default=8)
+    close = IntegerField('Close', validators=[DataRequired(), NumberRange(min=0, max=23)], default=16)
+
 # ADMIN: Update Stock Form
 class UpdateStockForm(FlaskForm):
     stock_id               = SelectField('Select Stock', validators=[DataRequired()], coerce=int)
