@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, HiddenField, SubmitField, PasswordField, EmailField, BooleanField, FloatField, SelectField, TimeField, SelectMultipleField
 from wtforms.validators import DataRequired, NumberRange, Email, Length, Optional
@@ -49,8 +50,8 @@ class UpdateProfileForm(FlaskForm):
 
 # ADMIN: Update Stock Market Form
 class UpdateMarketForm(FlaskForm):
-    open = TimeField('Market Open Time', validators=[DataRequired()], default="08:00")
-    close = TimeField('Market Close Time', validators=[DataRequired()], default="16:00")
+    open = TimeField('Market Open Time', validators=[DataRequired()], default=datetime.strptime("08:00", "%H:%M").time())
+    close = TimeField('Market Close Time', validators=[DataRequired()], default=datetime.strptime("16:00", "%H:%M").time())
     open_days = SelectMultipleField(
         'Open Days',
         choices=[('Monday', 'Monday'), ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'), 

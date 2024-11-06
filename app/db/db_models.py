@@ -2,7 +2,6 @@ from db.db import db
 from datetime import datetime, time
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-from sqlalchemy.dialects.postgresql import ARRAY
 import uuid
 
 # Create User Model (User)
@@ -58,7 +57,7 @@ class StockHistory(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    price     = db.Column(db.Float, nullable=False)
+    price     = db.Column(db.Numeric, nullable=False)
     quantity  = db.Column(db.Float, nullable=False)
 
 # Create Transaction Model (Transaction)
@@ -67,20 +66,42 @@ class Transaction(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     order_number = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user      = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stock     = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    stock     = db.Column(db.Integer, db.ForeignKey('stock.id'))
     type      = db.Column(db.String(10), nullable=False)
     quantity  = db.Column(db.Integer, nullable=False)
-    price     = db.Column(db.Float, nullable=False)
+    price     = db.Column(db.Numeric())
     amount    = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
 # Create Admin Model for Market Hours (Admin)
 class AdminSettings(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
-    market_open = db.Column(db.Time, default= time (8, 0)) 
-    market_close = db.Column(db.Time, default= time (16, 0))
-    open_days = db.Column(ARRAY(db.String), default=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])
+    market_open = db.Column(db.Time, default=time(8, 0)) 
+    market_close = db.Column(db.Time, default=time(16, 0))
+    open_days = db.Column(db.String, default="Monday,Tuesday,Wednesday,Thursday,Friday")  # Comma-separated days because MySQL doesn't support ARRAY :(
     close_on_holidays = db.Column(db.Boolean, default=True)
+
+    # Convert open_days to a list for easier handling
+    @property
+    def open_days_list(self):
+        return self.open_days.split(',') if self.open_days else []
+
+    @open_days_list.setter
+    def open_days_list(self, days):
+        self.open_days = ','.join(days) if days else ""
+    @property
+    
+    # Add property methods for safe conversions
+    def market_open_time(self):
+        if isinstance(self.market_open, str):
+            return datetime.strptime(self.market_open, '%H:%M').time()
+        return self.market_open
+
+    @property
+    def market_close_time(self):
+        if isinstance(self.market_close, str):
+            return datetime.strptime(self.market_close, '%H:%M').time()
+        return self.market_close
     
 # Create Database Tables
 # @app.route("/")

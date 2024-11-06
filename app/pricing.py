@@ -16,7 +16,7 @@ def update_stock_prices():
 
     # Check if the market is open based on the day, time, and holiday setting
     if (settings and 
-        current_day in settings.open_days and
+        current_day in settings.open_days_list and
         settings.market_open <= now.time() <= settings.market_close and
         not (settings.close_on_holidays and now.date() in nyse_holidays)):
         

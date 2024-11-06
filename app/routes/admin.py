@@ -112,7 +112,7 @@ def update_market():
 
         settings.market_open = form.open.data
         settings.market_close = form.close.data
-        settings.open_days = form.open_days.data
+        settings.open_days_list = form.open_days.data
         settings.close_on_holidays = form.close_on_holidays.data
 
         db.session.commit()
