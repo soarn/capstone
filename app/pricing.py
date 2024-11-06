@@ -1,17 +1,25 @@
 from datetime import datetime, time as dt_time
 import random
-import time
+import holidays
 from threading import Thread
 from db.db_models import Stock, StockHistory, AdminSettings
 from db.db import db
 from apscheduler.schedulers.background import BackgroundScheduler
 
+nyse_holidays = holidays.NYSE()
+
 # Automatic Price Fluctuation and Stock Quantity Updates
 def update_stock_prices():
-    # Check if the market is open
     settings = AdminSettings.query.first()
     now = datetime.now().time()
-    if settings and settings.market_open <= now <= settings.market_close:
+    current_day = now.strftime('%A')
+
+    # Check if the market is open based on the day, time, and holiday setting
+    if (settings and 
+        current_day in settings.open_days and
+        settings.market_open <= now.time() <= settings.market_close and
+        not (settings.close_on_holidays and now.date() in nyse_holidays)):
+        
         stocks = Stock.query.all()
         for stock in stocks:
             if not stock.is_manual:

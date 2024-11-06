@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, flash, url_for, jsonify
 from flask_login import current_user, login_required
 from functools import wraps
@@ -100,19 +101,24 @@ def create_stock():
 @login_required
 @admin_required
 def update_market():
+    # Instantiate the form
+    form = UpdateMarketForm()
 
-    settings = AdminSettings.query.first()
+    if form.validate_on_submit():
+        settings = AdminSettings.query.first()
+        if not settings:
+            settings = AdminSettings()
+            db.session.add(settings)
 
-    # Instantiate the form]
-    updateMarketForm = UpdateMarketForm()
+        settings.market_open = form.open.data
+        settings.market_close = form.close.data
+        settings.open_days = form.open_days.data
+        settings.close_on_holidays = form.close_on_holidays.data
 
-    if updateMarketForm.validate_on_submit():
-        settings.market_open = updateMarketForm.market_open.data
-        settings.market_close = updateMarketForm.market_close.data
         db.session.commit()
-        flash("Market hours updated successfully!", "success")
+        flash("Market settings updated successfully!", "success")
     else:
-        flash("Invalid form data", "danger")
+        flash("Failed to update market settings. Please check your inputs.", "danger")
     
     return redirect(url_for('admin.admin_page'))
 

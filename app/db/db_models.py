@@ -2,6 +2,7 @@ from db.db import db
 from datetime import datetime, time
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import ARRAY
 import uuid
 
 # Create User Model (User)
@@ -78,6 +79,8 @@ class AdminSettings(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     market_open = db.Column(db.Time, default= time (8, 0)) 
     market_close = db.Column(db.Time, default= time (16, 0))
+    open_days = db.Column(ARRAY(db.String), default=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])
+    close_on_holidays = db.Column(db.Boolean, default=True)
     
 # Create Database Tables
 # @app.route("/")

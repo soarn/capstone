@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, HiddenField, SubmitField, PasswordField, EmailField, BooleanField, FloatField, SelectField
+from wtforms import StringField, IntegerField, HiddenField, SubmitField, PasswordField, EmailField, BooleanField, FloatField, SelectField, TimeField, SelectMultipleField
 from wtforms.validators import DataRequired, NumberRange, Email, Length, Optional
 
 # WEB: Transaction Form
@@ -49,8 +49,17 @@ class UpdateProfileForm(FlaskForm):
 
 # ADMIN: Update Stock Market Form
 class UpdateMarketForm(FlaskForm):
-    open = IntegerField('Open', validators=[DataRequired(), NumberRange(min=0, max=23)], default=8)
-    close = IntegerField('Close', validators=[DataRequired(), NumberRange(min=0, max=23)], default=16)
+    open = TimeField('Market Open Time', validators=[DataRequired()], default="08:00")
+    close = TimeField('Market Close Time', validators=[DataRequired()], default="16:00")
+    open_days = SelectMultipleField(
+        'Open Days',
+        choices=[('Monday', 'Monday'), ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'), 
+                 ('Thursday', 'Thursday'), ('Friday', 'Friday'), ('Saturday', 'Saturday'), 
+                 ('Sunday', 'Sunday')],
+        default=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    )
+    close_on_holidays = BooleanField('Close on NYSE Holidays', default=True)
+    submit = SubmitField('Update Market')
 
 # ADMIN: Update Stock Form
 class UpdateStockForm(FlaskForm):
