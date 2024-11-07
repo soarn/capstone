@@ -6,16 +6,20 @@ from routes.web import web
 from routes.api_v1 import api_v1
 from routes.profile import profile
 from routes.admin import admin
-import os
 from datetime import timedelta
 from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
 from utils import get_gravatar_url
-from pricing import start_scheduler
+from pricing import update_stock_prices, record_stock_history
 from cleanup import start_cleanup_task
 from flask_wtf.csrf import CSRFProtect
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import os
+import atexit
+
 
 def create_app():
     # Initialize Flask App
@@ -60,14 +64,22 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    # Start the pricing scheduler
-    start_scheduler(app)
-    
     # Start the cleanup task
-    start_cleanup_task(app)
+    # start_cleanup_task(app)
 
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
+
+    # Scheduler Configuration and Start
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=lambda: update_stock_prices(app), trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
+    scheduler.add_job(func=lambda: record_stock_history(app), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
+
+    # Start the scheduler
+    scheduler.start()
+
+    # Shut down the scheduler when exiting the app
+    atexit.register(lambda: scheduler.shutdown())
 
     return app
 
