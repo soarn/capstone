@@ -9,6 +9,11 @@ class TransactionForm(FlaskForm):
     stock_symbol = HiddenField("Stock Symbol", validators=[DataRequired()], default="")
     quantity = IntegerField("Quantity", validators=[DataRequired(), NumberRange(min=1, message="Quantity must be greater than 0")])
 
+# WEB: Balance Form
+class BalanceForm(FlaskForm):
+    action = HiddenField("Action", validators=[DataRequired()], default="")
+    amount = FloatField("Amount", validators=[DataRequired(), NumberRange(min=0.01, message="Amount must be greater than 0")])
+
 # WEB: Login Form
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(max=80)])

@@ -11,10 +11,10 @@
         "name": "Python: Flask",
         "type": "debugpy",
         "request": "launch",
-        "program": "${workspaceFolder}/app/app.py",  // Path to your app.py file
+        "program": "${workspaceFolder}/app/app.py",
         "console": "integratedTerminal",
         "env": {
-          "FLASK_APP": "app/app.py",                 // Set Flask app environment variable
+          "FLASK_APP": "app/app.py",             // Set Flask app environment variable
           "FLASK_ENV": "development",            // Enable Flask development mode (includes debug)
           "FLASK_DEBUG": "1",                    // Enable Flask debugging
           "PYTHONPATH": "${workspaceFolder}"     // Include workspace in the Python path

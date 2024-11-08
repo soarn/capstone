@@ -3,13 +3,24 @@
 {% block content %}
 <h1>Your Stock Portfolio</h1>
 
+<div id="portfolio-data" data-portfolio='{{ portfolio|tojson }}'></div>
+<div id="all-stocks-data" data-all-stocks='{{ all_stocks|tojson }}'></div>
+<!-- Adding URLs as data attributes to be used in JavaScript -->
+<div id="transaction-endpoint" data-url="{{ url_for('web.transaction') }}"></div>
+<div id="balance-endpoint" data-url="{{ url_for('web.update_balance') }}"></div>
+
 <div class="container mb-3">
   <!-- Buy/Sell Toggle -->
   <div class="row">
+    <div class="col-12 d-flex justify-content-end">
+      <h3 id="user-balance" class="">Cash Account: ${{ balance }}</h3>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-12 mb-3 d-flex justify-content-end">
-      <button id="balance-mode" class="btn btn-primary me-2">Balance</button>
-      <button id="buy-mode" class="btn btn-success me-2">Buy</button>
-      <button id="sell-mode" class="btn btn-danger">Sell</button>
+      <button type="button" id="balance-mode" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#balanceModal">Balance</button>
+      <button type="button" id="buy-mode" class="btn btn-success me-2">Buy</button>
+      <button type="button" id="sell-mode" class="btn btn-danger">Sell</button>
     </div>
 
     <!-- Owned/All Stocks List -->
@@ -32,34 +43,36 @@
 <!-- TRANSACTION HISTORY -->
 
 <!-- Transaction History Table -->
-<div class="container">
+<div class="container mt-5">
   <h4>Transaction History</h4>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Order Number</th>
-        <th>Symbol</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in transactions %}
-      <tr>
-        <td>{{ row.Transaction.order_number }}</td>
-        <td>{{ row.stock_symbol }}</td>
-        <td>{{ row.Transaction.type }}</td>
-        <td>{{ row.Transaction.quantity }}</td>
-        <td>{{ row.Transaction.price }}</td>
-        <td>{{ row.Transaction.amount }}</td>
-        <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Symbol</th>
+          <th>Type</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in transactions %}
+        <tr>
+          <td>{{ row.Transaction.order_number }}</td>
+          <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
+          <td>{{ row.Transaction.type }}</td>
+          <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
+          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.price) }}</td>
+          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.amount) }}</td>
+          <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Pagination Controls -->
@@ -108,10 +121,10 @@
 
 <!-- Buy/Sell Modal -->
 <div class="modal fade" id="buySellModal" tabindex="-1" aria-labelledby="buySellModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="buySellModalLabel">Transaction</h5>
+        <h1 class="modal-title" id="buySellModalLabel">Transaction</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -125,7 +138,7 @@
             <label for="transaction-quantity" class="form-label">Quantity</label>
             {{ form.quantity(class="form-control", id="transaction-quantity") }}
           </div>
-          <button type="submit" class="btn btn-primary">Confirm</button>
+          <button type="submit" class="btn btn-primary w-100">Confirm</button>
         </form>
       </div>
     </div>
@@ -134,10 +147,10 @@
 
 <!-- Transaction Confirmation Modal -->
 <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmationModalLabel">Order Confirmation</h5>
+        <h1 class="modal-title" id="confirmationModalLabel">Order Confirmation</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -154,7 +167,68 @@
   </div>
 </div>
 
+<!-- Balance Modal -->
+<div class="modal fade" id="balanceModal" tabindex="-1" aria-labelledby="balanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title" id="balanceModalLabel">Update Balance</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="balance-form" method="POST" action="{{ url_for('web.update_balance') }}">
+          {{ form.csrf_token }}
+          <!-- Hidden field for action type -->
+           <input type="hidden" id="balance-action" name="action">
+          <div class="mb-3">
+            <label for="balance-display" class="form-label">Current Balance</label>
+            <p id="balance-display">{{ balance }}</p>
+          </div>
+          <div class="mb-3">
+            <label for="balance-amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="balance-amount" name="amount" min="0.01" step="0.01" required>
+          </div>
+          <!-- Option Select -->
+          <div class="mb-3 flex flex-column">
+            <button type="submit" id="depositFundsBtn" class="btn btn-success mb-2 w-100">Deposit Funds</button>
+            <button type="submit" id="withdrawFundsBtn" class="btn btn-danger w-100">Withdraw Funds</button>
+          </div>      
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Balance Confirmation Modal -->
+<div class="modal fade" id="balConfirmationModal" tabindex="-1" aria-labelledby="balConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title" id="balConfirmationModalLabel"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Transaction Number:</strong> <span id="bal-order-number"></span></p>
+        <p><strong>Action:</strong> <span id="bal-order-action"></span></p>
+        <p><strong>Amount:</strong> $<span id="bal-order-amount"></span></p>
+        <p><strong>New Balance:</strong> $<span id="bal-order-balance"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
+  /* Stock item list */
+  .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+  }
+
   /* Hover and focus styles for stock list items */
   .list-group-item:hover {
     background-color: var(--bs-light);
@@ -167,200 +241,55 @@
     outline: none;
   }
 
-  /* Button styles */
-  .btn-outline-secondary {
-    border-color: var(--bs-secondary);
-    color: var(--bs-secondary);
-  }
-  .btn-outline-secondary:hover {
-    background-color: var(--bs-secondary);
-    color: var(--bs-white);
+  /* Quantity Badges */
+  .quantity-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 30px;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
   }
 
-  /* Badge and buy/sell button spacing */
-  .badge {
-    margin-right: 10px;
-  }
+  /* Padding for Buy/Sell button */
   .buy-sell-btn {
-    margin-left: 10px;
+    min-width: 60px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
   }
+
+  /* Stock name and symbol */
+  .stock-info {
+    flex-grow: 1;
+  }
+
+  .button-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  /* Background colors */
+  .btn-primary, .btn-success, .btn-danger {
+    color: white;
+    border: none;
+  }
+
+  /* Table Styles */
+  .currency-cell {
+    text-align: right;
+    font-family: monospace;
+  }
+
+  .list-group-item {
+    padding: 10px 15px;
+  }
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.js"></script>
+<script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // 1. INITIALIZATION
-    // -----------------
-    const portfolioStocks = {{ portfolio|tojson }};
-    const allStocks = {{ all_stocks|tojson }};
-    const stockList = document.getElementById("stock-list");
-    const buyModeBtn = document.getElementById("buy-mode");
-    const sellModeBtn = document.getElementById("sell-mode");
-    const stockListTitle = document.getElementById("stock-list-title");
-    const transactionForm = document.getElementById("transaction-form");
-    const transactionAction = document.getElementById("transaction-action"); // Action input field
-    const buySellModalElement = document.getElementById("buySellModal");
-    const confirmationModalElement = document.getElementById("confirmationModal");
-    let isBuyMode = false; // Toggle buy/sell mode
-
-    // Initialize Bootstrap modals
-    const buySellModal = new bootstrap.Modal(buySellModalElement);
-    const confirmationModal = new bootstrap.Modal(confirmationModalElement);
-
-    // Extract theme colors from CSS variables
-    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-primary").trim();
-    const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-secondary").trim();
-
-    // 2. CHART HANDLING
-    // -----------------
-    // Initialize the chart
-    const ctx = document.getElementById("chart-canvas").getContext("2d");
-    let stockChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: "Stock Price",
-            data: [],
-            borderColor: primaryColor,
-            backgroundColor: primaryColor + "33", // Semi-transparent
-            borderWidth: 2,
-            fill: true,
-            tension: 0.1, // Slight curve
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: { title: { display: true, text: "Time", color: secondaryColor } },
-          y: { title: { display: true, text: "Price ($)", color: primaryColor } },
-        },
-        plugins: {
-          legend: { labels: { color: primaryColor } },
-          tooltip: {
-            backgroundColor: primaryColor,
-            titleColor: "#fff",
-            bodyColor: "#fff",
-          },
-        },
-      },
-    });
-
-    // Update the stock history chart
-    function updateChart(history) {
-      const labels = history.map((entry) => entry.timestamp);
-      const prices = history.map((entry) => entry.price);
-
-      stockChart.data.labels = labels;
-      stockChart.data.datasets[0].data = prices;
-      stockChart.update();
-    }
-
-    // 3. STOCK LIST HANDLING
-    // ----------------------
-    // Populate initial list of owned stocks
-    populateStockList(portfolioStocks, false);
-
-    // Toggle between Buy and Sell mode
-    buyModeBtn.addEventListener("click", function () {
-      isBuyMode = true;
-      stockListTitle.textContent = "All Stocks";
-      populateStockList(allStocks, true);
-    });
-
-    sellModeBtn.addEventListener("click", function () {
-      isBuyMode = false;
-      stockListTitle.textContent = "Owned Stocks";
-      populateStockList(portfolioStocks, false);
-    });
-
-    // Populate stock list based on mode
-    function populateStockList(stocks, isBuyMode) {
-      stockList.innerHTML = ""; // Clear list
-      stocks.forEach((stock) => addStockItem(stock, isBuyMode));
-    }
-
-    // Add individual stock item to list
-    function addStockItem(stock, isBuyMode) {
-      const listItem = document.createElement("li");
-      listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center", "stock-item");
-      listItem.dataset.stockId = stock.id;
-      listItem.dataset.stockSymbol = stock.symbol;
-
-      listItem.innerHTML = `
-        ${stock.symbol} - ${stock.company || stock.name}
-        <span class="badge bg-primary rounded-pill">${stock.quantity || stock.shares}</span>
-        <button class="btn btn-sm btn-outline-secondary buy-sell-btn">${isBuyMode ? "Buy" : "Sell"}</button>
-      `;
-
-      // Set button click behavior
-      listItem.querySelector(".buy-sell-btn").addEventListener("click", function (e) {
-        e.stopPropagation();
-        openTransactionModal(stock.id, stock.symbol);
-      });
-
-      // Update chart on item click
-      listItem.addEventListener("click", function () {
-        if (stock.history) updateChart(stock.history);
-      });
-
-      stockList.appendChild(listItem);
-    }
-
-    // 4. TRANSACTION LOGIC
-    // --------------------
-    // Open transaction modal and set form values
-    function openTransactionModal(stockId, stockSymbol) {
-      document.getElementById("transaction-stock-id").value = stockId;
-      document.getElementById("transaction-stock-symbol").value = stockSymbol;
-      document.getElementById("buySellModalLabel").textContent = isBuyMode ? "Buy Stock" : "Sell Stock";
-      transactionAction.value = isBuyMode ? "buy" : "sell"; // Set action type
-      buySellModal.show();
-    }
-
-    // Handle form submission
-    transactionForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(transactionForm);
-
-      // Log form data
-      console.log("Submitting form data:");
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-
-      fetch("{{ url_for('web.transaction') }}", {
-        method: "POST",
-        body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            showConfirmationModal(data.details);
-            transactionForm.reset(); // Clear form fields
-            buySellModal.hide();
-          } else {
-            alert(data.message);
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    });
-
-    // Show confirmation modal
-    function showConfirmationModal(details) {
-      document.getElementById("order-number").textContent = details.order_number;
-      document.getElementById("order-symbol").textContent = details.symbol;
-      document.getElementById("order-action").textContent = isBuyMode ? "Buy" : "Sell";
-      document.getElementById("order-quantity").textContent = details.quantity;
-      document.getElementById("order-price").textContent = details.price;
-      document.getElementById("order-total").textContent = details.total_price;
-      confirmationModal.show();
-    }
-  });
-</script>
 {% endblock %}

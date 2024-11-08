@@ -6,8 +6,8 @@ from sqlalchemy.orm import aliased
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
-from transaction import buy_stock, sell_stock
-from forms import LoginForm, RegisterForm, TransactionForm
+from transaction import buy_stock, check_user_balance, sell_stock, balance_transaction
+from forms import LoginForm, RegisterForm, TransactionForm, BalanceForm
 
 # Create a blueprint for web routes
 web = Blueprint('web', __name__)
@@ -122,8 +122,6 @@ def transaction():
         elif action == "sell":
             # Sell stock
             result = sell_stock(current_user.id, stock_id, stock_symbol, quantity)
-            # TODO: #19 Implement sell_stock function
-            pass
         else:
             return jsonify({"status": "error", "message": "Invalid action."})
         
@@ -139,6 +137,7 @@ def transaction():
 @login_required
 def portfolio():
     user_id = current_user.id
+    balance = check_user_balance(user_id)
 
     # Query the user's portfolio and join with the stock table to get stock details
     portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
@@ -159,9 +158,10 @@ def portfolio():
             ]            
         }
         for entry in portfolio_data
-    ]
+    ] if portfolio_data else []
 
     # Query all stocks for buying
+    all_stock_data = Stock.query.all()
     all_stocks = [
         {
             "id": stock.id,
@@ -176,8 +176,8 @@ def portfolio():
                 for history in StockHistory.query.filter_by(stock_id=stock.id).order_by(StockHistory.timestamp).all()
             ]
         }
-        for stock in Stock.query.all()
-    ]
+        for stock in all_stock_data
+    ] if all_stock_data else []
 
     # Paginate transactions table
     page = request.args.get('page', 1, type=int)
@@ -188,11 +188,28 @@ def portfolio():
 
     transactions_paginated = (
         db.session.query(Transaction, StockAlias.symbol.label('stock_symbol'))
-        .join(StockAlias, Transaction.stock == StockAlias.id)
+        .join(StockAlias, Transaction.stock == StockAlias.id, isouter=True) # Left join (include transactions without stock)
         .filter(Transaction.user == user_id)
         .order_by(desc(Transaction.timestamp))
         .paginate(page=page, per_page=per_page)
     )
     form = TransactionForm()
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated)
+    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated, balance=balance)
+
+# BALANCE UPDATE ROUTE
+@web.route('/update_balance', methods=['POST'])
+@login_required
+def update_balance():
+    action = request.form.get("action")
+    amount = request.form.get("amount", type=float)
+
+    if action not in ['deposit', 'withdraw'] or not amount or amount <= 0:
+        return jsonify({"status": "error", "message": "Invalid action or amount."}), 400
+
+    result = balance_transaction(current_user.id, action, amount)
+    
+    if result["status"] == "success":
+        return jsonify({"status": "success", "details": result["details"]})
+    else:
+        return jsonify({"status": "error", "message": result["message"]})
