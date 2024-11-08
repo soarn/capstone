@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, HiddenField, SubmitField, PasswordField, EmailField, BooleanField, FloatField, SelectField
+from wtforms import StringField, IntegerField, HiddenField, SubmitField, PasswordField, EmailField, BooleanField, FloatField, SelectField, TimeField, SelectMultipleField
 from wtforms.validators import DataRequired, NumberRange, Email, Length, Optional
 
 # WEB: Transaction Form
@@ -51,6 +52,20 @@ class UpdateProfileForm(FlaskForm):
     data_sharing     = BooleanField('Allow Data Sharing')
     confetti_enabled = BooleanField('Enable Confetti')
     submit           = SubmitField('Update Profile')
+
+# ADMIN: Update Stock Market Form
+class UpdateMarketForm(FlaskForm):
+    open = TimeField('Market Open Time', validators=[DataRequired()], default=datetime.strptime("08:00", "%H:%M").time())
+    close = TimeField('Market Close Time', validators=[DataRequired()], default=datetime.strptime("16:00", "%H:%M").time())
+    open_days = SelectMultipleField(
+        'Open Days',
+        choices=[('Monday', 'Monday'), ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'), 
+                 ('Thursday', 'Thursday'), ('Friday', 'Friday'), ('Saturday', 'Saturday'), 
+                 ('Sunday', 'Sunday')],
+        default=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    )
+    close_on_holidays = BooleanField('Close on NYSE Holidays', default=True)
+    submit = SubmitField('Update Market')
 
 # ADMIN: Update Stock Form
 class UpdateStockForm(FlaskForm):
