@@ -45,10 +45,10 @@ class Portfolio(db.Model):
 class Stock(db.Model):
     id                     = db.Column(db.Integer, primary_key=True)
     symbol                 = db.Column(db.String(10), unique=True, nullable=False)
-    company                = db.Column(db.String(100), nullable=False)
-    price                  = db.Column(db.Float, nullable=False)                    # Current Price
-    quantity               = db.Column(db.Float, nullable=False)                    # Available stock quantity
-    manual_price           = db.Column(db.Float, nullable=True)                     # Admin-controlled price
+    company                = db.Column(db.String(128), nullable=False)
+    price                  = db.Column(db.Numeric(10,2), nullable=False)            # Current Price
+    quantity               = db.Column(db.Integer, nullable=False)                  # Available stock quantity
+    manual_price           = db.Column(db.Numeric(10,2), nullable=True)             # Admin-controlled price
     is_manual              = db.Column(db.Boolean, nullable=False, default=False)   # Whether the price is manually set
     fluctuation_multiplier = db.Column(db.Float, default=1.0)                       # Multiplier for good/bad days
 
@@ -57,8 +57,8 @@ class StockHistory(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    price     = db.Column(db.Numeric, nullable=False)
-    quantity  = db.Column(db.Float, nullable=False)
+    price     = db.Column(db.Numeric(10,2), nullable=False)
+    quantity  = db.Column(db.Integer, nullable=False)
 
 # Create Transaction Model (Transaction)
 
@@ -69,16 +69,20 @@ class Transaction(db.Model):
     stock     = db.Column(db.Integer, db.ForeignKey('stock.id'))
     type      = db.Column(db.String(10), nullable=False)
     quantity  = db.Column(db.Integer, nullable=False)
-    price     = db.Column(db.Numeric())
-    amount    = db.Column(db.Float, nullable=False)
+    price     = db.Column(db.Numeric(10,2))
+    amount    = db.Column(db.Numeric(10,2), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+
+    # Marker Fields
+    marker_flag = db.Column(db.Boolean, default=False) # True if the transaction is a marker transaction
+    marker_text = db.Column(db.String(254), nullable=True) # (Optional) Text for the marker transaction
 
 # Create Admin Model for Market Hours (Admin)
 class AdminSettings(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     market_open = db.Column(db.Time, default=time(8, 0)) 
     market_close = db.Column(db.Time, default=time(16, 0))
-    open_days = db.Column(db.String, default="Monday,Tuesday,Wednesday,Thursday,Friday")  # Comma-separated days because MySQL doesn't support ARRAY :(
+    open_days = db.Column(db.String(254), default="Monday,Tuesday,Wednesday,Thursday,Friday")  # Comma-separated days because MySQL doesn't support ARRAY :(
     close_on_holidays = db.Column(db.Boolean, default=True)
 
     # Convert open_days to a list for easier handling

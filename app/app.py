@@ -12,7 +12,7 @@ from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
 from utils import get_gravatar_url, get_market_status
-from pricing import update_stock_prices, record_stock_history
+from pricing import update_stock_prices, record_stocks
 from cleanup import start_cleanup_task
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -73,13 +73,14 @@ def create_app():
     # Scheduler Configuration and Start
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=lambda: update_stock_prices(app), trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
-    scheduler.add_job(func=lambda: record_stock_history(app), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
+    scheduler.add_job(func=lambda: record_stocks(app), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
 
     # Start the scheduler
     scheduler.start()
 
     # Shut down the scheduler when exiting the app
     atexit.register(lambda: scheduler.shutdown())
+    atexit.register(lambda: record_stocks(app))
 
     return app
 
