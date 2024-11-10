@@ -11,7 +11,7 @@ from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
-from utils import get_gravatar_url
+from utils import get_gravatar_url, get_market_status
 from pricing import update_stock_prices, record_stock_history
 from cleanup import start_cleanup_task
 from flask_wtf.csrf import CSRFProtect
@@ -69,6 +69,9 @@ def create_app():
 
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
+
+    # Register market status as a global Jinja variable
+    # app.jinja_env.globals.update(get_market_status=get_market_status(app))
 
     # Scheduler Configuration and Start
     scheduler = BackgroundScheduler()

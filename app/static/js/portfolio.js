@@ -189,6 +189,8 @@ document.addEventListener("DOMContentLoaded", function () {
         buySellModal.hide();
       } else {
         alert(data.message);
+        buySellModal.hide();
+        transactionForm.reset(); // Clear form fields
       }
     })
     .catch((error) => console.error("Error:", error));

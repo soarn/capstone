@@ -12,16 +12,22 @@
 <div class="container mb-3">
   <!-- Buy/Sell Toggle -->
   <div class="row">
-    <div class="col-12 d-flex justify-content-end">
+    <div class="col-12 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
+      <h3 id="market-status">Market Status: <span class="{% if market_status == 'closed' %} text-bg-danger {% else %} text-bg-success {% endif %}">{{ market_status }}</span></h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
       <h3 id="user-balance" class="">Cash Account: ${{ balance }}</h3>
     </div>
   </div>
   <div class="row">
-    <div class="col-12 mb-3 d-flex justify-content-end">
+    <div class="col-12 mb-3 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
       <button type="button" id="balance-mode" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#balanceModal">Balance</button>
       <button type="button" id="buy-mode" class="btn btn-success me-2">Buy</button>
       <button type="button" id="sell-mode" class="btn btn-danger">Sell</button>
     </div>
+  
 
     <!-- Owned/All Stocks List -->
     <div class="col-md-4">

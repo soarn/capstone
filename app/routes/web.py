@@ -1,8 +1,9 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
+from flask import Blueprint, current_app, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy import desc
 from sqlalchemy.orm import aliased
+from utils import get_market_status
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
@@ -138,6 +139,8 @@ def transaction():
 def portfolio():
     user_id = current_user.id
     balance = check_user_balance(user_id)
+    with current_app.app_context():
+        market_status = get_market_status(current_app)
 
     # Query the user's portfolio and join with the stock table to get stock details
     portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
@@ -195,7 +198,15 @@ def portfolio():
     )
     form = TransactionForm()
 
-    return render_template('portfolio.html', portfolio=portfolio, all_stocks=all_stocks, form=form, transactions=transactions_paginated.items, pagination=transactions_paginated, balance=balance)
+    return render_template(
+        'portfolio.html',
+        portfolio=portfolio,
+        all_stocks=all_stocks,
+        form=form,
+        transactions=transactions_paginated.items,
+        pagination=transactions_paginated,
+        balance=balance,
+        market_status=market_status)
 
 # BALANCE UPDATE ROUTE
 @web.route('/update_balance', methods=['POST'])

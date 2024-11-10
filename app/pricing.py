@@ -1,24 +1,16 @@
 from datetime import datetime
 import random
 import holidays
+from utils import get_market_status
 from db.db_models import Stock, StockHistory, AdminSettings
 from db.db import db
 
 # Automatic Price Fluctuation and Stock Quantity Updates
 def update_stock_prices(app):
     with app.app_context():
-        settings = AdminSettings.query.first()
-        now = datetime.now()
-        current_time = now.time()
-        current_day = now.strftime('%A')
-        nyse_holidays = holidays.NYSE()
-
-
         # Check if the market is open based on the day, time, and holiday setting
         fluctuation = random.uniform(-0.01, 0.01) # Random fluctuation between -1% and 1%
-        if (current_day in settings.open_days_list and 
-            settings.market_open <= current_time <= settings.market_close and
-            not (settings.close_on_holidays and now.date() in nyse_holidays)):
+        if (get_market_status(app) == "open"):
 
             stocks = Stock.query.all()
             for stock in stocks:
