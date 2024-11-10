@@ -129,10 +129,10 @@ The project  is to create a stock trading system  where users can buy and sell s
 - [x] Create new stocks.
   - [x] Include Company name, stock ticker, volume, and initial price.
   - [x] Volume will be total amount of shares purchased.
-- [ ] Change market hours.
+- [x] Change market hours.
   - [ ] Users will only be able to execute trades during market hours.
-- [ ] Change market schedule
-  - [ ] Market will only be open during weekdays and closed on holidays.
+- [x] Change market schedule
+  - [x] Market will only be open during weekdays and closed on holidays.
 
 ### Design & Develop a Client/Server Application comprise of
 

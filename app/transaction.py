@@ -1,4 +1,6 @@
 from datetime import datetime
+from utils import get_market_status
+from flask import current_app, flash, redirect, request
 from db.db_models import Stock, User, Portfolio, Transaction
 from db.db import db
 from sqlalchemy.exc import IntegrityError
@@ -9,6 +11,13 @@ def buy_stock(user_id, stock_id, stock_symbol, quantity):
     user = User.query.get(user_id)
     if not user:
         return {"status": "error", "message": "User not found."}
+    
+    # Check if the market is open
+    with current_app.app_context():
+        market_status = get_market_status(current_app)
+    
+    if market_status != "open":
+        return {"status": "error", "message": "Market is closed."}
 
     # Find the stock by symbol
     stock = Stock.query.filter_by(id=stock_id).first()
@@ -109,6 +118,13 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
     user = User.query.get(user_id)
     if not user:
         return {"status": "error", "message": "User not found."}
+    
+    # Check if the market is open
+    with current_app.app_context():
+        market_status = get_market_status(current_app)
+    
+    if market_status != "open":
+        return {"status": "error", "message": "Market is closed."}
 
     # Find the stock by ID
     stock = Stock.query.filter_by(id=stock_id).first()

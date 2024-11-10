@@ -1,7 +1,8 @@
 from datetime import datetime
-from flask import Blueprint, render_template, request, redirect, flash, url_for, jsonify
+from flask import Blueprint, current_app, render_template, request, redirect, flash, url_for, jsonify
 from flask_login import current_user, login_required
 from functools import wraps
+from utils import get_market_status
 from db.db_models import Stock, User, Transaction, AdminSettings
 from db.db import db
 import uuid
@@ -31,6 +32,9 @@ def admin_page():
     # Query all stocks from the database
     all_stocks = Stock.query.all()
 
+    with current_app.app_context():
+        market_status = get_market_status(current_app)
+
     # Initialize forms
     updateForm = UpdateStockForm()
     updateForm.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
@@ -44,7 +48,8 @@ def admin_page():
         all_stocks=all_stocks,
         update_form=updateForm,
         add_form=newForm,
-        update_market_form=updateMarketForm
+        update_market_form=updateMarketForm,
+        market_status=market_status
     )
 
 # Route to handle the update stock form
