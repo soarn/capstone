@@ -13,7 +13,7 @@
   <!-- Buy/Sell Toggle -->
   <div class="row">
     <div class="col-12 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
-      <h3 id="market-status">Market Status: <span class="{% if market_status == 'closed' %} text-bg-danger {% else %} text-bg-success {% endif %}">{{ market_status }}</span></h3>
+      <h3 id="market-status" data-status='{{ market_status }}'>Market Status: <span class="{% if market_status == 'closed' %} text-bg-danger {% else %} text-bg-success {% endif %}">{{ market_status }}</span></h3>
     </div>
   </div>
   <div class="row">
