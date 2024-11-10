@@ -70,9 +70,6 @@ def create_app():
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
 
-    # Register market status as a global Jinja variable
-    # app.jinja_env.globals.update(get_market_status=get_market_status(app))
-
     # Scheduler Configuration and Start
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=lambda: update_stock_prices(app), trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
