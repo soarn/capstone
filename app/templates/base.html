@@ -198,7 +198,6 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="TradingPro Logo" class="fun-logo" />
       </a>      
       
-      <!-- Flash Messages #TODO #24 Fix how flashes render on mobile -->
       <div id="flash-messages" class="position-fixed top-0 start-50 translate-middle-x mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
