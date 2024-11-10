@@ -1,6 +1,17 @@
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
-from db.db_models import db, Stock, StockHistory
+from flask_login import current_user, login_required
+from db.db_models import Transaction, db, Stock, StockHistory
 from flasgger import swag_from
+from functools import wraps
+
+def json_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return jsonify({"error": "User is not authenticated"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Create a blueprint for API version 1
 api_v1 = Blueprint('api_v1', __name__, url_prefix='/api/v1')
@@ -33,13 +44,13 @@ def get_stocks():
                     example: Apple Inc.
                   price:
                     type: number
-                    format: float
+                    format: numeric
                     description: Stock price
                     example: 150.25
                   quantity:
                     type: integer
                     description: Quantity of stock available
-                    example: 1000
+                    example: 100
         schema:
                 id: stocks
                 properties:
@@ -51,6 +62,7 @@ def get_stocks():
                         description: The company name
                     price:
                         type: number
+                        format: numeric
                         description: The stock price
                     quantity:
                         type: number
@@ -85,6 +97,7 @@ def add_stock(symbol, company, price, quantity):
         name: price
         schema:
           type: number
+          format: Numeric
         required: true
         description: Stock price
         example: 150.25
@@ -94,7 +107,7 @@ def add_stock(symbol, company, price, quantity):
           type: integer
         required: true
         description: Quantity of stock available
-        example: 1000
+        example: 100
     responses:
       201:
         description: Stock added successfully
@@ -115,7 +128,7 @@ def add_stock(symbol, company, price, quantity):
               properties:
                 error:
                   type: string
-                  example: "Stock with this symbol already exists"
+                  example: Stock with this symbol already exists
     """
     try:
         new_stock = Stock(symbol=symbol, company=company, price=float(price), quantity=float(quantity))
@@ -127,29 +140,182 @@ def add_stock(symbol, company, price, quantity):
         return jsonify({'error': str(e)}), 400
 
 # Route to get stock history
-@api_v1.route('/stock-history/<int:stock_id>', methods=['GET'])
-def get_stock_history(stock_id):
+@api_v1.route('/stock-history/<period>', methods=['GET'])
+@json_login_required
+def get_stock_history(period):
     """
-    Get historical data for a specific stock
+    Get historical stock data and user's transaction data for a for a specific stock and time period
     ---
     tags:
       - Stocks
     parameters:
       - in: path
+        name: period
+        schema:
+          type: string
+          enum: ["1D", "1W", "1M", "3M, "6M", "1Y", "all"]
+        required: true
+        description: Time period for historical stock data
+      - in: query
         name: stock_id
         schema:
           type: integer
         required: true
-        description: ID of the stock
+        description: Stock ID to fetch the data for
     responses:
       200:
-        description: Historical data for the stock
+        description: Historical stock data and user's transaction data for the selected period
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                history:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                        example: 2024-11-10T12:00:00Z
+                      price:
+                        type: number
+                        format: numeric
+                        example: 150.25
+                transactions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      timestamp:
+                        type: string
+                        format: date-time
+                        example: 2024-11-10T12:00:00Z
+                      price:
+                        type: number
+                        format: numeric
+                        example: 150.25
+                      quantity:
+                        type: integer
+                        example: 10
+                      type:
+                        type: string
+                        enum: ["buy", "sell"]
+                        example: buy
+      403:
+        description: User is not authenticated
+        content:
+          application/json:
+            schema:
+              type: object
     """
-    history = StockHistory.query.filter_by(stock_id=stock_id).order_by(StockHistory.timestamp).all()
-    history_data = [
-        # {"timestamp": h.timestamp, "price": h.price, "quantity": h.quantity}
-        {"timestamp": h.timestamp.isoformat(), "price": h.price, "quantity": h.quantity}
-        for h in history
-    ]
-    return jsonify(history_data)
+    stock_id = request.args.get("stock_id", type=int)
+    if not stock_id:
+        return jsonify({"error": "Stock ID is required"}), 400
     
+    # Fetch the stock's history
+    history = StockHistory.query.filter_by(stock_id=stock_id)
+
+    # Fetch the current user's transactions for this stock
+    transactions = Transaction.query.filter_by(stock=stock_id, user=current_user.id)
+
+    # Filter based on the period
+    if period == "1D":
+        start_time = datetime.now() - timedelta(days=1)
+    elif period == "1W":
+        start_time = datetime.now() - timedelta(weeks=1)
+    elif period == "1M":
+        start_time = datetime.now() - timedelta(weeks=4)
+    elif period == "3M":
+        start_time = datetime.now() - timedelta(weeks=12)
+    elif period == "6M":
+        start_time = datetime.now() - timedelta(weeks=26)
+    elif period == "1Y":
+        start_time = datetime.now() - timedelta(weeks=52)
+    else:
+        start_time = None # Return all data
+      
+    if start_time:
+        history = history.filter(StockHistory.timestamp >= start_time)
+        transactions = transactions.filter(Transaction.timestamp >= start_time)
+
+    history_data = [{"timestamp": h.timestamp, "price": h.price} for h in history]
+    transaction_data = [{
+        "timestamp": t.timestamp,
+        "price": t.price,
+        "quantity": t.quantity,
+        "type": t.type
+    } for t in transactions]
+
+    return jsonify({"history": history_data, "transactions": transaction_data})
+
+@api_v1.route('/user-transactions', methods=['GET'])
+@json_login_required
+def get_user_transactions():
+    """
+    Get all transactions for the current user
+    ---
+    tags:
+      - Transactions
+    responses:
+      200:
+        description: A list of all transactions for the current user
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  order_number:
+                    type: string
+                    description: Order number
+                    example: "22be3d16-b3be-468a-825e-b5bf6cf2cd45"
+                  stock:
+                    type: string
+                    description: Stock symbol
+                    example: AAPL
+                  price:
+                    type: number
+                    description: Stock price
+                    example: 150.25
+                  type:
+                    type: string
+                    description: Transaction type (buy/sell)
+                    example: buy
+                  quantity:
+                    type: integer
+                    description: Quantity of stock
+                    example: 10
+                    type: number
+                  amount:
+                    description: Transaction amount
+                    example: 1502.50
+                  timestamp:
+                    type: string
+                    format: date-time
+                    description: Transaction timestamp
+                    example: 2024-11-10T12:00:00Z
+      403:
+        description: User is not authenticated
+        content:
+          application/json:
+            schema:
+              type: object
+    """
+    transactions = Transaction.query.filter_by(user=current_user.id).all()
+    stock_ids = [t.stock for t in transactions if t.stock]
+    stocks = Stock.query.filter(Stock.id.in_(stock_ids)).all()
+    stock_map = {stock.id: stock.symbol for stock in stocks}
+    transaction_list = [{
+        "order_number": t.order_number,
+        "stock": stock_map.get(t.stock, None),
+        "price": t.price if t.price else None,
+        "type": t.type,
+        "quantity": t.quantity if t.quantity else None,
+        "amount": t.amount if t.amount else None,
+        "timestamp": t.timestamp
+    } for t in transactions]
+
+    return jsonify(transaction_list)
