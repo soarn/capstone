@@ -117,7 +117,7 @@ The project  is to create a stock trading system  where users can buy and sell s
 - [x] Can sell stocks at market price.
 - [ ] The user will have the option to cancel this order before it gets executed.
 - [x] View their current portfolio of stocks.
-- [ ] View their current cash balance.
+- [x] View their current cash balance.
 - [x] View their history of transactions.
 - [x] Ability to deposit and withdraw cash.
   - [x] The user when depositing cash will have the funds go into a cash account.
@@ -130,7 +130,7 @@ The project  is to create a stock trading system  where users can buy and sell s
   - [x] Include Company name, stock ticker, volume, and initial price.
   - [x] Volume will be total amount of shares purchased.
 - [x] Change market hours.
-  - [ ] Users will only be able to execute trades during market hours.
+  - [x] Users will only be able to execute trades during market hours.
 - [x] Change market schedule
   - [x] Market will only be open during weekdays and closed on holidays.
 
@@ -145,9 +145,9 @@ The project  is to create a stock trading system  where users can buy and sell s
       - [ ] market capitalization (volume X price)
     - [ ] Show opening price for the stock
     - [ ] Show high and low during the day
-  - [ ] User functions
-  - [ ] Administrative functions
+  - [x] User functions
+  - [x] Administrative functions
 - [x] Relational Database Backend to store the data.
-- [ ] Random Stock Price Generator:
-  - [ ] Fluctuations during market hours
-  - [ ] Implement custom random price generator
+- [x] Random Stock Price Generator:
+  - [x] Fluctuations during market hours
+  - [x] Implement custom random price generator
