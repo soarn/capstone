@@ -1,6 +1,6 @@
+# Market Simulation, Scheduling, and Cleanup
 import random
 from datetime import datetime, timedelta
-
 import holidays
 from utils import get_market_status
 from db.db_models import Stock, StockHistory, AdminSettings
@@ -97,3 +97,52 @@ def reschedule_market_close(scheduler, app):
             name='Record stock history at market close',
             replace_existing=True
         )
+
+# Intraday Cleanup Task
+def cleanup_intraday_fluctuations(app, retention_days=7):
+    """
+    Deletes intraday fluctuations older than the retention period.
+    Retains daily closing prices for long-term analysis.
+    """
+    with app.app_context():
+        # Calculate the threshold for intraday data retention
+        threshold_date = datetime.now() - timedelta(days=retention_days)
+
+        # Identify records to retain: daily market close
+        daily_closes = db.session.query(
+            StockHistory.stock_id,
+            db.func.max(StockHistory.timestamp).label("latest_close")
+        ).filter(
+            StockHistory.timestamp < threshold_date
+        ).group_by(
+            StockHistory.stock_id, db.func.date(StockHistory.timestamp)
+        ).subquery()
+
+        # Delete all other intraday records older than the retention period
+        deleted_rows = StockHistory.query.filter(
+            StockHistory.timestamp < threshold_date
+        ).filter(
+            ~StockHistory.id.in_(
+                db.session.query(daily_closes.c.latest_close)
+            )
+        ).delete(synchronize_session=False)
+
+        db.session.commit()
+        print(f"[CLEANUP] Deleted {deleted_rows} intraday records older than {threshold_date}")
+
+# Historical Cleanup Task
+def cleanup_old_history(app, retention_years=1):
+    """
+    Deletes historical stock records older than the retention period.
+    """
+    with app.app_context():
+        # Calculate the threshold for long-term retention
+        threshold_date = datetime.now() - timedelta(days=retention_years * 365)
+
+        # Delete old records
+        deleted_rows = StockHistory.query.filter(
+            StockHistory.timestamp < threshold_date
+        ).delete(synchronize_session=False)
+
+        db.session.commit()
+        print(f"[CLEANUP] Delete {deleted_rows} historical records older than {threshold_date}")

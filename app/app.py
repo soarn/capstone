@@ -11,8 +11,7 @@ from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
 from utils import get_gravatar_url
-from pricing import get_next_market_close, update_stock_prices, record_stocks
-from cleanup import start_cleanup_task
+from app.market import cleanup_intraday_fluctuations, cleanup_old_history, get_next_market_close, update_stock_prices, record_stocks
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -63,12 +62,14 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
-    # Start the cleanup task
-    # start_cleanup_task(app)
 
     # Register the Gravatar URL function as a global Jinja variable
     app.jinja_env.globals.update(get_gravatar_url=get_gravatar_url)
+
+
+    """
+    BEGIN Scheduler Configuration
+    """
 
     # Scheduler
     scheduler = BackgroundScheduler()
@@ -90,6 +91,11 @@ def create_app():
     @scheduler.scheduled_job('cron', hour=0, minute=1)
     def reschedule_record_stocks():
         schedule_record_stocks()
+    
+    # Cleanup intraday fluctuations every day
+    scheduler.add_job(func=lambda: cleanup_intraday_fluctuations(app), trigger=IntervalTrigger(days=1), id='cleanup_intraday_fluctuations', name='Cleanup intraday fluctuations older than retention period', replace_existing=True)
+    # Cleanup old stock history every week
+    scheduler.add_job(func=lambda: cleanup_old_history(app), trigger=IntervalTrigger(weeks=1), id='cleanup_old_history', name='Cleanup old stock history older than retention period', replace_existing=True)
 
     # Start the scheduler
     scheduler.start()
@@ -97,6 +103,12 @@ def create_app():
     # Shut down the scheduler when exiting the app
     atexit.register(lambda: scheduler.shutdown())
     atexit.register(lambda: record_stocks(app))
+
+
+    """
+    END Scheduler Configuration
+    """
+
 
     return app
 
