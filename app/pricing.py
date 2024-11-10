@@ -1,7 +1,7 @@
 from datetime import datetime
 import random
 from utils import get_market_status
-from db.db_models import Stock, StockHistory
+from db.db_models import Stock, StockHistory, AdminSettings
 from db.db import db
 
 # Automatic Price Fluctuation and Stock Quantity Updates
@@ -27,8 +27,8 @@ def update_stock_prices(app):
                     stock.price = round(new_price, 2)
             db.session.commit()
 
-# Record Stock History every 5 minutes
-def record_stock_history(app):
+# Record Stock History 
+def record_stocks(app):
     with app.app_context():
         stocks = Stock.query.all()
         for stock in stocks:
