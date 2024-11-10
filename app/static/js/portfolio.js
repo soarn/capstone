@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ? JSON.parse(allStocksDataElement.getAttribute("data-all-stocks"))
     : [];
   
+  const market_status = document.getElementById("market-status").getAttribute("data-status");
+  
   const stockList = document.getElementById("stock-list");
   const buyModeBtn = document.getElementById("buy-mode");
   const sellModeBtn = document.getElementById("sell-mode");
@@ -136,10 +138,13 @@ document.addEventListener("DOMContentLoaded", function () {
        const actionButton = document.createElement("button");
        actionButton.classList.add("btn", "btn-sm", "btn-outline-secondary", "buy-sell-btn");
        actionButton.textContent = isBuyMode ? "BUY" : "SELL";
-       actionButton.addEventListener("click", (e) => {
-           e.stopPropagation();
-           openTransactionModal(stock.id, stock.symbol);
-       });
+       if (market_status === "closed") actionButton.classList.add("disabled");
+       else {
+        actionButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openTransactionModal(stock.id, stock.symbol);
+        });
+      }
 
       // Append badge and button to button column
       buttonCol.appendChild(badge);
@@ -162,102 +167,104 @@ document.addEventListener("DOMContentLoaded", function () {
   // 4. TRANSACTION LOGIC
   // --------------------
   // Open transaction modal and set form values
-  function openTransactionModal(stockId, stockSymbol) {
-    document.getElementById("transaction-stock-id").value = stockId;
-    document.getElementById("transaction-stock-symbol").value = stockSymbol;
-    document.getElementById("buySellModalLabel").textContent = isBuyMode ? "Buy Stock" : "Sell Stock";
-    transactionAction.value = isBuyMode ? "buy" : "sell"; // Set action type
-    buySellModal.show();
-  }
-  
-  // Handle form submission
-  transactionForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+  if (market_status === "open") {
+    function openTransactionModal(stockId, stockSymbol) {
+      document.getElementById("transaction-stock-id").value = stockId;
+      document.getElementById("transaction-stock-symbol").value = stockSymbol;
+      document.getElementById("buySellModalLabel").textContent = isBuyMode ? "Buy Stock" : "Sell Stock";
+      transactionAction.value = isBuyMode ? "buy" : "sell"; // Set action type
+      buySellModal.show();
+    }
     
-    const formData = new FormData(transactionForm);
+    // Handle form submission
+    transactionForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      
+      const formData = new FormData(transactionForm);
+      
+      fetch(transactionEndpoint, {  // Using the endpoint URL
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          showConfirmationModal(data.details);
+          transactionForm.reset(); // Clear form fields
+          buySellModal.hide();
+        } else {
+          alert(data.message);
+          buySellModal.hide();
+          transactionForm.reset(); // Clear form fields
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+    });
     
-    fetch(transactionEndpoint, {  // Using the endpoint URL
-      method: "POST",
-      body: formData,
-      headers: { "X-Requested-With": "XMLHttpRequest" },
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "success") {
-        showConfirmationModal(data.details);
-        transactionForm.reset(); // Clear form fields
-        buySellModal.hide();
-      } else {
-        alert(data.message);
-        buySellModal.hide();
-        transactionForm.reset(); // Clear form fields
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-  });
-  
-  // Show confirmation modal
-  function showConfirmationModal(details) {
-    document.getElementById("order-number").textContent = details.order_number;
-    document.getElementById("order-symbol").textContent = details.symbol;
-    document.getElementById("order-action").textContent = isBuyMode ? "Buy" : "Sell";
-    document.getElementById("order-quantity").textContent = details.quantity;
-    document.getElementById("order-price").textContent = details.price;
-    document.getElementById("order-total").textContent = details.total_price;
-    confirmationModal.show();
-  }
-  
-  // 5. BALANCE HANDLING
-  // ----------------
-  function setBalanceAction(action) {
-    document.getElementById("balance-action").value = action;
-  }
-  
-  depositBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    setBalanceAction('deposit');
-    submitBalanceForm();
-  });
-  
-  withdrawBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    setBalanceAction('withdraw');
-    submitBalanceForm();
-  });
-  
-  function submitBalanceForm() {
-    const formData = new FormData(balanceForm);
+    // Show confirmation modal
+    function showConfirmationModal(details) {
+      document.getElementById("order-number").textContent = details.order_number;
+      document.getElementById("order-symbol").textContent = details.symbol;
+      document.getElementById("order-action").textContent = isBuyMode ? "Buy" : "Sell";
+      document.getElementById("order-quantity").textContent = details.quantity;
+      document.getElementById("order-price").textContent = details.price;
+      document.getElementById("order-total").textContent = details.total_price;
+      confirmationModal.show();
+    }
     
-    fetch(balanceEndpoint, {  // Using the endpoint URL
-      method: "POST",
-      body: formData,
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-    .then((response) => {
-      if (!response.ok) throw new Error("Network response was not ok");
-      return response.json();
-    })
-    .then((data) => {
-      if (data.status === "success") {
-        const balanceModal = bootstrap.Modal.getInstance(document.getElementById("balanceModal"));
-        if (balanceModal) balanceModal.hide();
-        document.getElementById("balance-display").textContent = data.details.new_balance.toFixed(2);
-        showBalConfirmationModal(data.details);
-        balanceForm.reset();
-      } else {
-        alert(data.message);
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-  }
-  
-  function showBalConfirmationModal(details) {
-    document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
-    document.getElementById("bal-order-number").textContent = details.order_number;
-    document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
-    document.getElementById("bal-order-amount").textContent = details.amount.toFixed(2);
-    document.getElementById("bal-order-balance").textContent = details.new_balance.toFixed(2);
-    const modal = new bootstrap.Modal(document.getElementById("balConfirmationModal"));
-    modal.show();
+    // 5. BALANCE HANDLING
+    // ----------------
+    function setBalanceAction(action) {
+      document.getElementById("balance-action").value = action;
+    }
+    
+    depositBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      setBalanceAction('deposit');
+      submitBalanceForm();
+    });
+    
+    withdrawBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      setBalanceAction('withdraw');
+      submitBalanceForm();
+    });
+    
+    function submitBalanceForm() {
+      const formData = new FormData(balanceForm);
+      
+      fetch(balanceEndpoint, {  // Using the endpoint URL
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+      .then((response) => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.status === "success") {
+          const balanceModal = bootstrap.Modal.getInstance(document.getElementById("balanceModal"));
+          if (balanceModal) balanceModal.hide();
+          document.getElementById("balance-display").textContent = data.details.new_balance.toFixed(2);
+          showBalConfirmationModal(data.details);
+          balanceForm.reset();
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+    }
+    
+    function showBalConfirmationModal(details) {
+      document.getElementById("balConfirmationModalLabel").textContent = details.action === "deposit" ? "Funds Deposited" : "Funds Withdrawn";
+      document.getElementById("bal-order-number").textContent = details.order_number;
+      document.getElementById("bal-order-action").textContent = details.action === "deposit" ? "Deposit" : "Withdrawal";
+      document.getElementById("bal-order-amount").textContent = details.amount.toFixed(2);
+      document.getElementById("bal-order-balance").textContent = details.new_balance.toFixed(2);
+      const modal = new bootstrap.Modal(document.getElementById("balConfirmationModal"));
+      modal.show();
+    }
   }
 });
