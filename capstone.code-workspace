@@ -108,6 +108,7 @@
       "autofetch",
       "Bootswatch",
       "flasgger",
+      "intraday",
       "jsonify",
       "sqlalchemy",
       "tickerwrapper",
