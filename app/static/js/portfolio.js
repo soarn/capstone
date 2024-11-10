@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const balanceAction = document.getElementById("balance-action");
   const depositBtn = document.getElementById("depositFundsBtn");
   const withdrawBtn = document.getElementById("withdrawFundsBtn");
-  
+
   // Initialize Bootstrap modals
   const buySellModal = new bootstrap.Modal(buySellModalElement);
   const confirmationModal = new bootstrap.Modal(confirmationModalElement);
@@ -39,58 +39,90 @@ document.addEventListener("DOMContentLoaded", function () {
   // Extract theme colors from CSS variables
   const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-primary").trim();
   const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-secondary").trim();
+  const successColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-success").trim();
+  const dangerColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-danger").trim();
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-body-color").trim();
   
   // 2. CHART HANDLING
   // -----------------
+
+  const chartContainer = document.getElementById("chart-container");
+  const selectedPeriod = "1D"; // Default to 1 day
+  let currentStockId = null;
+
   // Initialize the chart
-  const ctx = document.getElementById("chart-canvas").getContext("2d");
-  let stockChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [
-        {
-          label: "Stock Price",
-          data: [],
-          borderColor: primaryColor,
-          backgroundColor: primaryColor + "33", // Semi-transparent
-          borderWidth: 2,
-          fill: true,
-          tension: 0.1, // Slight curve
-        },
-      ],
+  const chart = LightweightCharts.createChart(chartContainer, {
+    width: chartContainer.offsetWidth,
+    height: 400,
+    layout: {
+      backgroundColor: primaryColor + "33", // Semi-transparent,
+      textColor: textColor,
     },
-    options: {
-      responsive: true,
-      scales: {
-        x: { title: { display: true, text: "Time", color: secondaryColor } },
-        y: { title: { display: true, text: "Price ($)", color: primaryColor } },
-      },
-      plugins: {
-        legend: { labels: { color: primaryColor } },
-        tooltip: {
-          backgroundColor: primaryColor,
-          titleColor: "#fff",
-          bodyColor: "#fff",
-        },
-      },
+    grid: {
+      vertLines: { color: primaryColor },
+      horzLines: { color: secondaryColor },
     },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderVisible: false },
+    timeScale: { borderVisible: false },
   });
+
+  const lineSeries = chart.addLineSeries({
+    color: primaryColor,
+    lineWidth: 2,
+  });
+
+  // Fetch stock history data
+  function fetchStockData(stockId, period) {
+    fetch(`/api/v1/stock-history/${period}?stock_id=${stockId}`)
+    .then((response) => response.json())
+    .then((data) => {
+      updateChart(data.history);
+      addTransactionMarkers(data.transactions);
+    })
+    .catch((error) => console.error("Error fetching stock data:", error));
+  }
   
   // Update the stock history chart
   function updateChart(history) {
-    const labels = history.map((entry) => entry.timestamp);
-    const prices = history.map((entry) => entry.price);
-    
-    stockChart.data.labels = labels;
-    stockChart.data.datasets[0].data = prices;
-    stockChart.update();
+    const formattedData = history.map((entry) => ({
+      time: new Date(entry.timestamp).getTime() / 1000, // Convert to Unix timestamp
+      value: entry.price,
+    }));
+    lineSeries.setData(formattedData);
   }
+
+  // Add markers for buy/sell transactions
+  function addTransactionMarkers(transactions) {
+    const markers = transactions.map((txn) => ({
+      time: new Date(txn.timestamp).getTime() / 1000,
+      position: txn.type === "buy" ? "belowBar" : "aboveBar",
+      color: txn.type === "buy" ? successColor : dangerColor,
+      shape: txn.type === "buy" ? "arrowUp" : "arrowDown",
+      text: `${txn.type.toUpperCase()} ${txn.quantity} @ $${txn.price}`,
+    }));
+    lineSeries.setMarkers(markers);
+  }
+
+  // Handle time period selection
+  document.getElementById("time-period").addEventListener("change", function (event) {
+    const period = event.target.value;
+    if (currentStockId) fetchStockData(currentStockId, period);
+  });
+
+  // Handle window resize
+  window.addEventListener("resize", () => {
+    chart.resize(chartContainer.offsetWidth, 400);
+  });
   
   // 3. STOCK LIST HANDLING
   // ----------------------
   // Populate initial list of owned stocks
   populateStockList(portfolioStocks, false);
+  if (portfolioStocks.length > 0) {
+    currentStockId = portfolioStocks[0].id; // Default to the first stock
+    fetchStockData(currentStockId, selectedPeriod);
+  }
   
   // Toggle between Buy and Sell mode
   buyModeBtn.addEventListener("click", function () {

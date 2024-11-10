@@ -40,8 +40,21 @@
     <!-- Stock History Chart -->
     <div class="col-md-8">
       <h4>Stock History</h4>
-      <canvas id="chart-canvas" style="height: 400px; width: 100%"></canvas>
+      <div id="chart-container" style="height: 400px; width: 100%"></div>
     </div>
+
+    <!-- Time Period Controls -->
+     <div class="col-md-12">
+      <select title="time-period-control" id="time-period" class="form-select">
+        <option value="1D">1 Day</option>
+        <option value="1W">1 Week</option>
+        <option value="1M">1 Month</option>
+        <option value="3M">3 Months</option>
+        <option value="6M">6 Months</option>
+        <option value="1Y">1 Year</option>
+        <option value="all">All Time</option>
+      </select>
+     </div>
   </div>
 </div>
 
@@ -295,7 +308,7 @@
 
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
 
 {% endblock %}

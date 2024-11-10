@@ -11,7 +11,7 @@ from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from db.db_models import User
 from utils import get_gravatar_url
-from app.market import cleanup_intraday_fluctuations, cleanup_old_history, get_next_market_close, update_stock_prices, record_stocks
+from market import cleanup_intraday_fluctuations, cleanup_old_history, get_next_market_close, update_stock_prices, record_stocks
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger

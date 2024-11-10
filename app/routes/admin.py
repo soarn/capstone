@@ -8,7 +8,7 @@ from db.db import db
 import uuid
 from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
 from sqlalchemy import desc, asc
-from app.market import reschedule_market_close
+from market import reschedule_market_close
 
 def admin_required(f):
     @wraps(f)
