@@ -8,7 +8,7 @@ from db.db import db
 import uuid
 from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
 from sqlalchemy import desc, asc
-from sqlalchemy.orm import aliased
+from pricing import reschedule_market_close
 
 def admin_required(f):
     @wraps(f)
@@ -121,6 +121,10 @@ def update_market():
         settings.close_on_holidays = form.close_on_holidays.data
 
         db.session.commit()
+
+        # Reschedule the market close job
+        reschedule_market_close(current_app.scheduler, current_app)
+        
         flash("Market settings updated successfully!", "success")
     else:
         flash("Failed to update market settings. Please check your inputs.", "danger")
