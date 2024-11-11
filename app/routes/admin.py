@@ -3,7 +3,7 @@ from flask import Blueprint, current_app, render_template, request, redirect, fl
 from flask_login import current_user, login_required
 from functools import wraps
 from utils import get_market_status
-from db.db_models import Stock, User, Transaction, AdminSettings
+from db.db_models import Stock, StockHistory, User, Transaction, AdminSettings
 from db.db import db
 import uuid
 from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
@@ -258,3 +258,37 @@ def populate_order_numbers():
     print(f"Updated {len(transactions)} transactions with new order numbers.")
 
     return "Order numbers populated successfully."
+
+# Update unix timestamps
+@admin.route("/update_unix_timestamps")
+@login_required
+@admin_required
+def populate_unix_timestamps():
+    try:
+        histories = StockHistory.query.all()
+        for history in histories:
+            if history.timestamp:
+                history.timestamp_unix = int(history.timestamp.timestamp())
+        db.session.commit()
+
+        transactions = Transaction.query.all()
+        for transaction in transactions:
+            if transaction.timestamp:
+                transaction.timestamp_unix = int(transaction.timestamp.timestamp())
+        db.session.commit()
+
+        users = User.query.all()
+        for user in users:
+            if user.created_at:
+                user.created_at_unix = int(user.created_at.timestamp())
+            if user.last_login:
+                user.last_login_unix = int(user.last_login.timestamp())
+        db.session.commit()
+
+        print("Unix timestamps updated successfully.")
+        return "Unix timestamps updated successfully."
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return f"An error occurred: {e}", 500

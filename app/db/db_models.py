@@ -24,6 +24,8 @@ class User(UserMixin, db.Model):
     pagination       = db.Column(db.Integer, nullable=False, default=10)
     first_name       = db.Column(db.String(50), nullable=False, default=username)
     last_name        = db.Column(db.String(50), nullable=False, default=username)
+    created_at_unix  = db.Column(db.BigInteger, default=int(datetime.now().timestamp()))
+    last_login_unix  = db.Column(db.BigInteger)
 
     # Hash the password before storing it
     def set_password(self, password):
@@ -59,6 +61,7 @@ class StockHistory(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now())
     price     = db.Column(db.Numeric(10,2), nullable=False)
     quantity  = db.Column(db.Integer, nullable=False)
+    timestamp_unix = db.Column(db.BigInteger, default=int(datetime.now().timestamp()))
 
 # Create Transaction Model (Transaction)
 
@@ -72,6 +75,7 @@ class Transaction(db.Model):
     price     = db.Column(db.Numeric(10,2))
     amount    = db.Column(db.Numeric(10,2), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+    timestamp_unix = db.Column(db.BigInteger)
 
     # Marker Fields
     marker_flag = db.Column(db.Boolean, default=False) # True if the transaction is a marker transaction
