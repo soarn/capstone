@@ -250,7 +250,12 @@ endblock %} {% block content %}
         { "data": "amount",
           "render": $.fn.dataTable.render.number(',', '.', 2, '$')
         },
-        { "data": "timestamp" }
+        { "data": "timestamp",
+          "type": "date",
+          "render": function(data, type, row) {
+            return type === 'sort' ? row.timestamp_unix: data;
+          }
+         }
       ],
       "order": [[7, 'desc']]
     });

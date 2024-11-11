@@ -59,7 +59,8 @@ def buy_stock(user_id, stock_id, stock_symbol, quantity):
         price=stock.price,
         amount=total_price, 
         order_number=order_number,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
+        timestamp_unix=int(datetime.now().timestamp())
     )
     db.session.add(new_transaction)
 
@@ -162,7 +163,8 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
         price=stock.price,
         amount=total_sale_price,
         order_number=order_number,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
+        timestamp_unix=int(datetime.now().timestamp())
     )
     db.session.add(new_transaction)
     # Commit all changes to the database
@@ -208,7 +210,8 @@ def balance_transaction (user_id, action, amount):
         price=amount,
         amount=user.balance,
         order_number=order_number,
-        timestamp=datetime.now()
+        timestamp=datetime.now(),
+        timestamp_unix=int(datetime.now().timestamp())
     )
 
     # Debug transaction fields before adding to session

@@ -9,6 +9,8 @@ import uuid
 from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
 from sqlalchemy import desc, asc
 from market import reschedule_market_close
+from flask_babel import format_datetime
+import pytz
 
 def admin_required(f):
     @wraps(f)
@@ -136,6 +138,9 @@ def update_market():
 @login_required
 @admin_required
 def transaction_data():
+    user_time_zone = request.cookies.get('user_time_zone', 'UTC')
+    tz = pytz.timezone(user_time_zone)
+
     # Pagination parameters
     user_pagination = current_user.pagination or 10
     page = request.args.get('start', 0, type=int) // user_pagination + 1 # Adjust for ceil
@@ -154,12 +159,12 @@ def transaction_data():
         '4': Transaction.quantity,
         '5': Transaction.price,
         '6': Transaction.amount,
-        '7': Transaction.timestamp
+        '7': Transaction.timestamp_unix
     }
 
     # Sorting parameters
     sort_column_index = request.args.get('order[0][column]', '7') # Default to timestamp
-    sort_column = column_map.get(sort_column_index, Transaction.timestamp)
+    sort_column = column_map.get(sort_column_index, Transaction.timestamp_unix)
     sort_direction = request.args.get('order[0][dir]', 'desc')
 
     # Determine sorting direction
@@ -217,7 +222,10 @@ def transaction_data():
             "quantity": transaction.quantity if transaction.quantity > 0 else None,
             "price": transaction.price,
             "amount": transaction.amount,
-            "timestamp": transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            "timestamp": format_datetime(
+                datetime.fromtimestamp(transaction.timestamp_unix, tz=tz),
+                locale=current_user.locale
+            ),
         }
         for transaction, symbol, username in transactions_items
     ]

@@ -47,7 +47,8 @@ def record_stocks(app):
                 stock_id=stock.id,
                 price=stock.price,
                 quantity=stock.quantity,
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
+                timestamp_unix=int(datetime.now().timestamp())
             )
             db.session.add(stock_history)
         db.session.commit()
@@ -56,7 +57,7 @@ def record_stocks(app):
 def get_next_market_close(app):
     """
     Calculates the next market close time based on the current day, holiday, and AdminSettings.
-    Returns a datetime object.
+    Returns a Unix timestamp.
     """
     with app.app_context():
         settings = AdminSettings.query.first()
@@ -75,7 +76,7 @@ def get_next_market_close(app):
                     (settings.close_on_holidays and market_close_today.date() in nyse_holidays)):
                     market_close_today += timedelta(days=1)
                 
-            return market_close_today
+            return int(market_close_today.timestamp())
     return None
 
 # Reschedule Record Stocks if Market Close Changes
@@ -92,7 +93,7 @@ def reschedule_market_close(scheduler, app):
     if next_close_time:
         scheduler.add_job(
             func=lambda: record_stocks(app),
-            trigger=DateTrigger(run_date=next_close_time),
+            trigger=DateTrigger(run_date=datetime.fromtimestamp(next_close_time)),
             id='record_stock_history_market_close',
             name='Record stock history at market close',
             replace_existing=True
@@ -106,21 +107,21 @@ def cleanup_intraday_fluctuations(app, retention_days=7):
     """
     with app.app_context():
         # Calculate the threshold for intraday data retention
-        threshold_date = datetime.now() - timedelta(days=retention_days)
+        threshold_timestamp = int((datetime.now() - timedelta(days=retention_days)).timestamp())
 
         # Identify records to retain: daily market close
         daily_closes = db.session.query(
             StockHistory.stock_id,
-            db.func.max(StockHistory.timestamp).label("latest_close")
+            db.func.max(StockHistory.timestamp_unix).label("latest_close")
         ).filter(
-            StockHistory.timestamp < threshold_date
+            StockHistory.timestamp_unix < threshold_timestamp
         ).group_by(
             StockHistory.stock_id, db.func.date(StockHistory.timestamp)
         ).subquery()
 
         # Delete all other intraday records older than the retention period
         deleted_rows = StockHistory.query.filter(
-            StockHistory.timestamp < threshold_date
+            StockHistory.timestamp_unix < threshold_timestamp
         ).filter(
             ~StockHistory.id.in_(
                 db.session.query(daily_closes.c.latest_close)
@@ -128,7 +129,7 @@ def cleanup_intraday_fluctuations(app, retention_days=7):
         ).delete(synchronize_session=False)
 
         db.session.commit()
-        print(f"[CLEANUP] Deleted {deleted_rows} intraday records older than {threshold_date}")
+        print(f"[CLEANUP] Deleted {deleted_rows} intraday records older than {threshold_timestamp}")
 
 # Historical Cleanup Task
 def cleanup_old_history(app, retention_years=1):
@@ -137,12 +138,12 @@ def cleanup_old_history(app, retention_years=1):
     """
     with app.app_context():
         # Calculate the threshold for long-term retention
-        threshold_date = datetime.now() - timedelta(days=retention_years * 365)
+        threshold_timestamp = int((datetime.now() - timedelta(days=retention_years * 365)).timestamp())
 
         # Delete old records
         deleted_rows = StockHistory.query.filter(
-            StockHistory.timestamp < threshold_date
+            StockHistory.timestamp_unix < threshold_timestamp
         ).delete(synchronize_session=False)
 
         db.session.commit()
-        print(f"[CLEANUP] Delete {deleted_rows} historical records older than {threshold_date}")
+        print(f"[CLEANUP] Deleted {deleted_rows} historical records older than {threshold_timestamp}")

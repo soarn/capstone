@@ -110,6 +110,7 @@
       "flasgger",
       "intraday",
       "jsonify",
+      "pytz",
       "sqlalchemy",
       "tickerwrapper",
       "venv",

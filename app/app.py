@@ -5,7 +5,7 @@ from routes.web import web
 from routes.api_v1 import api_v1
 from routes.profile import profile
 from routes.admin import admin
-from datetime import timedelta
+from datetime import timedelta, datetime
 from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
@@ -83,7 +83,7 @@ def create_app():
     def schedule_record_stocks():
         next_close_time = get_next_market_close(app)
         if next_close_time:
-            scheduler.add_job(func=lambda: record_stocks(app), trigger=DateTrigger(run_date=next_close_time), id='record_stock_history_market_close', name='Record stock history at market close', replace_existing=True)
+            scheduler.add_job(func=lambda: record_stocks(app), trigger=DateTrigger(run_date=datetime.fromtimestamp(next_close_time)), id='record_stock_history_market_close', name='Record stock history at market close', replace_existing=True)
     
     schedule_record_stocks() # Schedule the job initially
 

@@ -336,6 +336,12 @@
         applyTheme(darkMode);
       });
     });
+
+    // Get the user's time zone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Store the time zone in a cookie for later user
+    document.cookie = `user_time_zone=${userTimeZone}; path=/; max-age=31536000`; // 1 year
   
 
     // Auto dismiss flash messages after 3 seconds
