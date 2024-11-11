@@ -175,10 +175,10 @@ def get_stock_history(period):
                   items:
                     type: object
                     properties:
-                      timestamp:
-                        type: string
-                        format: date-time
-                        example: 2024-11-10T12:00:00Z
+                      timestamp_unix:
+                        type: integer
+                        description: Unix timestamp
+                        example: 1636540800
                       price:
                         type: number
                         format: numeric
@@ -221,28 +221,24 @@ def get_stock_history(period):
     transactions = Transaction.query.filter_by(stock=stock_id, user=current_user.id)
 
     # Filter based on the period
-    if period == "1D":
-        start_time = datetime.now() - timedelta(days=1)
-    elif period == "1W":
-        start_time = datetime.now() - timedelta(weeks=1)
-    elif period == "1M":
-        start_time = datetime.now() - timedelta(weeks=4)
-    elif period == "3M":
-        start_time = datetime.now() - timedelta(weeks=12)
-    elif period == "6M":
-        start_time = datetime.now() - timedelta(weeks=26)
-    elif period == "1Y":
-        start_time = datetime.now() - timedelta(weeks=52)
-    else:
-        start_time = None # Return all data
-      
+    period_mapping = {
+        "1D": timedelta(days=1),
+        "1W": timedelta(weeks=1),
+        "1M": timedelta(weeks=4),
+        "3M": timedelta(weeks=12),
+        "6M": timedelta(weeks=26),
+        "1Y": timedelta(weeks=52),
+    }
+    start_time = datetime.now() - period_mapping.get(period, timedelta(days=0)) if period in period_mapping else None
+    
     if start_time:
-        history = history.filter(StockHistory.timestamp >= start_time)
-        transactions = transactions.filter(Transaction.timestamp >= start_time)
+        start_unix = int(start_time.timestamp())
+        history = history.filter(StockHistory.timestamp_unix >= start_unix)
+        transactions = transactions.filter(Transaction.timestamp_unix >= start_unix)
 
-    history_data = [{"timestamp": h.timestamp, "price": h.price} for h in history]
+    history_data = [{"timestamp_unix": h.timestamp_unix, "price": h.price} for h in history]
     transaction_data = [{
-        "timestamp": t.timestamp,
+        "timestamp_unix": t.timestamp_unix,
         "price": t.price,
         "quantity": t.quantity,
         "type": t.type
@@ -293,10 +289,9 @@ def get_user_transactions():
                     description: Transaction amount
                     example: 1502.50
                   timestamp:
-                    type: string
-                    format: date-time
-                    description: Transaction timestamp
-                    example: 2024-11-10T12:00:00Z
+                    type: integer
+                    description: Unix timestamp
+                    example: 1636540800
       403:
         description: User is not authenticated
         content:
@@ -315,7 +310,7 @@ def get_user_transactions():
         "type": t.type,
         "quantity": t.quantity if t.quantity else None,
         "amount": t.amount if t.amount else None,
-        "timestamp": t.timestamp
+        "timestamp_unix": t.timestamp_unix
     } for t in transactions]
 
     return jsonify(transaction_list)

@@ -140,6 +140,11 @@ def update_market():
 def transaction_data():
     user_time_zone = request.cookies.get('user_time_zone', 'UTC')
     tz = pytz.timezone(user_time_zone)
+    user_locale = request.cookies.get('user_locale', 'en')
+
+    print(f"User Time Zone: {user_time_zone}")
+    print(f"tz: {tz}")
+    print(f"User Locale: {request.cookies.get('user_locale', 'en')}")
 
     # Pagination parameters
     user_pagination = current_user.pagination or 10
@@ -213,6 +218,7 @@ def transaction_data():
         total_records = total_filtered = len(transactions_items)
 
     # Prepare the response data
+
     transactions_data = [
         {
             "order_number": transaction.order_number,
@@ -222,10 +228,7 @@ def transaction_data():
             "quantity": transaction.quantity if transaction.quantity > 0 else None,
             "price": transaction.price,
             "amount": transaction.amount,
-            "timestamp": format_datetime(
-                datetime.fromtimestamp(transaction.timestamp_unix, tz=tz),
-                locale=current_user.locale
-            ),
+            "timestamp": transaction.timestamp
         }
         for transaction, symbol, username in transactions_items
     ]

@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{%
-endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{% endblock %}
+{% block content %}
 <head>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -159,7 +159,7 @@ endblock %} {% block content %}
                 <td>{{ user.role }}</td>
                 <td>{{ user.status }}</td>
                 <td>${{ user.balance }}</td>
-                <td>{{ user.last_login or "Never" }}</td>
+                <td id="user-management-last-login">{{ moment(user.last_login).format('LLL') }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -251,11 +251,8 @@ endblock %} {% block content %}
           "render": $.fn.dataTable.render.number(',', '.', 2, '$')
         },
         { "data": "timestamp",
-          "type": "date",
-          "render": function(data, type, row) {
-            return type === 'sort' ? row.timestamp_unix: data;
-          }
-         }
+          "render": DataTable.render.datetime('lll'),
+        }
       ],
       "order": [[7, 'desc']]
     });

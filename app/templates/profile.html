@@ -31,7 +31,7 @@
         <h1>Profile Settings</h1>
         <div id="last-login" class="text-muted">
           <h6>Last Login</h6>
-          <p>{{ current_user.last_login or "This is your first login!" }}</p>
+          <p>{{ moment(current_user.last_login).format('LLL') or "This is your first login!" }}</p>
         </div>
       </div>
 

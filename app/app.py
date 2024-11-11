@@ -16,6 +16,7 @@ from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.date import DateTrigger
+from flask_moment import Moment
 import os
 import atexit
 
@@ -44,6 +45,9 @@ def create_app():
 
     # Initialize Migrate
     migrate = Migrate(app, db)
+
+    # Initialize Moment
+    moment = Moment(app)
 
     # Register blueprints
     app.register_blueprint(globals)

@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     })
     .then((data) => {
-      console.log(data);
+      console.log("Fetched Data:", data);
       const history = data.history || [];
       const transactions = data.transactions || [];
       updateChart(history);
@@ -94,35 +94,33 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   
   // Update the stock history chart
-  console.log(history);
   function updateChart(history) {
+    console.log("Raw history data:", history);
+  
     if (!history || history.length === 0) {
-      console.warn("No history data available for the select stock.");
-      chartContainer.textContent = "No data available for the selected period.";
+      console.warn("No history data available.");
       lineSeries.setData([]); // Clear the chart
       return;
     }
 
-    const formattedData = history
-    .filter((entry) => entry.timestamp && entry.price !== null) // Ensure data is valid
-    .map((entry) => ({
-      time: Math.floor(new Date(entry.timestamp).getTime() / 1000), // Convert to Unix timestamp
-      value: entry.price,
+    // Format the data
+    const formattedData = history.map((entry) => ({
+      time: Math.floor(new Date(entry.timestamp).getTime() / 1000), // Convert timestamp to Unix format
+      value: parseFloat(entry.price), // Ensure price is a number
     }));
 
-    if (formattedData.length === 0) {
-      console.warn("Filtered history contains no valid data.");
-      lineSeries.setData([]); // Clear the chart
-      return;
-    }
+    console.log("Formatted chart data:", formattedData);
 
-    lineSeries.setData(formattedData); // Set valid data
+    // Render the data
+    lineSeries.setData(formattedData);
   }
 
   // Add markers for buy/sell transactions
   function addTransactionMarkers(transactions) {
-    const markers = transactions.map((txn) => ({
-      time: new Date(txn.timestamp).getTime() / 1000,
+    const markers = transactions
+    .filter((txn) => txn.timestamp_unix && txn.price !== null)
+    .map((txn) => ({
+      time: txn.timestamp_unix,
       position: txn.type === "buy" ? "belowBar" : "aboveBar",
       color: txn.type === "buy" ? successColor : dangerColor,
       shape: txn.type === "buy" ? "arrowUp" : "arrowDown",
@@ -139,9 +137,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle window resize
   window.addEventListener("resize", () => {
-    // chart.resize(chartContainer.offsetWidth, 400);
-    chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight);
+    chart.resize(chartContainer.offsetWidth, 400);
+    // chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight || 400);
   });
+  console.log("Chart Container Dimensions:", chartContainer.offsetWidth, chartContainer.offsetHeight);
   
   // 3. STOCK LIST HANDLING
   // ----------------------
@@ -216,9 +215,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Update chart on item click
       listItem.addEventListener("click", function () {
-          if (stock.history) updateChart(stock.history);
+        if (stock.id) {
+          currentStockId = stock.id; // Set current stock ID
+          fetchStockData(stock.id, selectedPeriod); // Fetch data
+        } else {
+          console.warn("Invalid stock ID:", stock);
+        }
       });
-
+      
       // Append list item to stock list
       stockList.appendChild(listItem);
     });

@@ -16,3 +16,4 @@ user-agents
 APScheduler
 holidays
 flask_babel
+flask-moment
