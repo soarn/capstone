@@ -140,11 +140,6 @@ def update_market():
 def transaction_data():
     user_time_zone = request.cookies.get('user_time_zone', 'UTC')
     tz = pytz.timezone(user_time_zone)
-    user_locale = request.cookies.get('user_locale', 'en')
-
-    print(f"User Time Zone: {user_time_zone}")
-    print(f"tz: {tz}")
-    print(f"User Locale: {request.cookies.get('user_locale', 'en')}")
 
     # Pagination parameters
     user_pagination = current_user.pagination or 10
