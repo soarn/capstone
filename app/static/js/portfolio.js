@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Extract theme colors from CSS variables
   const primaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-primary").trim();
   const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-secondary").trim();
+  const tertiaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-tertiary").trim();
   const successColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-success").trim();
   const dangerColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-danger").trim();
   const textColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-body-color").trim();
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
       textColor: textColor,
     },
     grid: {
-      vertLines: { color: primaryColor },
+      vertLines: { color: tertiaryColor },
       horzLines: { color: secondaryColor },
     },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
@@ -84,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const history = data.history || [];
       const transactions = data.transactions || [];
       updateChart(history);
-      addTransactionMarkers(transactions);
+      // addTransactionMarkers(transactions);
     })
     .catch((error) => {
       console.error("Error fetching stock data:", error);
@@ -105,8 +106,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Format the data
     const formattedData = history.map((entry) => ({
-      time: Math.floor(new Date(entry.timestamp).getTime() / 1000), // Convert timestamp to Unix format
-      value: parseFloat(entry.price), // Ensure price is a number
+      // time: Math.floor(new Date(entry.timestamp).getTime() / 1000), // Convert timestamp to Unix format
+      time: entry.timestamp_unix,
+      value: parseFloat(entry.price),
     }));
 
     console.log("Formatted chart data:", formattedData);
@@ -116,18 +118,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Add markers for buy/sell transactions
-  function addTransactionMarkers(transactions) {
-    const markers = transactions
-    .filter((txn) => txn.timestamp_unix && txn.price !== null)
-    .map((txn) => ({
-      time: txn.timestamp_unix,
-      position: txn.type === "buy" ? "belowBar" : "aboveBar",
-      color: txn.type === "buy" ? successColor : dangerColor,
-      shape: txn.type === "buy" ? "arrowUp" : "arrowDown",
-      text: `${txn.type.toUpperCase()} ${txn.quantity} @ $${txn.price}`,
-    }));
-    lineSeries.setMarkers(markers);
-  }
+  // function addTransactionMarkers(transactions) {
+    // const markers = transactions
+    // .filter((txn) => txn.timestamp_unix && txn.price !== null)
+    // .map((txn) => ({
+      // time: txn.timestamp_unix,
+      // position: txn.type === "buy" ? "belowBar" : "aboveBar",
+      // color: txn.type === "buy" ? successColor : dangerColor,
+      // shape: txn.type === "buy" ? "arrowUp" : "arrowDown",
+      // text: `${txn.type.toUpperCase()} ${txn.quantity} @ $${txn.price}`,
+    // }));
+    // lineSeries.setMarkers(markers);
+  // }
 
   // Handle time period selection
   document.getElementById("time-period").addEventListener("change", function (event) {
