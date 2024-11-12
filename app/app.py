@@ -106,7 +106,7 @@ def create_app():
 
     # Shut down the scheduler when exiting the app
     atexit.register(lambda: scheduler.shutdown())
-    atexit.register(lambda: record_stocks(app))
+    atexit.register(lambda: record_stocks(app, shutdown=True))
 
 
     """

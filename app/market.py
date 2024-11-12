@@ -17,11 +17,10 @@ def update_stock_prices(app):
     with app.app_context():
         # Check if the market is open based on the day, time, and holiday setting
         if (get_market_status(app) == "open"):
-            fluctuation = random.uniform(-0.01, 0.01) # Random fluctuation between -1% and 1%
-
             stocks = Stock.query.all()
             for stock in stocks:
                 if not stock.is_manual:
+                    fluctuation = random.uniform(-0.01, 0.01) # Random fluctuation between -1% and 1%
                     fluctuation = Decimal(random.uniform(-0.01, 0.01)) # Random fluctuation between -1% and 1%
                     new_price = stock.price * (1 + fluctuation * Decimal(stock.fluctuation_multiplier))
 
@@ -32,11 +31,21 @@ def update_stock_prices(app):
                         stock.quantity -= int(stock.quantity * random.uniform(0.01, 0.05)) # Decrease available quantity
 
                     stock.quantity = max(stock.quantity, 0) # Prevent negative quantity
+
+                    # Update high and low prices
+                    if stock.high_price is None or new_price > stock.high_price:
+                        stock.high_price = new_price
+                    if stock.low_price is None or new_price < stock.low_price:
+                        stock.low_price = new_price
+                    
+                    # Update volume
+                    stock.volume += abs(int(stock.quantity * random.uniform(0.01, 0.05)))
+
                     stock.price = round(new_price, 2)
             db.session.commit()
 
 # Record Stock History
-def record_stocks(app):
+def record_stocks(app, shutdown):
     """
     Records stock history into the StockHistory table, ensuring 
     historical data is logged for analysis and charting purposes.
@@ -49,9 +58,24 @@ def record_stocks(app):
                 price=stock.price,
                 quantity=stock.quantity,
                 timestamp=datetime.now(),
-                timestamp_unix=int(datetime.now().timestamp())
+                timestamp_unix=int(datetime.now().timestamp()),
+                open_price=stock.open_price,
+                close_price=stock.close_price,
+                high_price=stock.high_price,
+                low_price=stock.low_price,
+                volume=stock.volume
             )
             db.session.add(stock_history)
+
+            if shutdown == True:
+                print(f"[SCHEDULE] Reset stock information for stock ${stock.symbol} at {datetime.now()}")
+                # Reset daily high, low, and volume for the next day (daily summaries)
+                stock.open_price = stock.price
+                stock.high_price = stock.price
+                stock.low_price = stock.price
+                stock.volume = 0
+
+        print(f"[SCHEDULE] Recorded stock history at {datetime.now()}")
         db.session.commit()
 
 # Get Next Market Close Time
@@ -77,7 +101,9 @@ def get_next_market_close(app):
                     (settings.close_on_holidays and market_close_today.date() in nyse_holidays)):
                     market_close_today += timedelta(days=1)
                 
+            print(f"[SCHEDULE] Next market close: {market_close_today} (In {market_close_today - now} hours)")
             return int(market_close_today.timestamp())
+    print(f"[SCHEDULE] Market is closed!")
     return None
 
 # Reschedule Record Stocks if Market Close Changes
@@ -99,25 +125,30 @@ def reschedule_market_close(scheduler, app):
             name='Record stock history at market close',
             replace_existing=True
         )
+    print(f"[SCHEDULE] Rescheduled record_stock_history_market_close for {datetime.fromtimestamp(next_close_time)}. Next close in {next_close_time - int(datetime.now().timestamp())} seconds.")
 
 # Intraday Cleanup Task
 def cleanup_intraday_fluctuations(app, retention_days=7):
     """
     Deletes intraday fluctuations older than the retention period.
-    Retains daily closing prices for long-term analysis.
+    Retains daily open, close, high, low, and volume for long-term analysis.
     """
     with app.app_context():
         # Calculate the threshold for intraday data retention
         threshold_timestamp = int((datetime.now() - timedelta(days=retention_days)).timestamp())
 
         # Identify records to retain: daily market close
-        daily_closes = db.session.query(
+        daily_summaries = db.session.query(
             StockHistory.stock_id,
-            db.func.max(StockHistory.timestamp_unix).label("latest_close")
+            db.func.min(StockHistory.timestamp_unix).label("daily_open"),
+            db.func.max(StockHistory.timestamp_unix).label("daily_close"),
+            db.func.max(StockHistory.high_price).label("daily_high"),
+            db.func.min(StockHistory.low_price).label("daily_low"),
+            db.func.sum(StockHistory.volume).label("daily_volume")
         ).filter(
             StockHistory.timestamp_unix < threshold_timestamp
         ).group_by(
-            StockHistory.stock_id, db.func.date(StockHistory.timestamp)
+            StockHistory.stock_id, db.func.date(StockHistory.timestamp_unix)
         ).subquery()
 
         # Delete all other intraday records older than the retention period
@@ -125,7 +156,9 @@ def cleanup_intraday_fluctuations(app, retention_days=7):
             StockHistory.timestamp_unix < threshold_timestamp
         ).filter(
             ~StockHistory.id.in_(
-                db.session.query(daily_closes.c.latest_close)
+                db.session.query(daily_summaries.c.daily_open).union(
+                    db.session.query(daily_summaries.c.daily_close)
+                )
             )
         ).delete(synchronize_session=False)
 
