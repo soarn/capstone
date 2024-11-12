@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // -----------------
 
   const chartContainer = document.getElementById("chart-container");
-  const selectedPeriod = "1D"; // Default to 1 day
+  let selectedPeriod = "1D"; // Default to 1 day
   let currentStockId = null;
 
   // Initialize the chart
@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const history = data.history || [];
       const transactions = data.transactions || [];
       updateChart(history);
+      updateVolumeChart(history);
       // addTransactionMarkers(transactions);
     })
     .catch((error) => {
@@ -117,6 +118,29 @@ document.addEventListener("DOMContentLoaded", function () {
     lineSeries.setData(formattedData);
   }
 
+  // Update the stock volume chart
+  const volumeSeries = chart.addHistogramSeries({
+    color: successColor,
+    priceScaleId: '',
+    lineWidth: 1,
+    priceFormat: {
+      type: 'volume',
+    },
+    overlay: true,
+    scaleMargins: {
+      top: 0.8,
+      bottom: 0,
+    },
+  });
+
+  function updateVolumeChart(history) {
+    const volumeData = history.map((entry) => ({
+      time: entry.timestamp_unix,
+      value: entry.volume,
+      
+    }))
+  }
+
   // Add markers for buy/sell transactions
   // function addTransactionMarkers(transactions) {
     // const markers = transactions
@@ -134,7 +158,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle time period selection
   document.getElementById("time-period").addEventListener("change", function (event) {
     const period = event.target.value;
-    if (currentStockId) fetchStockData(currentStockId, period);
+    console.log("Selected period:", period);
+    selectedPeriod = period;
+    if (currentStockId) fetchStockData(currentStockId, selectedPeriod);
   });
 
   // Handle window resize
