@@ -74,15 +74,17 @@
             </div>
           </form>
         </section>
+        
+        <!-- <hr /> -->
 
         <!-- Stock Management Section -->
+        <h1 class="mb-4 text-primary border-bottom pb-2">Stock Management</h1>
         <section id="stock-management" class="mb-5 p-3 bg-body border rounded">
-
           <!-- Update Stock Form -->
           <form method="POST" action="{{ url_for('admin.update_stock') }}" novalidate>
             {{ update_form.hidden_tag() }}
             <input type="hidden" name="form_name" value="update-stock">
-            <h2 class="mb-4 text-primary border-bottom pb-2">Stock Management</h2>
+            <h2 class="mb-4 text-primary border-bottom pb-2">Update Stocks</h2>
             <div class="form-group mb-3">
               {{ update_form.stock_id(class="form-select", required=True) }} {{
                 update_form.stock_id.label }}
@@ -132,9 +134,6 @@
           </form>
 
         </section>
-
-
-      <hr />
 
       <!-- User Management Section -->
       <section id="user-management" class="mb-5 p-3 bg-body border rounded">

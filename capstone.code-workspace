@@ -105,6 +105,7 @@
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": false,
     "cSpell.words": [
+      "apscheduler",
       "autofetch",
       "Bootswatch",
       "flasgger",

@@ -1,7 +1,8 @@
 # Market Simulation, Scheduling, and Cleanup
 import random
-from datetime import datetime, timedelta
 import holidays
+from decimal import Decimal
+from datetime import datetime, timedelta
 from utils import get_market_status
 from db.db_models import Stock, StockHistory, AdminSettings
 from db.db import db
@@ -21,8 +22,8 @@ def update_stock_prices(app):
             stocks = Stock.query.all()
             for stock in stocks:
                 if not stock.is_manual:
-                    fluctuation = random.uniform(-0.01, 0.01) # Random fluctuation between -1% and 1%
-                    new_price = stock.price * (1 + fluctuation * stock.fluctuation_multiplier)
+                    fluctuation = Decimal(random.uniform(-0.01, 0.01)) # Random fluctuation between -1% and 1%
+                    new_price = stock.price * (1 + fluctuation * Decimal(stock.fluctuation_multiplier))
 
                     # Adjust available quantity based on price change
                     if fluctuation < 0: # Price decreasing, simulate selling
