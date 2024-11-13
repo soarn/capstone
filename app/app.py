@@ -81,7 +81,7 @@ def create_app():
 
     # Update stock prices and record stock history every minute
     scheduler.add_job(func=lambda: update_stock_prices(app), trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
-    scheduler.add_job(func=lambda: record_stocks(app), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
+    scheduler.add_job(func=lambda: record_stocks(app, shutdown=False), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
 
     # Schedule record_stocks at market close
     def schedule_record_stocks():

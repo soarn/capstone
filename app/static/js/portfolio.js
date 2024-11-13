@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // }));
     // lineSeries.setMarkers(markers);
   // }
-
+// # TODO: SEE IF THIS IS DUPLICATING
   // Handle time period selection
   document.getElementById("time-period").addEventListener("change", function (event) {
     const period = event.target.value;

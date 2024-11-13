@@ -17,3 +17,4 @@ APScheduler
 holidays
 flask_babel
 flask-moment
+werkzeug
