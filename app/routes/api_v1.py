@@ -236,7 +236,15 @@ def get_stock_history(period):
         history = history.filter(StockHistory.timestamp_unix >= start_unix)
         transactions = transactions.filter(Transaction.timestamp_unix >= start_unix)
 
-    history_data = [{"timestamp_unix": h.timestamp_unix, "price": h.price} for h in history]
+    history_data = [{
+        "timestamp_unix": h.timestamp_unix, 
+        "price": h.price,
+        "open_price": h.open_price,
+        "close_price": h.close_price,
+        "high_price": h.high_price,
+        "low_price": h.low_price,
+        "volume": h.volume
+    } for h in history]
     transaction_data = [{
         "timestamp_unix": t.timestamp_unix,
         "price": t.price,
