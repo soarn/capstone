@@ -3,12 +3,14 @@ from flask import Blueprint, current_app, render_template, request, redirect, fl
 from flask_login import current_user, login_required
 from functools import wraps
 from utils import get_market_status
-from db.db_models import Stock, User, Transaction, AdminSettings
+from db.db_models import Stock, StockHistory, User, Transaction, AdminSettings
 from db.db import db
 import uuid
 from forms import UpdateStockForm, CreateStockForm, UpdateMarketForm
 from sqlalchemy import desc, asc
 from market import reschedule_market_close
+from flask_babel import format_datetime
+import pytz
 
 def admin_required(f):
     @wraps(f)
@@ -136,6 +138,9 @@ def update_market():
 @login_required
 @admin_required
 def transaction_data():
+    user_time_zone = request.cookies.get('user_time_zone', 'UTC')
+    tz = pytz.timezone(user_time_zone)
+
     # Pagination parameters
     user_pagination = current_user.pagination or 10
     page = request.args.get('start', 0, type=int) // user_pagination + 1 # Adjust for ceil
@@ -154,12 +159,12 @@ def transaction_data():
         '4': Transaction.quantity,
         '5': Transaction.price,
         '6': Transaction.amount,
-        '7': Transaction.timestamp
+        '7': Transaction.timestamp_unix
     }
 
     # Sorting parameters
     sort_column_index = request.args.get('order[0][column]', '7') # Default to timestamp
-    sort_column = column_map.get(sort_column_index, Transaction.timestamp)
+    sort_column = column_map.get(sort_column_index, Transaction.timestamp_unix)
     sort_direction = request.args.get('order[0][dir]', 'desc')
 
     # Determine sorting direction
@@ -208,6 +213,7 @@ def transaction_data():
         total_records = total_filtered = len(transactions_items)
 
     # Prepare the response data
+
     transactions_data = [
         {
             "order_number": transaction.order_number,
@@ -217,7 +223,7 @@ def transaction_data():
             "quantity": transaction.quantity if transaction.quantity > 0 else None,
             "price": transaction.price,
             "amount": transaction.amount,
-            "timestamp": transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            "timestamp": transaction.timestamp
         }
         for transaction, symbol, username in transactions_items
     ]
@@ -258,3 +264,37 @@ def populate_order_numbers():
     print(f"Updated {len(transactions)} transactions with new order numbers.")
 
     return "Order numbers populated successfully."
+
+# Update unix timestamps
+@admin.route("/update_unix_timestamps")
+@login_required
+@admin_required
+def populate_unix_timestamps():
+    try:
+        histories = StockHistory.query.all()
+        for history in histories:
+            if history.timestamp:
+                history.timestamp_unix = int(history.timestamp.timestamp())
+        db.session.commit()
+
+        transactions = Transaction.query.all()
+        for transaction in transactions:
+            if transaction.timestamp:
+                transaction.timestamp_unix = int(transaction.timestamp.timestamp())
+        db.session.commit()
+
+        users = User.query.all()
+        for user in users:
+            if user.created_at:
+                user.created_at_unix = int(user.created_at.timestamp())
+            if user.last_login:
+                user.last_login_unix = int(user.last_login.timestamp())
+        db.session.commit()
+
+        print("Unix timestamps updated successfully.")
+        return "Unix timestamps updated successfully."
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error: {e}")
+        return f"An error occurred: {e}", 500

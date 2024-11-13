@@ -5,7 +5,7 @@ from routes.web import web
 from routes.api_v1 import api_v1
 from routes.profile import profile
 from routes.admin import admin
-from datetime import timedelta
+from datetime import timedelta, datetime
 from db.db import db
 from flasgger import Swagger
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
@@ -16,6 +16,7 @@ from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.date import DateTrigger
+from flask_moment import Moment
 import os
 import atexit
 
@@ -44,6 +45,9 @@ def create_app():
 
     # Initialize Migrate
     migrate = Migrate(app, db)
+
+    # Initialize Moment
+    moment = Moment(app)
 
     # Register blueprints
     app.register_blueprint(globals)
@@ -77,13 +81,14 @@ def create_app():
 
     # Update stock prices and record stock history every minute
     scheduler.add_job(func=lambda: update_stock_prices(app), trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
-    scheduler.add_job(func=lambda: record_stocks(app), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
+    # scheduler.add_job(func=lambda: update_stock_prices(app) if get_market_status(app) else None, trigger=IntervalTrigger(minutes=1), id='update_stock_prices', name='Update stock prices every minute', replace_existing=True)
+    scheduler.add_job(func=lambda: record_stocks(app, shutdown=False), trigger=IntervalTrigger(minutes=1), id='record_stock_history', name='Record stock history every minute', replace_existing=True)
 
     # Schedule record_stocks at market close
     def schedule_record_stocks():
         next_close_time = get_next_market_close(app)
         if next_close_time:
-            scheduler.add_job(func=lambda: record_stocks(app), trigger=DateTrigger(run_date=next_close_time), id='record_stock_history_market_close', name='Record stock history at market close', replace_existing=True)
+            scheduler.add_job(func=lambda: record_stocks(app), trigger=DateTrigger(run_date=datetime.fromtimestamp(next_close_time)), id='record_stock_history_market_close', name='Record stock history at market close', replace_existing=True)
     
     schedule_record_stocks() # Schedule the job initially
 
@@ -102,7 +107,7 @@ def create_app():
 
     # Shut down the scheduler when exiting the app
     atexit.register(lambda: scheduler.shutdown())
-    atexit.register(lambda: record_stocks(app))
+    atexit.register(lambda: record_stocks(app, shutdown=True))
 
 
     """

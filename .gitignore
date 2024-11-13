@@ -5,6 +5,7 @@
 !.env.project
 !.env.vault
 .hintrc
+.DS_Store
 
 # BEGIN NODE
 
