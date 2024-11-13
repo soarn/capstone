@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{%
-endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{% endblock %}
+{% block content %}
 <head>
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -74,15 +74,17 @@ endblock %} {% block content %}
             </div>
           </form>
         </section>
+        
+        <!-- <hr /> -->
 
         <!-- Stock Management Section -->
+        <h1 class="mb-4 text-primary border-bottom pb-2">Stock Management</h1>
         <section id="stock-management" class="mb-5 p-3 bg-body border rounded">
-
           <!-- Update Stock Form -->
           <form method="POST" action="{{ url_for('admin.update_stock') }}" novalidate>
             {{ update_form.hidden_tag() }}
             <input type="hidden" name="form_name" value="update-stock">
-            <h2 class="mb-4 text-primary border-bottom pb-2">Stock Management</h2>
+            <h2 class="mb-4 text-primary border-bottom pb-2">Update Stocks</h2>
             <div class="form-group mb-3">
               {{ update_form.stock_id(class="form-select", required=True) }} {{
                 update_form.stock_id.label }}
@@ -133,9 +135,6 @@ endblock %} {% block content %}
 
         </section>
 
-
-      <hr />
-
       <!-- User Management Section -->
       <section id="user-management" class="mb-5 p-3 bg-body border rounded">
         <h2 class="mb-4 text-primary border-bottom pb-2">User Management</h2>
@@ -159,7 +158,7 @@ endblock %} {% block content %}
                 <td>{{ user.role }}</td>
                 <td>{{ user.status }}</td>
                 <td>${{ user.balance }}</td>
-                <td>{{ user.last_login or "Never" }}</td>
+                <td id="user-management-last-login">{{ moment(user.last_login).format('LLL') }}</td>
               </tr>
               {% endfor %}
             </tbody>
@@ -250,7 +249,9 @@ endblock %} {% block content %}
         { "data": "amount",
           "render": $.fn.dataTable.render.number(',', '.', 2, '$')
         },
-        { "data": "timestamp" }
+        { "data": "timestamp",
+          "render": DataTable.render.datetime('lll'),
+        }
       ],
       "order": [[7, 'desc']]
     });

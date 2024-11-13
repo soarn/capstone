@@ -265,8 +265,13 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js" integrity="sha256-/TZdvWBQbZdgT95AgMF6nDLyjhe3QdOMpw4VLnkcgq4=" crossorigin="anonymous"></script>
   <script>
+
+    //////////////
+    // STOCK TICKER
+    //////////////
+
     document.addEventListener('DOMContentLoaded', function () {
       const tickerWrapper = document.querySelector('.tickerwrapper');
       const stockTicker = document.querySelector('.stock-ticker');
@@ -300,6 +305,11 @@
         // Start scrolling
         requestAnimationFrame(scrollTicker);
       }
+
+
+      //////////////
+      // DARK MODE TOGGLE
+      //////////////
 
       // Dark Mode Toggle
       const themeToggle = document.getElementById("themeToggle");
@@ -336,7 +346,28 @@
         applyTheme(darkMode);
       });
     });
-  
+
+
+    //////////////
+    // LOCALE AND TIME ZONE
+    //////////////
+
+    // Detect user's locale
+    const userLocale = navigator.languages && navigator.languages.length
+      ? navigator.languages[0]
+      : navigator.language || navigator.userLanguage;
+
+    // Get the user's time zone
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Store the locale and time zone in a cookie
+    document.cookie = `user_locale=${userLocale}; path=/; max-age=31536000`; // 1 year
+    document.cookie = `user_time_zone=${userTimeZone}; path=/; max-age=31536000`; // 1 year
+
+
+    //////////////
+    // FLASH MESSAGES
+    //////////////
 
     // Auto dismiss flash messages after 3 seconds
     setTimeout(function () {
@@ -351,7 +382,10 @@
         }, 1500);
       });
     }, 3000);
+
+
   </script>
   <script>feather.replace()</script>
+  {{ moment.include_moment() }}
 </body>
 </html>

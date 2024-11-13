@@ -24,6 +24,8 @@ class User(UserMixin, db.Model):
     pagination       = db.Column(db.Integer, nullable=False, default=10)
     first_name       = db.Column(db.String(50), nullable=False, default=username)
     last_name        = db.Column(db.String(50), nullable=False, default=username)
+    created_at_unix  = db.Column(db.BigInteger, default=int(datetime.now().timestamp()))
+    last_login_unix  = db.Column(db.BigInteger)
 
     # Hash the password before storing it
     def set_password(self, password):
@@ -51,14 +53,25 @@ class Stock(db.Model):
     manual_price           = db.Column(db.Numeric(10,2), nullable=True)             # Admin-controlled price
     is_manual              = db.Column(db.Boolean, nullable=False, default=False)   # Whether the price is manually set
     fluctuation_multiplier = db.Column(db.Float, default=1.0)                       # Multiplier for good/bad days
+    open_price             = db.Column(db.Numeric(10,2), nullable=True)             # Opening price
+    close_price            = db.Column(db.Numeric(10,2), nullable=True)             # Closing price
+    high_price             = db.Column(db.Numeric(10,2), nullable=True)             # High price
+    low_price              = db.Column(db.Numeric(10,2), nullable=True)             # Low price
+    volume                 = db.Column(db.Integer, nullable=True, default=0)        # Volume of stocks traded
 
 # Create StockHistory Model (StockHistory)
 class StockHistory(db.Model):
-    id        = db.Column(db.Integer, primary_key=True)
-    stock_id  = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    price     = db.Column(db.Numeric(10,2), nullable=False)
-    quantity  = db.Column(db.Integer, nullable=False)
+    id             = db.Column(db.Integer, primary_key=True)
+    stock_id       = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    timestamp      = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    price          = db.Column(db.Numeric(10,2), nullable=False)
+    quantity       = db.Column(db.Integer, nullable=False)
+    timestamp_unix = db.Column(db.BigInteger, default=int(datetime.now().timestamp()))
+    open_price     = db.Column(db.Numeric(10,2), nullable=True)
+    close_price    = db.Column(db.Numeric(10,2), nullable=True)
+    high_price     = db.Column(db.Numeric(10,2), nullable=True)
+    low_price      = db.Column(db.Numeric(10,2), nullable=True)
+    volume         = db.Column(db.Integer, nullable=True, default=0)
 
 # Create Transaction Model (Transaction)
 
@@ -72,6 +85,7 @@ class Transaction(db.Model):
     price     = db.Column(db.Numeric(10,2))
     amount    = db.Column(db.Numeric(10,2), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+    timestamp_unix = db.Column(db.BigInteger)
 
     # Marker Fields
     marker_flag = db.Column(db.Boolean, default=False) # True if the transaction is a marker transaction

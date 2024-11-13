@@ -105,11 +105,13 @@
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": false,
     "cSpell.words": [
+      "apscheduler",
       "autofetch",
       "Bootswatch",
       "flasgger",
       "intraday",
       "jsonify",
+      "pytz",
       "sqlalchemy",
       "tickerwrapper",
       "venv",

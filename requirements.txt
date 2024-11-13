@@ -15,3 +15,7 @@ email-validator
 user-agents
 APScheduler
 holidays
+flask_babel
+flask-moment
+werkzeug
+lightweight-charts
