@@ -240,10 +240,10 @@ def get_stock_history(period):
         "timestamp_unix": h.timestamp_unix, 
         "price": h.price,
         "open_price": h.open_price,
-        "close_price": h.close_price,
+        "close_price": h.close_price if h.close_price else h.price,
         "high_price": h.high_price,
         "low_price": h.low_price,
-        "volume": h.volume
+        "volume": h.volume or 0
     } for h in history]
     transaction_data = [{
         "timestamp_unix": t.timestamp_unix,

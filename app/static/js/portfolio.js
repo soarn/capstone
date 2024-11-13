@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const balanceAction = document.getElementById("balance-action");
   const depositBtn = document.getElementById("depositFundsBtn");
   const withdrawBtn = document.getElementById("withdrawFundsBtn");
+  const timePeriodSelector = document.getElementById("time-period");
 
   // Initialize Bootstrap modals
   const buySellModal = new bootstrap.Modal(buySellModalElement);
@@ -45,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const tertiaryColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-tertiary").trim();
   const successColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-success").trim();
   const dangerColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-danger").trim();
+  const warningColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-warning").trim();
   const textColor = getComputedStyle(document.documentElement).getPropertyValue("--bs-body-color").trim();
   
   // 2. CHART HANDLING
@@ -70,6 +72,12 @@ document.addEventListener("DOMContentLoaded", function () {
     rightPriceScale: { borderVisible: false },
     timeScale: { borderVisible: false },
   });
+
+  // Add priceLine series
+  const priceLineSeries = chart.addLineSeries({
+    color: successColor,
+    lineWidth: 2,
+  });
   
   // Add candlestick series for OHLC data
   const candlestickSeries = chart.addCandlestickSeries({
@@ -83,11 +91,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add volume series
   const volumeSeries = chart.addHistogramSeries({
-    color: successColor,
+    color: warningColor,
     priceScaleId: '',
     priceFormat: { type: 'volume' },
-    overlay: true,
-    scaleMargins: { top: 0.8, bottom: 0 },
+  });
+
+  // Configure the secondary price scale for volume
+  chart.priceScale('volume').applyOptions({
+    position: 'left',
+    scaleMargins: {
+      top: 0.8,
+      bottom: 0,
+    },
   });
 
   // 3. FETCH AND UPDATE CHART DATA
@@ -103,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((data) => {
       console.log("Fetched Data:", data);
       const history = data.history || [];
+      const transactions = data.transactions || [];
       updateCandlestickChart(history);
       updateVolumeChart(history);
     })
@@ -122,13 +138,23 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    const validCandlestickData = history.filter(entry => 
+      entry.timestamp_unix &&
+      entry.open_price !== null &&
+      entry.high_price !== null &&
+      entry.low_price !== null &&
+      entry.close_price !== null &&
+      entry.volume !== null
+    )
+
     // Format the data
-    const candlestickData = history.map((entry) => ({
+    const candlestickData = validCandlestickData.map((entry) => ({
       time: entry.timestamp_unix,
       open: parseFloat(entry.open_price),
       high: parseFloat(entry.high_price),
       low: parseFloat(entry.low_price),
       close: parseFloat(entry.close_price),
+      volume: parseFloat(entry.volume)
     }));
 
     console.log("Formatted candlestick data:", candlestickData);
@@ -148,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const volumeData = history.map((entry) => ({
       time: entry.timestamp_unix,
       value: parseInt(entry.volume, 10),
-      color: entry.open_price > entry.close_price ? dangerColor : successColor,
+      color: entry.close_price > entry.open_price ? successColor : dangerColor,
     }));
 
     console.log("Formatted volume data:", volumeData);
@@ -156,82 +182,38 @@ document.addEventListener("DOMContentLoaded", function () {
     volumeSeries.setData(volumeData);
   }
 
+  // 4. HANDLE USER INTERACTIONS
+  // ---------------------------
 
-
-  const lineSeries = chart.addLineSeries({
-    color: primaryColor,
-    lineWidth: 2,
+  // Time period selector
+  timePeriodSelector.addEventListener("change", function (event) {
+    const period = event.target.value;
+    console.log("Selected period:", period);
+    selectedPeriod = period;
+    if (currentStockId) fetchStockData(currentStockId, selectedPeriod);
   });
 
+  // Resize chart on window resize
+  window.addEventListener("resize", () => {
+    chart.resize(chartContainer.offsetWidth, 400);
+  });
 
-  // Fetch stock history data
-  function fetchStockData(stockId, period) {
-    fetch(`/api/v1/stock-history/${period}?stock_id=${stockId}`)
-    .then((response) => {
-      if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
-      return response.json();
-    })
-    .then((data) => {
-      console.log("Fetched Data:", data);
-      const history = data.history || [];
-      const transactions = data.transactions || [];
-      updateChart(history);
-      updateVolumeChart(history);
-      // addTransactionMarkers(transactions);
-    })
-    .catch((error) => {
-      console.error("Error fetching stock data:", error);
-      chartContainer.textContent = "Failed to load data. Please try again.";
-      lineSeries.setData([]); // Clear the chart
-    });
-  }
-  
-  // Update the stock history chart
-  function updateChart(history) {
-    console.log("Raw history data:", history);
-  
-    if (!history || history.length === 0) {
-      console.warn("No history data available.");
-      lineSeries.setData([]); // Clear the chart
-      return;
+  // Crosshair Interaction
+  // ---------------------
+
+  chart.subscribeCrosshairMove((param) => {
+    if (!param.time) return;
+    const candlestickData = param.seriesData.get(candlestickSeries);
+    const volumeData = param.seriesData.get(volumeSeries);
+
+    if (candlestickData) {
+      console.log("Candlestick Data:", candlestickData);
     }
-
-    // Format the data
-    const formattedData = history.map((entry) => ({
-      // time: Math.floor(new Date(entry.timestamp).getTime() / 1000), // Convert timestamp to Unix format
-      time: entry.timestamp_unix,
-      value: parseFloat(entry.price),
-    }));
-
-    console.log("Formatted chart data:", formattedData);
-
-    // Render the data
-    lineSeries.setData(formattedData);
-  }
-
-  // Update the stock volume chart
-  const volumeSeries = chart.addHistogramSeries({
-    color: successColor,
-    priceScaleId: '',
-    lineWidth: 1,
-    priceFormat: {
-      type: 'volume',
-    },
-    overlay: true,
-    scaleMargins: {
-      top: 0.8,
-      bottom: 0,
-    },
+    if (volumeData) {
+      console.log("Volume Data:", volumeData);
+    }
   });
-
-  function updateVolumeChart(history) {
-    const volumeData = history.map((entry) => ({
-      time: entry.timestamp_unix,
-      value: entry.volume,
-      
-    }))
-  }
-
+  
   // Add markers for buy/sell transactions
   // function addTransactionMarkers(transactions) {
     // const markers = transactions
@@ -247,21 +229,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // }
 // # TODO: SEE IF THIS IS DUPLICATING
   // Handle time period selection
-  document.getElementById("time-period").addEventListener("change", function (event) {
-    const period = event.target.value;
-    console.log("Selected period:", period);
-    selectedPeriod = period;
-    if (currentStockId) fetchStockData(currentStockId, selectedPeriod);
-  });
+  // document.getElementById("time-period").addEventListener("change", function (event) {
+    // const period = event.target.value;
+    // console.log("Selected period:", period);
+    // selectedPeriod = period;
+    // if (currentStockId) fetchStockData(currentStockId, selectedPeriod);
+  // });
 
-  // Handle window resize
-  window.addEventListener("resize", () => {
-    chart.resize(chartContainer.offsetWidth, 400);
-    // chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight || 400);
-  });
-  console.log("Chart Container Dimensions:", chartContainer.offsetWidth, chartContainer.offsetHeight);
-  
-  // 3. STOCK LIST HANDLING
+  // 5. STOCK LIST HANDLING
   // ----------------------
   // Populate initial list of owned stocks
   populateStockList(portfolioStocks, false);

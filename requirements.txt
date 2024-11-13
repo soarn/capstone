@@ -18,3 +18,4 @@ holidays
 flask_babel
 flask-moment
 werkzeug
+lightweight-charts
