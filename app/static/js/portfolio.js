@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const transactionEndpoint = document.getElementById("transaction-endpoint").getAttribute("data-url");
   const balanceEndpoint = document.getElementById("balance-endpoint").getAttribute("data-url");
   
+  // Get market status from HTML
+  const market_status = document.getElementById("market-status").getAttribute("data-status");
+
   // Check if data attributes exist and are not empty before parsing
   const portfolioStocks = portfolioDataElement.getAttribute("data-portfolio")
     ? JSON.parse(portfolioDataElement.getAttribute("data-portfolio"))
@@ -16,8 +19,9 @@ document.addEventListener("DOMContentLoaded", function () {
     ? JSON.parse(allStocksDataElement.getAttribute("data-all-stocks"))
     : [];
   
-  const market_status = document.getElementById("market-status").getAttribute("data-status");
+  let isBuyMode = false; // Toggle buy/sell mode\
   
+  // DOM elements
   const stockList = document.getElementById("stock-list");
   const buyModeBtn = document.getElementById("buy-mode");
   const sellModeBtn = document.getElementById("sell-mode");
@@ -26,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const transactionAction = document.getElementById("transaction-action"); // Action input field
   const buySellModalElement = document.getElementById("buySellModal");
   const confirmationModalElement = document.getElementById("confirmationModal");
-  let isBuyMode = false; // Toggle buy/sell mode
   const balanceForm = document.getElementById("balance-form");
   const balanceAction = document.getElementById("balance-action");
   const depositBtn = document.getElementById("depositFundsBtn");
@@ -67,11 +70,99 @@ document.addEventListener("DOMContentLoaded", function () {
     rightPriceScale: { borderVisible: false },
     timeScale: { borderVisible: false },
   });
+  
+  // Add candlestick series for OHLC data
+  const candlestickSeries = chart.addCandlestickSeries({
+    upColor: successColor,
+    downColor: dangerColor,
+    borderUpColor: successColor,
+    borderDownColor: dangerColor,
+    wickUpColor: successColor,
+    wickDownColor: dangerColor,
+  });
+
+  // Add volume series
+  const volumeSeries = chart.addHistogramSeries({
+    color: successColor,
+    priceScaleId: '',
+    priceFormat: { type: 'volume' },
+    overlay: true,
+    scaleMargins: { top: 0.8, bottom: 0 },
+  });
+
+  // 3. FETCH AND UPDATE CHART DATA
+  // -----------------
+
+  // Fetch stock data from the API
+  function fetchStockData(stockId, period) {
+    fetch(`/api/v1/stock-history/${period}?stock_id=${stockId}`)
+    .then((response) => {
+      if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Fetched Data:", data);
+      const history = data.history || [];
+      updateCandlestickChart(history);
+      updateVolumeChart(history);
+    })
+    .catch((error) => {
+      console.error("Error fetching stock data:", error);
+      chartContainer.textContent = "Failed to load data. Please try again.";
+      candlestickSeries.setData([]); // Clear the chart
+      volumeSeries.setData([]); // Clear the chart
+    });
+  }
+
+  // Update the candlestick chart with OHLC data
+  function updateCandlestickChart(history) {
+    if (!history || history.length === 0) {
+      console.warn("No history data available.");
+      candlestickSeries.setData([]); // Clear the chart
+      return;
+    }
+
+    // Format the data
+    const candlestickData = history.map((entry) => ({
+      time: entry.timestamp_unix,
+      open: parseFloat(entry.open_price),
+      high: parseFloat(entry.high_price),
+      low: parseFloat(entry.low_price),
+      close: parseFloat(entry.close_price),
+    }));
+
+    console.log("Formatted candlestick data:", candlestickData);
+
+    candlestickSeries.setData(candlestickData);
+  }
+
+  // Update the volume chart
+  function updateVolumeChart(history) {
+    if (!history || history.length === 0) {
+      console.warn("No history data available.");
+      volumeSeries.setData([]); // Clear the chart
+      return;
+    }
+
+    // Format the data for the volume chart
+    const volumeData = history.map((entry) => ({
+      time: entry.timestamp_unix,
+      value: parseInt(entry.volume, 10),
+      color: entry.open_price > entry.close_price ? dangerColor : successColor,
+    }));
+
+    console.log("Formatted volume data:", volumeData);
+
+    volumeSeries.setData(volumeData);
+  }
+
+
 
   const lineSeries = chart.addLineSeries({
     color: primaryColor,
     lineWidth: 2,
   });
+
 
   // Fetch stock history data
   function fetchStockData(stockId, period) {
