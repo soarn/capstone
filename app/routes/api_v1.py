@@ -236,15 +236,25 @@ def get_stock_history(period):
         history = history.filter(StockHistory.timestamp_unix >= start_unix)
         transactions = transactions.filter(Transaction.timestamp_unix >= start_unix)
 
-    history_data = [{
-        "timestamp_unix": h.timestamp_unix, 
-        "price": h.price,
-        "open_price": h.open_price,
-        "close_price": h.close_price if h.close_price else h.price,
-        "high_price": h.high_price,
-        "low_price": h.low_price,
-        "volume": h.volume or 0
-    } for h in history]
+    # Order the history data by timestamp_unix in ascending order
+    history = history.order_by(StockHistory.timestamp_unix.asc())
+
+    # Ensure unique timestamps for each stock
+    history_data = []
+    seen_timestamps = set()
+    for h in history:
+        if h.timestamp_unix not in seen_timestamps:
+          history_data.append({
+              "timestamp_unix": h.timestamp_unix, 
+              "price": h.price,
+              "open_price": h.open_price if h.open_price else h.price,
+              "close_price": h.close_price if h.close_price else h.price,
+              "high_price": h.high_price if h.high_price else h.price,
+              "low_price": h.low_price if h.low_price else h.price,
+              "volume": h.volume or 0
+          })
+          seen_timestamps.add(h.timestamp_unix)
+
     transaction_data = [{
         "timestamp_unix": t.timestamp_unix,
         "price": t.price,

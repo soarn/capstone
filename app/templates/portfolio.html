@@ -41,20 +41,20 @@
     <div class="col-md-8">
       <h4>Stock History</h4>
       <div id="chart-container" style="height: 400px; width: 100%"></div>
+      
+      <!-- Time Period Controls -->
+      <label for="time-period">Select Time Period:</label>
+      <div id="time-period" class="btn-group" role="group" aria-label="Time Period Control">
+        <button type="button" class="btn btn-primary" data-period="1D">1 Day</button>
+        <button type="button" class="btn btn-primary" data-period="1W">1 Week</button>
+        <button type="button" class="btn btn-primary" data-period="1M">1 Month</button>
+        <button type="button" class="btn btn-primary" data-period="3M">3 Months</button>
+        <button type="button" class="btn btn-primary" data-period="6M">6 Months</button>
+        <button type="button" class="btn btn-primary" data-period="1Y">1 Year</button>
+        <button type="button" class="btn btn-primary" data-period="all">All Time</button>
+      </div>
     </div>
 
-    <!-- Time Period Controls -->
-     <div class="col-md-12">
-      <select title="time-period-control" id="time-period" class="form-select">
-        <option value="1D">1 Day</option>
-        <option value="1W">1 Week</option>
-        <option value="1M">1 Month</option>
-        <option value="3M">3 Months</option>
-        <option value="6M">6 Months</option>
-        <option value="1Y">1 Year</option>
-        <option value="all">All Time</option>
-      </select>
-     </div>
   </div>
 </div>
 
@@ -307,7 +307,30 @@
   }
 
 </style>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('#time-period .btn');
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        buttons.forEach(btn => btn.classList.remove('active'));
+        // Add active class to the clicked button
+        this.classList.add('active');
+        // Get the selected period
+        const selectedPeriod = this.getAttribute('data-period');
+        console.log('Selected Period:', selectedPeriod);
+        // Perform your action with the selected period
+        // For example, you can call a function to update the chart
+        updateChart(selectedPeriod);
+      });
+    });
+  });
 
+  function updateChart(period) {
+    // Your logic to update the chart based on the selected period
+    console.log('Updating chart for period:', period);
+  }
+</script>
 <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
 

@@ -38,6 +38,9 @@ def update_stock_prices(app):
                     if stock.low_price is None or new_price < stock.low_price:
                         stock.low_price = new_price
                     
+                    # Update close price
+                    stock.close_price = round(new_price, 2)
+                    
                     # Update volume
                     stock.volume += abs(int(stock.quantity * random.uniform(0.01, 0.05)))
 
@@ -51,32 +54,39 @@ def record_stocks(app, shutdown):
     historical data is logged for analysis and charting purposes.
     """
     with app.app_context():
-        stocks = Stock.query.all()
-        for stock in stocks:
-            stock_history = StockHistory(
-                stock_id=stock.id,
-                price=stock.price,
-                quantity=stock.quantity,
-                timestamp=datetime.now(),
-                timestamp_unix=int(datetime.now().timestamp()),
-                open_price=stock.open_price,
-                close_price=stock.close_price,
-                high_price=stock.high_price,
-                low_price=stock.low_price,
-                volume=stock.volume
-            )
-            db.session.add(stock_history)
+        if get_market_status(app) == "open" or shutdown:
+            stocks = Stock.query.all()
+            for stock in stocks:
+                if not shutdown:
+                    stock.close_price = stock.price
 
-            if shutdown == True:
-                print(f"[SCHEDULE] Reset stock information for stock ${stock.symbol} at {datetime.now()}")
-                # Reset daily high, low, and volume for the next day (daily summaries)
-                stock.open_price = stock.price
-                stock.high_price = stock.price
-                stock.low_price = stock.price
-                stock.volume = 0
+                stock_history = StockHistory(
+                    stock_id=stock.id,
+                    price=stock.price,
+                    quantity=stock.quantity,
+                    timestamp=datetime.now(),
+                    timestamp_unix=int(datetime.now().timestamp()),
+                    open_price=stock.open_price,
+                    close_price=stock.close_price,
+                    high_price=stock.high_price,
+                    low_price=stock.low_price,
+                    volume=stock.volume
+                )
+                db.session.add(stock_history)
 
-        print(f"[SCHEDULE] Recorded stock history at {datetime.now()}")
-        db.session.commit()
+                if shutdown:
+                    print(f"[SCHEDULE] Reset stock information for stock ${stock.symbol} at {datetime.now()}")
+                    # Reset daily high, low, and volume for the next day (daily summaries)
+                    stock.open_price = stock.price
+                    stock.high_price = stock.price
+                    stock.low_price = stock.price
+                    stock.volume = 0
+                    stock.close_price = None # Reset close price for the next day
+
+            print(f"[SCHEDULE] Recorded stock history at {datetime.now()}")
+            db.session.commit()
+        else:
+            print("[SCHEDULE] Market is closed. Skipping stock history recording.")
 
 # Get Next Market Close Time
 def get_next_market_close(app):
