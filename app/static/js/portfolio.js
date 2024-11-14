@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+  // Function to get the cookie value
+  function getCookie(name) {
+    const value = `;${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  
   // 1. INITIALIZATION
   // -----------------
   const portfolioDataElement = document.getElementById("portfolio-data");
@@ -65,6 +73,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const warningColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-warning")
     .trim();
+  const infoColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-info")
+    .trim();
   const textColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-body-color")
     .trim();
@@ -93,12 +104,32 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     rightPriceScale: { borderVisible: false },
-    timeScale: { borderVisible: false },
+    timeScale: { 
+      borderVisible: false,
+      timeVisible: true,
+      barSpacing: 10,
+      localization: {
+        timeFormatter: (timestamp) => {
+          const date = new Date(timestamp * 1000);
+          return date.toLocaleString(getCookie("user_locale"), {
+            timeZone: getCookie("user_time_zone")
+          });
+        },
+      },
+    },
+    localization: {
+      timeFormatter: (timestamp) => {
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleString(getCookie("user_locale"), {
+          timeZone: getCookie("user_time_zone")
+        });
+      },
+    },
   });
 
   // Add priceLine series
   const priceLineSeries = chart.addLineSeries({
-    color: successColor,
+    color: infoColor,
     lineWidth: 2,
   });
 
@@ -113,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Add volume series
-  const volumeSeries = chart.addHistogramSeries({
+  const volumeSeries = chart.addLineSeries({
     color: warningColor,
     priceScaleId: "",
     priceFormat: { type: "volume" },
@@ -146,13 +177,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const history = data.history || [];
         const transactions = data.transactions || [];
         updateCandlestickChart(history);
-        // updateVolumeChart(history);
+        updateVolumeChart(history);
+        updatePriceChart(history);
       })
       .catch((error) => {
         console.error("Error fetching stock data:", error);
         chartContainer.textContent = "Failed to load data. Please try again.";
         candlestickSeries.setData([]); // Clear the chart
-        volumeSeries.setData([]); // Clear the chart
+        volumeSeries.setData([]);
+        priceLineSeries.setData([]);
       });
   }
 
@@ -190,24 +223,44 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Update the volume chart
-  // function updateVolumeChart(history) {
-  //   if (!history || history.length === 0) {
-  //     console.warn("No history data available.");
-  //     volumeSeries.setData([]); // Clear the chart
-  //     return;
-  //   }
+  function updateVolumeChart(history) {
+    if (!history || history.length === 0) {
+      console.warn("No history data available.");
+      volumeSeries.setData([]); // Clear the chart
+      return;
+    }
 
-  //   // Format the data for the volume chart
-  //   const volumeData = history.map((entry) => ({
-  //     time: entry.timestamp_unix,
-  //     value: parseInt(entry.volume, 10),
-  //     color: entry.close_price > entry.open_price ? successColor : dangerColor,
-  //   }));
+    // Format the data for the volume chart
+    const volumeData = history.map((entry) => ({
+      time: entry.timestamp_unix,
+      value: parseInt(entry.volume, 10),
+      color: entry.close_price > entry.open_price ? successColor : dangerColor,
+    }));
 
-  //   console.log("Formatted volume data:", volumeData);
+    console.log("Formatted volume data:", volumeData);
 
-  //   volumeSeries.setData(volumeData);
-  // }
+    volumeSeries.setData(volumeData);
+  }
+
+  // Update the price chart
+  function updatePriceChart(history) {
+    if (!history || history.length === 0) {
+      console.warn("No history data available.");
+      volumeSeries.setData([]); // Clear the chart
+      return;
+    }
+    
+    // Format the data for the price chart
+    const priceLineData = history.map((entry) => ({
+      time: entry.timestamp_unix,
+      value: parseInt(entry.price, 10),
+      color: entry.close_price > entry.open_price ? infoColor : warningColor,
+    }));
+
+    console.log("Formatted price line data: ", priceLineData);
+
+    priceLineSeries.setData(priceLineData);
+  }
 
   // 4. HANDLE USER INTERACTIONS
   // ---------------------------
@@ -231,18 +284,51 @@ document.addEventListener("DOMContentLoaded", function () {
   // Crosshair Interaction
   // ---------------------
 
-  chart.subscribeCrosshairMove((param) => {
-    if (!param.time) return;
-    const candlestickData = param.seriesData.get(candlestickSeries);
-    // const volumeData = param.seriesData.get(volumeSeries);
+  const tooltip = document.getElementById('tooltip');
 
-    if (candlestickData) {
-      console.log("Candlestick Data:", candlestickData);
+  chart.subscribeCrosshairMove((param) => {
+    if (!param || !param.time || param.point.x < 0 || param.point.y < 0) {
+      tooltip.style.display = 'none';
+      return;
     }
-    // if (volumeData) {
-    //   console.log("Volume Data:", volumeData);
-    // }
+
+    const candle = param.seriesData.get(candlestickSeries);
+    const volume = param.seriesData.get(volumeSeries);
+    const price = param.seriesData.get(priceLineSeries);
+
+    if (candle === undefined || volume === undefined || price === undefined) {
+      tooltip.style.display = 'none';
+      return;
+    }
+
+    const dateStr = new Date(param.time * 1000).toLocaleString(getCookie('user_locale'), { timeZone: getCookie('user_time_zone') });
+    tooltip.innerHTML = `
+      <div>Date: ${dateStr}</div>
+      <div>Price: ${price.value}</div>
+      <div>Volume: ${volume.value}</div>
+      <div>Candlestick: ${candle.high}</div>
+    `;
+
+    const chartElement = chartContainer.querySelector('canvas');
+    const chartRect = chartElement.getBoundingClientRect();
+
+    tooltip.style.display = 'block';
+    tooltip.style.left = chartRect.left + param.point.x + 'px';
+    tooltip.style.top = chartRect.top + param.point.y + 'px';
   });
+
+  //   if (candle) {
+  //     console.log("Candlestick Data:", candle);
+  //   }
+
+  //   if (volume) {
+  //     console.log("Volume Data:", volume);
+  //   }
+
+  //   if (price) {
+  //     console.log("Priceline Data:", price);
+  //   }
+  // });
 
   // Add markers for buy/sell transactions
   // function addTransactionMarkers(transactions) {
