@@ -465,30 +465,38 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Handle form submission
-    transactionForm.addEventListener("submit", function (e) {
-      e.preventDefault();
+    $('#transaction-form button[type="submit"]').confirmation({
+      rootSelector: '#transaction-form button[type="submit"]',
+      title: 'Are you sure you want to proceed with this order?',
+      btnOkLabel: '',
+      btnCancelLabel: '',
+      onConfirm: function () {
+        // If the user confirms, submit the form
+        const formData = new FormData(transactionForm);
 
-      const formData = new FormData(transactionForm);
-
-      fetch(transactionEndpoint, {
-        // Using the endpoint URL
-        method: "POST",
-        body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === "success") {
-            showConfirmationModal(data.details);
-            transactionForm.reset(); // Clear form fields
-            buySellModal.hide();
-          } else {
-            alert(data.message);
-            buySellModal.hide();
-            transactionForm.reset(); // Clear form fields
-          }
+        fetch(transactionEndpoint, {
+          // Using the endpoint URL
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" },
         })
-        .catch((error) => console.error("Error:", error));
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              showConfirmationModal(data.details);
+              transactionForm.reset(); // Clear form fields
+              buySellModal.hide();
+            } else {
+              alert(data.message);
+              buySellModal.hide();
+              transactionForm.reset(); // Clear form fields
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      },
+      onCancel: function () {
+        console.log("Transaction canceled by user.");
+      },
     });
 
     // Show confirmation modal
