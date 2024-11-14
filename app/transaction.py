@@ -36,7 +36,7 @@ def buy_stock(user_id, stock_id, stock_symbol, quantity):
         return {"status": "error", "message": "Insufficient balance."}
 
     # Deduct the user's balance
-    user.balance -= total_price
+    user.balance -= float(total_price)
 
     # Deduct the quantity from available stock
     stock.quantity -= quantity
@@ -141,7 +141,7 @@ def sell_stock(user_id, stock_id, stock_symbol, quantity):
     total_sale_price = stock.price * quantity
 
     # Increase user's balance with the sale amount
-    user.balance += total_sale_price
+    user.balance += float(total_sale_price)
 
     # Increase the stock's available quantity
     stock.quantity += quantity

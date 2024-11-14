@@ -42,7 +42,7 @@ def update_stock_prices(app):
                     stock.close_price = round(new_price, 2)
                     
                     # Update volume
-                    stock.volume += abs(int(stock.quantity * random.uniform(0.01, 0.05)))
+                    stock.volume += abs(int(stock.quantity * round(new_price, 2)))
 
                     stock.price = round(new_price, 2)
             db.session.commit()

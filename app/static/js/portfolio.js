@@ -1,3 +1,4 @@
+// IMPORTANT: IN THIS FILE, 'VOLUME' REFERS TO THE MARKET CAP!!
 document.addEventListener("DOMContentLoaded", function () {
 
   // Function to get the cookie value
@@ -82,6 +83,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const bodyBgColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-body-bg")
     .trim();
+  const purpleColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-purple")
+    .trim();
+  const yellowColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-yellow")
+    .trim();
 
   // 2. CHART HANDLING
   // -----------------
@@ -90,16 +97,24 @@ document.addEventListener("DOMContentLoaded", function () {
   let selectedPeriod = "1D"; // Default to 1 day
   let currentStockId = null;
 
+  // Custom Formatters
+  const usdPriceFormatter = Intl.NumberFormat(getCookie("user_locale"), {
+    style: 'currency',
+    currency: 'USD',
+  }).format;
+
+  // const userLocale = 
+
   // Initialize the chart
   const chart = LightweightCharts.createChart(chartContainer, {
     width: chartContainer.offsetWidth,
     height: 400,
     layout: {
-      backgroundColor: primaryColor + "33", // Semi-transparent,
+      background: { type: 'solid', color: 'transparent' },
       textColor: textColor,
     },
     grid: {
-      vertLines: { color: tertiaryColor },
+      vertLines: { color: secondaryColor },
       horzLines: { color: secondaryColor },
     },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
@@ -127,11 +142,103 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-  // Add priceLine series
-  const priceLineSeries = chart.addLineSeries({
-    color: infoColor,
-    lineWidth: 2,
+  // Set the border color for the vertical axis
+  chart.priceScale().applyOptions({
+    borderColor: infoColor,
   });
+
+  // Set the border color for the horizontal axis
+  chart.timeScale().applyOptions({
+    borderColor: infoColor,
+    barSpacing: 10,
+  });
+
+  // Apply the custom usdPriceFormatter to the chart
+  chart.applyOptions({
+    localization: {
+      priceFormatter: usdPriceFormatter,
+    },
+  });
+
+  // Customize the Crosshair
+  chart.applyOptions({
+    crosshair: {
+      mode: LightweightCharts.CrosshairMode.Normal,
+
+      // Vertical crosshair line (showing Date in Label)
+      vertLine: {
+        width: 8,
+        color: purpleColor + '33',
+        style: LightweightCharts.LineStyle.Solid,
+        labelBackgroundColor: yellowColor,
+      },
+
+      // Horizontal crosshair line (showing Price in Label)
+      horzLine: {
+        color: yellowColor,
+        labelBackgroundColor: yellowColor,
+      },
+    },
+  });
+
+  // Customize the Legend
+  chart.applyOptions({
+    rightPriceScale: {
+      scaleMargins: {
+        top: 0.4, // leave some space for the legend
+        bottom: 0.15,
+      },
+    },
+    crosshair: {
+      // hide the horizontal crosshair line
+      horzLine: {
+        visible: false,
+        labelVisible: false,
+      },
+    },
+    // hide the grid lines
+    grid: {
+      vertLines: {
+        visible: false,
+      },
+      horzLines: {
+        visible: false,
+      },
+    },
+  });
+
+  const symbolName = 'AEROSPACE';
+
+  const legend = document.createElement('div');
+  legend.style = `position: absolute; left: 12px; top: 12px; z-index: 1; line-height: 18px;`;
+  legend.style.color = infoColor;
+  chartContainer.appendChild(legend);
+
+  const getLastBar = series => {
+    const lastIndex = series.dataByIndex(Number.MAX_SAFE_INTEGER, -1);
+    return series.dataByIndex(lastIndex);
+  };
+  const formatPrice = price => (Math.round(price * 100) / 100).toFixed(2);
+  const setTooltipHtml = (name, date, price) => {
+    legend.innerHTML = `<div style="font-size: 24px; margin: 4px 0px;">${name}</div><div style="font-size: 22px; margin: 4px 0px;">${price}</div><div>${date}</div`;
+  };
+
+  const updateLegend = param => {
+    const validCrosshairPoint = !(
+    param === undefined || param.time === undefined || param.point.x < 0 || param.point.y < 0
+    );
+    const bar = validCrosshairPoint ? param.seriesData.get(areaSeries) : getLastBar(areaSeries);
+    const time = bar.time;
+    const price = bar.value !== undefined ? bar.value : bar.close;
+    const formattedPrice = formatPrice(price);
+    setTooltipHtml(symbolName, time, formattedPrice);
+  };
+
+  chart.subscribeCrosshairMove(updateLegend);
+
+  updateLegend(undefined);
+
+  chart.timeScale().fitContent();
 
   // Add candlestick series for OHLC data
   const candlestickSeries = chart.addCandlestickSeries({
@@ -178,14 +285,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const transactions = data.transactions || [];
         updateCandlestickChart(history);
         updateVolumeChart(history);
-        updatePriceChart(history);
+        // updatePriceChart(history);
       })
       .catch((error) => {
         console.error("Error fetching stock data:", error);
         chartContainer.textContent = "Failed to load data. Please try again.";
         candlestickSeries.setData([]); // Clear the chart
         volumeSeries.setData([]);
-        priceLineSeries.setData([]);
+        // priceLineSeries.setData([]);
       });
   }
 
@@ -207,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
         entry.volume !== null
     );
 
-    // Format the data
+    // Format the candlestick data
     const candlestickData = validCandlestickData.map((entry) => ({
       time: entry.timestamp_unix,
       open: parseFloat(entry.open_price),
@@ -216,6 +323,25 @@ document.addEventListener("DOMContentLoaded", function () {
       close: parseFloat(entry.close_price),
       volume: entry.volume,
     }));
+
+    // Format the areaSeries
+    const lineData = validCandlestickData.map((datapoint) => ({
+      time: datapoint.timestamp_unix,
+      value: (parseFloat(datapoint.close_price) + parseFloat(datapoint.open_price)) / 2,
+    }));
+
+    // Add an area series to the chart,
+    // Adding this before we add the candlestick cghart
+    // so that it will appear beneath the candlesticks
+    const areaSeries = chart.addAreaSeries({
+      lastValueVisible: false, // hide the last value marker for this series
+      crosshairMarkervisible: false, // hide the crosshair marker for this series
+      lineColor: "transparent", // hide the line
+      topColor: purpleColor + 33,
+      bottomColor: purpleColor + 11,
+    });
+    // Set the data for the Area Series
+    areaSeries.setData(lineData)
 
     console.log("Formatted candlestick data:", candlestickData);
 
@@ -242,25 +368,25 @@ document.addEventListener("DOMContentLoaded", function () {
     volumeSeries.setData(volumeData);
   }
 
-  // Update the price chart
-  function updatePriceChart(history) {
-    if (!history || history.length === 0) {
-      console.warn("No history data available.");
-      volumeSeries.setData([]); // Clear the chart
-      return;
-    }
-    
-    // Format the data for the price chart
-    const priceLineData = history.map((entry) => ({
-      time: entry.timestamp_unix,
-      value: parseInt(entry.price, 10),
-      color: entry.close_price > entry.open_price ? infoColor : warningColor,
-    }));
+  // // Update the price chart
+  // function updatePriceChart(history) {
+  //   if (!history || history.length === 0) {
+  //     console.warn("No history data available.");
+  //     volumeSeries.setData([]); // Clear the chart
+  //     return;
+  //   }
+  //   
+  //   // Format the data for the price chart
+  //   const priceLineData = history.map((entry) => ({
+  //     time: entry.timestamp_unix,
+  //     value: parseInt(entry.price, 10),
+  //     color: entry.close_price > entry.open_price ? infoColor : warningColor,
+  //   }));
 
-    console.log("Formatted price line data: ", priceLineData);
+  //   console.log("Formatted price line data: ", priceLineData);
 
-    priceLineSeries.setData(priceLineData);
-  }
+  //   priceLineSeries.setData(priceLineData);
+  // }
 
   // 4. HANDLE USER INTERACTIONS
   // ---------------------------
@@ -284,72 +410,37 @@ document.addEventListener("DOMContentLoaded", function () {
   // Crosshair Interaction
   // ---------------------
 
-  const tooltip = document.getElementById('tooltip');
+  // const tooltip = document.getElementById('tooltip');
 
-  chart.subscribeCrosshairMove((param) => {
-    if (!param || !param.time || param.point.x < 0 || param.point.y < 0) {
-      tooltip.style.display = 'none';
-      return;
-    }
-
-    const candle = param.seriesData.get(candlestickSeries);
-    const volume = param.seriesData.get(volumeSeries);
-    const price = param.seriesData.get(priceLineSeries);
-
-    if (candle === undefined || volume === undefined || price === undefined) {
-      tooltip.style.display = 'none';
-      return;
-    }
-
-    const dateStr = new Date(param.time * 1000).toLocaleString(getCookie('user_locale'), { timeZone: getCookie('user_time_zone') });
-    tooltip.innerHTML = `
-      <div>Date: ${dateStr}</div>
-      <div>Price: ${price.value}</div>
-      <div>Volume: ${volume.value}</div>
-      <div>Candlestick: ${candle.high}</div>
-    `;
-
-    const chartElement = chartContainer.querySelector('canvas');
-    const chartRect = chartElement.getBoundingClientRect();
-
-    tooltip.style.display = 'block';
-    tooltip.style.left = chartRect.left + param.point.x + 'px';
-    tooltip.style.top = chartRect.top + param.point.y + 'px';
-  });
-
-  //   if (candle) {
-  //     console.log("Candlestick Data:", candle);
+  // chart.subscribeCrosshairMove((param) => {
+  //   if (!param || !param.time || param.point.x < 0 || param.point.y < 0) {
+  //     tooltip.style.display = 'none';
+  //     return;
   //   }
 
-  //   if (volume) {
-  //     console.log("Volume Data:", volume);
+  //   const candle = param.seriesData.get(candlestickSeries);
+  //   const volume = param.seriesData.get(volumeSeries);
+  //   const price = param.seriesData.get(priceLineSeries);
+
+  //   if (candle === undefined || volume === undefined || price === undefined) {
+  //     tooltip.style.display = 'none';
+  //     return;
   //   }
 
-  //   if (price) {
-  //     console.log("Priceline Data:", price);
-  //   }
-  // });
+  //   const dateStr = new Date(param.time * 1000).toLocaleString(getCookie('user_locale'), { timeZone: getCookie('user_time_zone') });
+  //   tooltip.innerHTML = `
+  //     <div>Date: ${dateStr}</div>
+  //     <div>Price: ${price.value}</div>
+  //     <div>Volume: ${volume.value}</div>
+  //     <div>Candlestick: ${candle.high}</div>
+  //   `;
 
-  // Add markers for buy/sell transactions
-  // function addTransactionMarkers(transactions) {
-  // const markers = transactions
-  // .filter((txn) => txn.timestamp_unix && txn.price !== null)
-  // .map((txn) => ({
-  // time: txn.timestamp_unix,
-  // position: txn.type === "buy" ? "belowBar" : "aboveBar",
-  // color: txn.type === "buy" ? successColor : dangerColor,
-  // shape: txn.type === "buy" ? "arrowUp" : "arrowDown",
-  // text: `${txn.type.toUpperCase()} ${txn.quantity} @ $${txn.price}`,
-  // }));
-  // lineSeries.setMarkers(markers);
-  // }
-  // # TODO: SEE IF THIS IS DUPLICATING
-  // Handle time period selection
-  // document.getElementById("time-period").addEventListener("change", function (event) {
-  // const period = event.target.value;
-  // console.log("Selected period:", period);
-  // selectedPeriod = period;
-  // if (currentStockId) fetchStockData(currentStockId, selectedPeriod);
+  //   const chartElement = chartContainer.querySelector('canvas');
+  //   const chartRect = chartElement.getBoundingClientRect();
+
+  //   tooltip.style.display = 'block';
+  //   tooltip.style.left = chartRect.left + param.point.x + 'px';
+  //   tooltip.style.top = chartRect.top + param.point.y + 'px';
   // });
 
   // 5. STOCK LIST HANDLING
