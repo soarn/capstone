@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // 4. TRANSACTION LOGIC
+  // 6. TRANSACTION LOGIC
   // --------------------
   // Open transaction modal and set form values
   if (market_status === "open") {
@@ -505,7 +505,7 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmationModal.show();
     }
 
-    // 5. BALANCE HANDLING
+    // 7. BALANCE HANDLING
     // ----------------
     function setBalanceAction(action) {
       document.getElementById("balance-action").value = action;
