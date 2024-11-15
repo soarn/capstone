@@ -92,30 +92,6 @@
       transform: scale(1.1);
     }
 
-   /* Stock Ticker Container Styling */
-   .tickerwrapper {
-      overflow: hidden;
-      position: relative;
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      max-width: 100%;
-      background-color: var(--bs-body-bg);
-      color: var(--bs-body-color);
-    }
-
-    .stock-ticker {
-      display: flex;
-      white-space: nowrap;
-    }
-
-    .stock-item {
-      padding: 0 1rem;
-      font-size: 1rem;
-      display: inline-block;
-      white-space: nowrap;
-    }
-
     .pro-highlight {
       color: var(--bs-danger);
       animation: pulse 1.5s infinite alternate;
@@ -174,21 +150,9 @@
     }
   </style>
 </head>
-<!-- Stock Ticker at Top of Page -->
-<div class="tickerwrapper">
-  <div class="stock-ticker">
-    {% for stock in stock_data %}
-      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-    {% endfor %}
-    {% for stock in stock_data %}
-      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-    {% endfor %}
-    {% for stock in stock_data %}
-      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
-    {% endfor %}
-  </div>
-</div>
 <body>
+{% include 'ticker.html'   %}
+
 
   <!-- Header -->
   <nav class="navbar bg-primary">
@@ -269,82 +233,42 @@
   <script>
 
     //////////////
-    // STOCK TICKER
+    // DARK MODE TOGGLE
     //////////////
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const tickerWrapper = document.querySelector('.tickerwrapper');
-      const stockTicker = document.querySelector('.stock-ticker');
-  
-      if (tickerWrapper && stockTicker) {
-        let tickerSpeed = 0.5; // Speed of the scrolling in pixels
-        let tickerPosition = 0; // Initial position of the ticker
-  
-        function scrollTicker() {
-          tickerPosition -= tickerSpeed; // Move the ticker to the left
-          stockTicker.style.transform = `translateX(${tickerPosition}px)`;
-  
-          // Check if the first item is fully out of view
-          const firstItem = stockTicker.firstElementChild;
-          const firstItemRect = firstItem.getBoundingClientRect();
-          const wrapperRect = tickerWrapper.getBoundingClientRect();
-  
-          if (firstItemRect.right < wrapperRect.left) {
-            // Move the first item to the end of the list
-            stockTicker.appendChild(firstItem);
-  
-            // Reset ticker position to avoid jumps
-            tickerPosition += firstItem.offsetWidth;
-            stockTicker.style.transform = `translateX(${tickerPosition}px)`;
-          }
-  
-          // Continuously call scrollTicker
-          requestAnimationFrame(scrollTicker);
-        }
-  
-        // Start scrolling
-        requestAnimationFrame(scrollTicker);
-      }
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
 
+    // Define dark-only themes
+    const darkThemes = ["darkly", "slate", "cyborg", "superhero", "quartz", "solar", "flatly"];
 
-      //////////////
-      // DARK MODE TOGGLE
-      //////////////
+    // Function to get the cookie value
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
 
-      // Dark Mode Toggle
-      const themeToggle = document.getElementById("themeToggle");
-      const themeIcon = document.getElementById("themeIcon");
+    // Set the initial theme based on cookies or user preference
+    const userTheme = "{{ current_user.theme if current_user.is_authenticated else '' }}";
+    const isDarkMode = darkThemes.includes(userTheme) || getCookie("theme") === "dark";
 
-      // Define dark-only themes
-      const darkThemes = ["darkly", "slate", "cyborg", "superhero", "quartz", "solar", "flatly"];
+    // Apply theme based on preference
+    function applyTheme(darkMode) {
+      document.documentElement.setAttribute("data-bs-theme", darkMode ? "dark" : "light");
+      themeIcon.setAttribute("data-feather", darkMode ? "sun" : "moon");
+      document.getElementById("currentThemeName").textContent = darkMode ? "Light Mode" : "Dark Mode";
+      feather.replace(); // Re-render feather icons after changing the icon
+    }
 
-      // Function to get the cookie value
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-      }
+    applyTheme(isDarkMode);
 
-      // Set the initial theme based on cookies or user preference
-      const userTheme = "{{ current_user.theme if current_user.is_authenticated else '' }}";
-      const isDarkMode = darkThemes.includes(userTheme) || getCookie("theme") === "dark";
-
-      // Apply theme based on preference
-      function applyTheme(darkMode) {
-        document.documentElement.setAttribute("data-bs-theme", darkMode ? "dark" : "light");
-        themeIcon.setAttribute("data-feather", darkMode ? "sun" : "moon");
-        document.getElementById("currentThemeName").textContent = darkMode ? "Light Mode" : "Dark Mode";
-        feather.replace(); // Re-render feather icons after changing the icon
-      }
-
-      applyTheme(isDarkMode);
-
-      // Save theme to cookies and update theme when toggled
-      themeToggle.addEventListener("click", function () {
-        const darkMode = document.documentElement.getAttribute("data-bs-theme") !== "dark";
-        document.cookie = `theme=${darkMode ? "dark" : "light"}; path=/; max-age=31536000`; // 1 year
-        applyTheme(darkMode);
-      });
+    // Save theme to cookies and update theme when toggled
+    themeToggle.addEventListener("click", function () {
+      const darkMode = document.documentElement.getAttribute("data-bs-theme") !== "dark";
+      document.cookie = `theme=${darkMode ? "dark" : "light"}; path=/; max-age=31536000`; // 1 year
+      applyTheme(darkMode);
     });
 
 
