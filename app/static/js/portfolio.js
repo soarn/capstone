@@ -86,14 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const bodyBgColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-body-bg")
     .trim();
-  const purpleColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--bs-purple")
-    .trim();
-  const yellowColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--bs-yellow")
-    .trim();
-
-
   const redColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-red")
     .trim();
@@ -128,8 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .getPropertyValue("--bs-lime")
     .trim();
 
-
-
   // 2. CHART HANDLING
   // -----------------
 
@@ -142,8 +132,6 @@ document.addEventListener("DOMContentLoaded", function () {
     style: 'currency',
     currency: 'USD',
   }).format;
-
-  // const userLocale = 
 
   // Initialize the chart
   const chart = LightweightCharts.createChart(chartContainer, {
@@ -247,8 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-
-  chart.timeScale().fitContent();
+  // chart.timeScale().fitContent();
 
   // Add candlestick series for OHLC data
   const candlestickSeries = chart.addCandlestickSeries({
