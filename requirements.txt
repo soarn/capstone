@@ -17,4 +17,3 @@ APScheduler
 holidays
 flask_babel
 flask-moment
-turbo-flask
