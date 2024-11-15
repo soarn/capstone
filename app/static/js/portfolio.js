@@ -247,36 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-  const symbolName = 'AEROSPACE';
-
-  const legend = document.createElement('div');
-  legend.style = `position: absolute; left: 12px; top: 12px; z-index: 1; line-height: 18px;`;
-  legend.style.color = infoColor;
-  chartContainer.appendChild(legend);
-
-  const getLastBar = series => {
-    const lastIndex = series.dataByIndex(Number.MAX_SAFE_INTEGER, -1);
-    return series.dataByIndex(lastIndex);
-  };
-  const formatPrice = price => (Math.round(price * 100) / 100).toFixed(2);
-  const setTooltipHtml = (name, date, price) => {
-    legend.innerHTML = `<div style="font-size: 24px; margin: 4px 0px;">${name}</div><div style="font-size: 22px; margin: 4px 0px;">${price}</div><div>${date}</div`;
-  };
-
-  const updateLegend = param => {
-    const validCrosshairPoint = !(
-    param === undefined || param.time === undefined || param.point.x < 0 || param.point.y < 0
-    );
-    const bar = validCrosshairPoint ? param.seriesData.get(areaSeries) : getLastBar(areaSeries);
-    const time = bar.time;
-    const price = bar.value !== undefined ? bar.value : bar.close;
-    const formattedPrice = formatPrice(price);
-    setTooltipHtml(symbolName, time, formattedPrice);
-  };
-
-  chart.subscribeCrosshairMove(updateLegend);
-
-  updateLegend(undefined);
 
   chart.timeScale().fitContent();
 
