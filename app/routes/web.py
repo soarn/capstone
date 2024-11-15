@@ -152,6 +152,7 @@ def portfolio():
             "symbol": entry.Stock.symbol,
             "name": entry.Stock.company,
             "shares": entry.Portfolio.quantity,
+            "price": entry.Stock.price,
             "history": [
                 {
                     "timestamp": history.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -171,6 +172,7 @@ def portfolio():
             "symbol": stock.symbol,
             "company": stock.company,
             "quantity": stock.quantity,
+            "price": stock.price,
             "history": [
                 {
                     "timestamp": history.timestamp.strftime("%Y-%m-%d %H:%M:%S"),

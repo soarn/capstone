@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const transactionAction = document.getElementById("transaction-action"); // Action input field
   const buySellModalElement = document.getElementById("buySellModal");
   const confirmationModalElement = document.getElementById("confirmationModal");
+  const balanceConfirmationModalElement = document.getElementById("balConfirmationModal");
   const balanceForm = document.getElementById("balance-form");
   const balanceAction = document.getElementById("balance-action");
   const depositBtn = document.getElementById("depositFundsBtn");
@@ -427,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
       stockInfoCol.classList.add("stock-info");
       stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong> - ${
         stock.name || stock.company || "undefined"
-      } ${stock.price}`;
+      } - $${stock.price}`;
 
       // Column for quantity badge and button (right-aligned)
       const buttonCol = document.createElement("div");
@@ -609,6 +610,11 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmationModal.show();
     }
 
+    // Refresh the page after the modal is closed
+    confirmationModalElement.addEventListener("hidden.bs.modal", function () {
+      location.reload();
+    });
+
     // 7. BALANCE HANDLING
     // ----------------
     function setBalanceAction(action) {
@@ -673,5 +679,10 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       modal.show();
     }
+
+    // Refresh the page after the modal is closed
+    balanceConfirmationModalElement.addEventListener("hidden.bs.modal", function () {
+      location.reload();
+    });
   }
 });
