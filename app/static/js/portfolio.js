@@ -378,26 +378,6 @@ document.addEventListener("DOMContentLoaded", function () {
     volumeSeries.setData(volumeData);
   }
 
-  // // Update the price chart
-  // function updatePriceChart(history) {
-  //   if (!history || history.length === 0) {
-  //     console.warn("No history data available.");
-  //     volumeSeries.setData([]); // Clear the chart
-  //     return;
-  //   }
-  //   
-  //   // Format the data for the price chart
-  //   const priceLineData = history.map((entry) => ({
-  //     time: entry.timestamp_unix,
-  //     value: parseInt(entry.price, 10),
-  //     color: entry.close_price > entry.open_price ? infoColor : warningColor,
-  //   }));
-
-  //   console.log("Formatted price line data: ", priceLineData);
-
-  //   priceLineSeries.setData(priceLineData);
-  // }
-
   // 4. HANDLE USER INTERACTIONS
   // ---------------------------
 
@@ -416,42 +396,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", () => {
     chart.resize(chartContainer.offsetWidth, 400);
   });
-
-  // Crosshair Interaction
-  // ---------------------
-
-  // const tooltip = document.getElementById('tooltip');
-
-  // chart.subscribeCrosshairMove((param) => {
-  //   if (!param || !param.time || param.point.x < 0 || param.point.y < 0) {
-  //     tooltip.style.display = 'none';
-  //     return;
-  //   }
-
-  //   const candle = param.seriesData.get(candlestickSeries);
-  //   const volume = param.seriesData.get(volumeSeries);
-  //   const price = param.seriesData.get(priceLineSeries);
-
-  //   if (candle === undefined || volume === undefined || price === undefined) {
-  //     tooltip.style.display = 'none';
-  //     return;
-  //   }
-
-  //   const dateStr = new Date(param.time * 1000).toLocaleString(getCookie('user_locale'), { timeZone: getCookie('user_time_zone') });
-  //   tooltip.innerHTML = `
-  //     <div>Date: ${dateStr}</div>
-  //     <div>Price: ${price.value}</div>
-  //     <div>Volume: ${volume.value}</div>
-  //     <div>Candlestick: ${candle.high}</div>
-  //   `;
-
-  //   const chartElement = chartContainer.querySelector('canvas');
-  //   const chartRect = chartElement.getBoundingClientRect();
-
-  //   tooltip.style.display = 'block';
-  //   tooltip.style.left = chartRect.left + param.point.x + 'px';
-  //   tooltip.style.top = chartRect.top + param.point.y + 'px';
-  // });
 
   // 5. STOCK LIST HANDLING
   // ----------------------
