@@ -1,7 +1,8 @@
 from datetime import datetime
 from flask import Blueprint, current_app, render_template, request, redirect, flash, url_for, get_flashed_messages, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
-from sqlalchemy import desc
+import pytz
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import aliased
 from utils import get_market_status
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
@@ -156,7 +157,7 @@ def portfolio():
             "history": [
                 {
                     "timestamp": history.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-                    "price": history.price
+                    "price": history.price,
                 }
                 for history in StockHistory.query.filter_by(stock_id=entry.Stock.id).order_by(StockHistory.timestamp).all()
             ]            
@@ -226,3 +227,96 @@ def update_balance():
         return jsonify({"status": "success", "details": result["details"]})
     else:
         return jsonify({"status": "error", "message": result["message"]})
+
+# Stock Table Route for AJAX
+@web.route("/stock/data")
+def stock_data():
+    user_time_zone = request.cookies.get('user_time_zone', 'UTC')
+    tz = pytz.timezone(user_time_zone)
+
+    # Pagination parameters
+    if current_user.is_authenticated:
+        user_pagination = current_user.pagination or 10
+    else:
+        user_pagination = 10
+    page = request.args.get('start', 0, type=int) // user_pagination + 1 # Adjust for ceil
+    per_page = request.args.get('length', user_pagination, type=int)
+
+    # Handle "All" option in pagination
+    if per_page == -1:
+        per_page = None
+
+    # Map column indexes to corresponding columns or expressions
+    column_map = {
+        '0': Stock.symbol,
+        '1': Stock.company,
+        '2': Stock.price,
+        '3': Stock.quantity,
+        '4': Stock.open_price,
+        '5': Stock.high_price,
+        '6': Stock.low_price,
+        '7': Stock.close_price,
+        '8': Stock.volume,
+    }
+
+    # Sorting parameters
+    sort_column_index = request.args.get('order[0][column]', '1') # Default to Company name
+    sort_column = column_map.get(sort_column_index, Stock.company)
+    sort_direction = request.args.get('order[0][dir]', 'desc')
+
+    # Determine sorting direction
+    sort_order = desc if sort_direction == 'desc' else asc
+
+    # Fetch and sort stocks
+    stocks_query = db.session.query(Stock)
+
+    # Apply search filtering
+    search_value = request.args.get('search[value]', '').strip()
+    if search_value:
+        stocks_query = stocks_query.filter(
+            (Stock.company.ilike(f'%{search_value}%')) |
+            (Stock.symbol.ilike(f'%{search_value}%')))
+
+    # Apply sorting logic
+    stocks_query = stocks_query.order_by(
+        sort_order(sort_column)
+    )
+
+    # Apply pagination
+    if per_page:
+        stocks_paginated = stocks_query.paginate(
+            page=page, 
+            per_page=per_page
+        )
+        stocks_items = stocks_paginated.items
+        total_records = stocks_query.count()
+        total_filtered =stocks_paginated.total
+    else:
+        stocks_items = stocks_query.all()
+        total_records = total_filtered = len(stocks_items)
+
+    # Prepare the response data
+
+    stocks_data = [
+        {
+            "symbol": '$' + stock.symbol,
+            "company": stock.company,
+            "price": stock.price,
+            "quantity": stock.quantity,
+            "open_price": stock.open_price,
+            "high_price": stock.high_price,
+            "low_price": stock.low_price,
+            "close_price": stock.close_price,
+            "volume": stock.volume,
+        }
+        for stock in stocks_items
+    ]
+
+    response = {
+        "draw": request.args.get('draw', type=int),
+        "recordsTotal": total_records,
+        "recordsFiltered": total_filtered,
+        "data": stocks_data
+    }
+
+    return jsonify(response)

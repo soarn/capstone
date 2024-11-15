@@ -115,7 +115,7 @@ The project  is to create a stock trading system  where users can buy and sell s
 - [x] Create a user account with full name, username, and email.
 - [x] Can buy stocks at market price.
 - [x] Can sell stocks at market price.
-- [ ] The user will have the option to cancel this order before it gets executed.
+- [x] The user will have the option to cancel this order before it gets executed.
 - [x] View their current portfolio of stocks.
 - [x] View their current cash balance.
 - [x] View their history of transactions.
@@ -136,15 +136,15 @@ The project  is to create a stock trading system  where users can buy and sell s
 
 ### Design & Develop a Client/Server Application comprise of
 
-- [ ] Graphic User interface (web pages)
+- [x] Graphic User interface (web pages)
   - [x] Display available stocks that can be traded
     - [x] Show stock information
       - [x] ticker
       - [x] price
       - [x] volume
-      - [ ] market capitalization (volume X price)
-    - [ ] Show opening price for the stock
-    - [ ] Show high and low during the day
+      - [x] market capitalization (volume X price)
+    - [x] Show opening price for the stock
+    - [x] Show high and low during the day
   - [x] User functions
   - [x] Administrative functions
 - [x] Relational Database Backend to store the data.

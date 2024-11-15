@@ -400,7 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
       stockInfoCol.classList.add("stock-info");
       stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong> - ${
         stock.name || stock.company || "undefined"
-      } - $${stock.price}`;
+      } - Price: $${stock.price}`;
 
       // Column for quantity badge and button (right-aligned)
       const buttonCol = document.createElement("div");
