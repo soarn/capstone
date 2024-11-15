@@ -210,32 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-  // Customize the Legend
-  chart.applyOptions({
-    rightPriceScale: {
-      scaleMargins: {
-        top: 0.4, // leave some space for the legend
-        bottom: 0.15,
-      },
-    },
-    crosshair: {
-      // hide the horizontal crosshair line
-      horzLine: {
-        visible: false,
-        labelVisible: false,
-      },
-    },
-    // hide the grid lines
-    grid: {
-      vertLines: {
-        visible: false,
-      },
-      horzLines: {
-        visible: false,
-      },
-    },
-  });
-
   chart.timeScale().fitContent();
 
   // Add candlestick series for OHLC data
@@ -294,14 +268,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const transactions = data.transactions || [];
         updateCandlestickChart(history);
         updateVolumeChart(history);
-        // updatePriceChart(history);
       })
       .catch((error) => {
         console.error("Error fetching stock data:", error);
         chartContainer.textContent = "Failed to load data. Please try again.";
         candlestickSeries.setData([]); // Clear the chart
         volumeSeries.setData([]);
-        // priceLineSeries.setData([]);
       });
   }
 
@@ -359,7 +331,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const volumeData = history.map((entry) => ({
       time: entry.timestamp_unix,
       value: parseInt(entry.volume, 10),
-      color: entry.close_price > entry.open_price ? successColor : dangerColor,
+      color: entry.close_price > entry.open_price ? infoColor : warningColor,
     }));
 
     console.log("Formatted volume data:", volumeData);
