@@ -32,6 +32,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const allStocks = allStocksDataElement.getAttribute("data-all-stocks")
     ? JSON.parse(allStocksDataElement.getAttribute("data-all-stocks"))
     : [];
+  
+  // Check if the user has confetti enabled
+  const confettiEnabled = document.getElementById("confetti-enabled").getAttribute("data-confetti");
 
   let isBuyMode = false; // Toggle buy/sell mode
 
@@ -82,6 +85,43 @@ document.addEventListener("DOMContentLoaded", function () {
   const bodyBgColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-body-bg")
     .trim();
+
+
+  const redColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-red")
+    .trim();
+  const greenColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-green")
+    .trim();
+  const blueColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-blue")
+    .trim();
+  const yellowColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-yellow")
+    .trim();
+  const purpleColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-purple")
+    .trim();
+  const cyanColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-cyan")
+    .trim();
+  const orangeColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-orange")
+    .trim();
+  const pinkColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-pink")
+    .trim();
+  const tealColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-teal")
+    .trim();
+  const indigoColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-indigo")
+    .trim();
+  const limeColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-lime")
+    .trim();
+
+
 
   // 2. CHART HANDLING
   // -----------------
@@ -462,18 +502,33 @@ document.addEventListener("DOMContentLoaded", function () {
       buySellModal.show();
     }
 
-    // Handle form submission
-    $('#transaction-form button[type="submit"]').confirmation({
-      rootSelector: '#transaction-form button[type="submit"]',
-      title: 'Are you sure you want to proceed with this order?',
-      btnOkLabel: '',
-      btnCancelLabel: '',
-      onConfirm: function () {
-        // If the user confirms, submit the form
+  // Initialize the popover for the confirm button
+  const confirmButton = document.getElementById('confirm-action');
+  const popoverInstance = new bootstrap.Popover(confirmButton, {
+    html: true,
+    content: `
+      <div class="d-flex justify-content-around">
+        <a class="btn btn-success btn-sm confirm-btn">Yes</a>
+        <a class="btn btn-danger btn-sm cancel-btn">No</a>
+      </div>
+    `,
+    trigger: 'focus',
+    placement: 'top',
+  });
+
+  // Event delegation to handle confirm and cancel actions inside the popover
+  confirmButton.addEventListener('shown.bs.popover', function () {
+    const popoverElement = document.querySelector('.popover');
+    if (popoverElement) {
+      const confirmBtn = popoverElement.querySelector('.confirm-btn');
+      const cancelBtn = popoverElement.querySelector('.cancel-btn');
+
+      confirmBtn.addEventListener('click', function() {
+        // User clicked "Yes" - proceed with form submission
         const formData = new FormData(transactionForm);
 
+        // Submit the form via fetch API
         fetch(transactionEndpoint, {
-          // Using the endpoint URL
           method: "POST",
           body: formData,
           headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -481,71 +536,73 @@ document.addEventListener("DOMContentLoaded", function () {
           .then((response) => response.json())
           .then((data) => {
             if (data.status === "success") {
-              showConfirmationModal(data.details);
-              transactionForm.reset(); // Clear form fields
-              buySellModal.hide();
+              showConfirmationModal(data.details); // Display the success modal
+              if (confettiEnabled) launchConfetti(); // Trigger confetti animation if enabled
+              transactionForm.reset(); // Reset form fields
+              buySellModal.hide(); // Close the modal
             } else {
-              alert(data.message);
-              buySellModal.hide();
-              transactionForm.reset(); // Clear form fields
+              alert(`Error: ${data.message}`); // Display error message
             }
           })
           .catch((error) => console.error("Error:", error));
-      },
-      onCancel: function () {
-        console.log("Transaction canceled by user.");
-      },
+
+          // Hide the popover
+          popoverInstance.hide();
+      });
+
+    cancelBtn.addEventListener('click', function() {
+      // User clicked "No" - close the popover
+      popoverInstance.hide();
+      transactionForm.reset(); // Reset form fields
+      buySellModal.hide(); // Close the modal
     });
-// Trigger confetti animation
-            // Check if confetti is enabled for the user
-        {% if current_user.confetti_enabled %}
-            launchConfetti();
-        {% endif %}
-    }
+  }
+  });
 
     // Function to launch confetti animation
     function launchConfetti() {
-        // Basic confetti burst
-        confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { y: 0.6 } // Middle of the screen
-        });
+      // Basic confetti burst
+      confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 } // Middle of the screen
+      });
 
-        // Add a series of confetti bursts for a better effect
-        setTimeout(function() {
-            confetti({
-                particleCount: 100,
-                spread: 120,
-                origin: { y: 0.6 }
-            });
-        }, 200);
+      // Add a series of confetti bursts for a better effect
+      setTimeout(function() {
+          confetti({
+              particleCount: 100,
+              spread: 120,
+              origin: { y: 0.6 }
+          });
+      }, 200);
 
-        setTimeout(function() {
-            confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.6 }
-            });
-        }, 400);
+      setTimeout(function() {
+          confetti({
+              particleCount: 150,
+              spread: 100,
+              origin: { y: 0.6 }
+          });
+      }, 400);
 
-        const colors = ['#FFC107', '#FF5722', '#8BC34A', '#2196F3', '#9C27B0'];
-        confetti({
-            particleCount: 150,
-            spread: 100,
-            origin: { y: 0.6 },
-            colors: colors
-        });
+      const colors = [redColor, greenColor, blueColor, yellowColor, purpleColor, cyanColor, orangeColor, pinkColor, tealColor, indigoColor, limeColor];
+      confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 },
+          colors: colors
+      });
 
-        // Additional bursts for a more exciting effect
-        setTimeout(function() {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: colors
-            });
-        }, 200);
+      // Additional bursts for a more exciting effect
+      setTimeout(function() {
+          confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: colors
+          });
+      }, 200);
+    };
     
 
     // Show confirmation modal

@@ -9,6 +9,9 @@
 <div id="transaction-endpoint" data-url="{{ url_for('web.transaction') }}"></div>
 <div id="balance-endpoint" data-url="{{ url_for('web.update_balance') }}"></div>
 
+<!-- Check if the user has confetti enabled -->
+<div id="confetti-enabled" data-confetti="{{ current_user.confetti_enabled }}"></div>
+
 <div class="container mb-3">
   <!-- Buy/Sell Toggle -->
   <div class="row">
@@ -158,7 +161,22 @@
             <label for="transaction-quantity" class="form-label">Quantity</label>
             {{ form.quantity(class="form-control", id="transaction-quantity") }}
           </div>
-          <button type="submit" class="btn btn-primary w-100" data-toggle="confirmation">Confirm</button>
+          <button
+          type="button"
+          class="btn btn-primary w-100"
+          id="confirm-action"
+          data-bs-toggle="popover"
+          data-bs-html="true"
+          data-bs-placement="top"
+          title="Confirm Transaction"
+          data-bs-content='
+            <div class="d-flex justify-content-around">
+              <a class="btn btn-success btn-sm confirm-btn">Yes</a>
+              <a class="btn btn-secondary btn-sm cancel-btn">No</a>
+            </div>'
+          >
+            Confirm
+          </button>
         </form>
       </div>
     </div>
@@ -333,7 +351,6 @@
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
 
