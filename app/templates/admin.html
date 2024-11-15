@@ -157,7 +157,7 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.role }}</td>
                 <td>{{ user.status }}</td>
-                <td>${{ user.balance }}</td>
+                <td>${{ "{:,.2f}".format(user.balance) }}</td>
                 <td id="user-management-last-login">{{ moment(user.last_login).format('LLL') }}</td>
               </tr>
               {% endfor %}

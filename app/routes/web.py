@@ -58,7 +58,7 @@ def login():
             # Redirect to the next page if it exists, otherwise, redirect to profile by default
             if next_page:
                 return redirect(next_page)
-            return redirect(url_for('profile.profile_page'))
+            return redirect(url_for('web.portfolio'))
         else:
             flash("Invalid username or password. Please try again.", "danger")
     return render_template('login.html', form=form)

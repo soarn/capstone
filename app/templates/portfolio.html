@@ -21,7 +21,7 @@
   </div>
   <div class="row">
     <div class="col-12 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
-      <h3 id="user-balance" class="">Cash Account: ${{ balance }}</h3>
+      <h3 id="user-balance" class="">Cash Account: ${{ "{:,.2f}".format(balance) }}</h3>
     </div>
   </div>
   <div class="row">

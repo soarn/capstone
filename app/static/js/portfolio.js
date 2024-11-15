@@ -360,11 +360,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 5. STOCK LIST HANDLING
   // ----------------------
-  // Populate initial list of owned stocks
-  populateStockList(portfolioStocks, false);
+  // Populate initial list of owned stocks or all stocks if portfolio is empty
   if (portfolioStocks.length > 0) {
+    populateStockList(portfolioStocks, false);
     currentStockId = portfolioStocks[0].id; // Default to the first stock
     fetchStockData(currentStockId, selectedPeriod);
+    sellModeBtn.classList.add("disabled");
+  } else {
+    populateStockList(allStocks, true);
+    currentStockId = allStocks[0].id; // Default to the first stock
+    fetchStockData(currentStockId, selectedPeriod);
+    this.getElementById('stock-list-title').textContent = "All Stocks";
+    buyModeBtn.classList.add("disabled");
   }
 
   // Toggle between Buy and Sell mode
