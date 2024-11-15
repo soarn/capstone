@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   });
 
-  // chart.timeScale().fitContent();
+  chart.timeScale().fitContent();
 
   // Add candlestick series for OHLC data
   const candlestickSeries = chart.addCandlestickSeries({
@@ -245,6 +245,17 @@ document.addEventListener("DOMContentLoaded", function () {
     borderDownColor: dangerColor,
     wickUpColor: successColor,
     wickDownColor: dangerColor,
+  });
+
+  // Add an area series to the chart,
+  // Adding this before we add the candlestick cghart
+  // so that it will appear beneath the candlesticks
+  const areaSeries = chart.addAreaSeries({
+    lastValueVisible: false, // hide the last value marker for this series
+    crosshairMarkervisible: false, // hide the crosshair marker for this series
+    lineColor: "transparent", // hide the line
+    topColor: purpleColor + 33,
+    bottomColor: purpleColor + 11,
   });
 
   // Add volume series
@@ -327,16 +338,6 @@ document.addEventListener("DOMContentLoaded", function () {
       value: (parseFloat(datapoint.close_price) + parseFloat(datapoint.open_price)) / 2,
     }));
 
-    // Add an area series to the chart,
-    // Adding this before we add the candlestick cghart
-    // so that it will appear beneath the candlesticks
-    const areaSeries = chart.addAreaSeries({
-      lastValueVisible: false, // hide the last value marker for this series
-      crosshairMarkervisible: false, // hide the crosshair marker for this series
-      lineColor: "transparent", // hide the line
-      topColor: purpleColor + 33,
-      bottomColor: purpleColor + 11,
-    });
     // Set the data for the Area Series
     areaSeries.setData(lineData)
 
@@ -426,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
       stockInfoCol.classList.add("stock-info");
       stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong> - ${
         stock.name || stock.company || "undefined"
-      }`;
+      } ${stock.price}`;
 
       // Column for quantity badge and button (right-aligned)
       const buttonCol = document.createElement("div");
