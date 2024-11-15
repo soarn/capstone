@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-from db.db_models import Transaction, db, Stock, StockHistory
+from db.db_models import Transaction, db, Stock, StockHistory, Portfolio
 from flasgger import swag_from
 from functools import wraps
 
@@ -153,7 +153,7 @@ def get_stock_history(period):
         name: period
         schema:
           type: string
-          enum: ["1D", "1W", "1M", "3M, "6M", "1Y", "all"]
+          enum: ["1D", "1W", "1M", "3M", "6M", "1Y", "all"]
         required: true
         description: Time period for historical stock data
       - in: query
@@ -332,3 +332,70 @@ def get_user_transactions():
     } for t in transactions]
 
     return jsonify(transaction_list)
+
+@api_v1.route('/ticker-data', methods=['GET'])
+def get_ticker_data():
+    """
+    Get current stock prices for ticker display
+    ---
+    tags:
+      - Stocks
+    responses:
+      200:
+        description: List of stock prices for ticker
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                    description: Stock symbol
+                    example: AAPL
+                  price:
+                    type: number
+                    format: float
+                    description: Current stock price
+                    example: 150.25
+    """
+    if current_user.is_authenticated:
+        # Get user's portfolio stocks
+        portfolio_stocks = (
+            db.session.query(Portfolio, Stock)
+            .filter(Portfolio.user == current_user.id)
+            .join(Stock, Portfolio.stock == Stock.id)
+            .all()
+        )
+        
+        if portfolio_stocks:
+            stock_list = [
+                {
+                    "symbol": entry.Stock.symbol,
+                    "price": float(entry.Stock.price)
+                }
+                for entry in portfolio_stocks
+            ]
+        else:
+            # User has no portfolio, show all stocks
+            stocks = Stock.query.all()
+            stock_list = [
+                {
+                    "symbol": stock.symbol,
+                    "price": float(stock.price)
+                }
+                for stock in stocks
+            ]
+    else:
+        # Not logged in, show all stocks
+        stocks = Stock.query.all()
+        stock_list = [
+            {
+                "symbol": stock.symbol,
+                "price": float(stock.price)
+            }
+            for stock in stocks
+        ]
+
+    return jsonify(stock_list)
