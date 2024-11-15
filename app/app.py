@@ -17,9 +17,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.date import DateTrigger
 from flask_moment import Moment
+from turbo_flask import Turbo
 import os
 import atexit
 
+turbo = Turbo()
 
 def create_app():
     # Initialize Flask App
@@ -48,6 +50,11 @@ def create_app():
 
     # Initialize Moment
     moment = Moment(app)
+
+    # Initialize Turbo
+    turbo.init_app(app)
+    # Register `turbo` in `current_app.extensions`
+    app.extensions["turbo"] = turbo
 
     # Register blueprints
     app.register_blueprint(globals)

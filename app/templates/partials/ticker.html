@@ -1,0 +1,14 @@
+<div class="tickerwrapper">
+  <div id="stock-ticker" class="stock-ticker">
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ "%.2f"|format(stock.price) }}</div>
+    {% endfor %}
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+    {% endfor %}
+    {% for stock in stock_data %}
+      <div class="stock-item">{{ stock.symbol }}: ${{ stock.price }}</div>
+    {% endfor %}
+  </div>
+</div>
+

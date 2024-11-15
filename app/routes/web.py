@@ -3,6 +3,7 @@ from flask import Blueprint, current_app, render_template, request, redirect, fl
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy import desc
 from sqlalchemy.orm import aliased
+from routes.globals import inject_stock_data
 from utils import get_market_status
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
@@ -25,6 +26,22 @@ def home():
 
     # Pass the stocks to the template
     return render_template('home.html', popular_stocks=popular_stocks, all_stocks=all_stocks)
+
+# TURBO FLASK: UPDATE TICKER ROUTE
+@web.route("/update_ticker")
+def update_ticker():
+    stock_data = inject_stock_data()["stock_data"]
+
+    # Access the `turbo` instance
+    turbo = current_app.extensions["turbo"]
+
+    # Render the updated ticker
+    return turbo.stream(
+            turbo.replace(
+                render_template("partials/ticker.html", stock_data=stock_data),
+                target="ticker-container",
+                )
+            )
 
 # LOGIN ROUTE
 @web.route("/login", methods=['GET', 'POST'])
