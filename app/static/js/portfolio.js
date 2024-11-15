@@ -457,9 +457,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function openTransactionModal(stockId, stockSymbol) {
       document.getElementById("transaction-stock-id").value = stockId;
       document.getElementById("transaction-stock-symbol").value = stockSymbol;
-      document.getElementById("buySellModalLabel").textContent = isBuyMode
-        ? "Buy Stock"
-        : "Sell Stock";
+      document.getElementById("buySellModalLabel").textContent = isBuyMode ? "Buy Stock" : "Sell Stock";
       transactionAction.value = isBuyMode ? "buy" : "sell"; // Set action type
       buySellModal.show();
     }
@@ -498,15 +496,63 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Transaction canceled by user.");
       },
     });
+// Trigger confetti animation
+            // Check if confetti is enabled for the user
+        {% if current_user.confetti_enabled %}
+            launchConfetti();
+        {% endif %}
+    }
+
+    // Function to launch confetti animation
+    function launchConfetti() {
+        // Basic confetti burst
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 } // Middle of the screen
+        });
+
+        // Add a series of confetti bursts for a better effect
+        setTimeout(function() {
+            confetti({
+                particleCount: 100,
+                spread: 120,
+                origin: { y: 0.6 }
+            });
+        }, 200);
+
+        setTimeout(function() {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }, 400);
+
+        const colors = ['#FFC107', '#FF5722', '#8BC34A', '#2196F3', '#9C27B0'];
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            colors: colors
+        });
+
+        // Additional bursts for a more exciting effect
+        setTimeout(function() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: colors
+            });
+        }, 200);
+    
 
     // Show confirmation modal
     function showConfirmationModal(details) {
-      document.getElementById("order-number").textContent =
-        details.order_number;
+      document.getElementById("order-number").textContent = details.order_number;
       document.getElementById("order-symbol").textContent = details.symbol;
-      document.getElementById("order-action").textContent = isBuyMode
-        ? "Buy"
-        : "Sell";
+      document.getElementById("order-action").textContent = isBuyMode ? "Buy" : "Sell";
       document.getElementById("order-quantity").textContent = details.quantity;
       document.getElementById("order-price").textContent = details.price;
       document.getElementById("order-total").textContent = details.total_price;
