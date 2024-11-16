@@ -87,8 +87,8 @@
           <td>{{ "$" + row.stock_symbol if row.stock_symbol else "" }}</td>
           <td>{{ row.Transaction.type }}</td>
           <td>{{ row.Transaction.quantity if row.Transaction.quantity > 0 else "" }}</td>
-          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.price) }}</td>
-          <td class="currency-cell">${{ "%.2f" | format(row.Transaction.amount) }}</td>
+          <td class="currency-cell">${{ "{:,.2f}".format(row.Transaction.price) }}</td>
+          <td class="currency-cell">${{ "{:,.2f}".format(row.Transaction.amount) }}</td>
           <td>{{ row.Transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         </tr>
         {% endfor %}
@@ -219,7 +219,7 @@
            <input type="hidden" id="balance-action" name="action">
           <div class="mb-3">
             <label for="balance-display" class="form-label">Current Balance</label>
-            <p id="balance-display">{{ balance }}</p>
+            <p id="balance-display">${{ "{:,.2f}".format(balance) }}</p>
           </div>
           <div class="mb-3">
             <label for="balance-amount" class="form-label">Amount</label>

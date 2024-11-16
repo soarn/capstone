@@ -381,6 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
     populateStockList(allStocks, true);
     buyModeBtn.classList.add("disabled");
     sellModeBtn.classList.remove("disabled");
+    feather.replace();
   });
 
   sellModeBtn.addEventListener("click", function () {
@@ -389,6 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
     populateStockList(portfolioStocks, false);
     sellModeBtn.classList.add("disabled");
     buyModeBtn.classList.remove("disabled");
+    feather.replace();
   });
 
   function populateStockList(stocks, isBuyMode) {
@@ -405,9 +407,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // Column for stock symbol and name
       const stockInfoCol = document.createElement("div");
       stockInfoCol.classList.add("stock-info");
-      stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong> - ${
+      stockInfoCol.innerHTML = `<strong>$${stock.symbol}</strong><i id="themeIcon" data-feather="chevron-right"></i> ${
         stock.name || stock.company || "undefined"
-      } - Price: $${stock.price}`;
+      } <i id="themeIcon" data-feather="chevron-right"></i> $${stock.price}`;
 
       // Column for quantity badge and button (right-aligned)
       const buttonCol = document.createElement("div");
@@ -664,4 +666,5 @@ document.addEventListener("DOMContentLoaded", function () {
       location.reload();
     });
   }
+  feather.replace()
 });

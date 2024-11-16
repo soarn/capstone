@@ -42,7 +42,7 @@ def update_stock_prices(app):
                     stock.close_price = round(new_price, 2)
                     
                     # Update volume
-                    stock.volume += abs(int(stock.quantity * round(new_price, 2)))
+                    stock.volume += abs(int(stock.quantity * random.uniform(-0.01, 0.01)))
 
                     stock.price = round(new_price, 2)
             db.session.commit()
@@ -113,7 +113,7 @@ def get_next_market_close(app):
                 
             print(f"[SCHEDULE] Next market close: {market_close_today} (In {market_close_today - now} hours)")
             return int(market_close_today.timestamp())
-    print(f"[SCHEDULE] Market is closed!")
+    print("[SCHEDULE] Market is closed!")
     return None
 
 # Reschedule Record Stocks if Market Close Changes
