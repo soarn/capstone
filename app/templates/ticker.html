@@ -54,7 +54,9 @@
             const stocks = await response.json();
 
             // Format the stock data
-            const stockItems = stocks.map(stock => `<div class="ticker__item">$${stock.symbol}: $${stock.price}</div>`).join('');
+            const stockItems = stocks.map(stock => 
+              `<div class="ticker__item">$${stock.symbol}: $${stock.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>`
+            ).join('');
 
             const ticker = document.querySelector('.ticker');
             ticker.innerHTML = stockItems + stockItems + stockItems + stockItems; // Duplicate items for seamless scrolling
