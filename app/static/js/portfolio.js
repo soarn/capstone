@@ -367,6 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchStockData(currentStockId, selectedPeriod);
     sellModeBtn.classList.add("disabled");
     document.getElementById("buySellModalLabel").textContent = "Sell Stock";
+    isBuyMode = false;
   } else {
     populateStockList(allStocks, true);
     currentStockId = allStocks[0].id; // Default to the first stock
@@ -374,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
     this.getElementById('stock-list-title').textContent = "All Stocks";
     buyModeBtn.classList.add("disabled");
     document.getElementById("buySellModalLabel").textContent = "Buy Stock";
+    isBuyMode = true;
   }
 
   // Toggle between Buy and Sell mode
