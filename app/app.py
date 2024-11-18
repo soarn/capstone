@@ -29,7 +29,8 @@ def create_app():
     swagger = Swagger(app)
 
     # Database Configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("CONNECTION_STRING")
+#   app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("CONNECTION_STRING")
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("AWS_CONNECTION_STRING")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Flask-Login Configuration
