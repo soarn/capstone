@@ -1,3 +1,12 @@
+// Import Node.js modules installed via npm
+const launchConfetti = () => import('canvas-confetti'); // Confetti Library
+import { createChart, CrosshairMode, LineStyle } from "lightweight-charts"; // Chart Library
+import Popper from "@popperjs/core"; // Popper for Bootstrap Popover
+
+// Importing CSS files
+import 'choices.js/public/assets/styles/choices.min.css'; // Choices.js styles
+
+
 // IMPORTANT: IN THIS FILE, 'VOLUME' REFERS TO THE MARKET CAP!!
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -135,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }).format;
 
   // Initialize the chart
-  const chart = LightweightCharts.createChart(chartContainer, {
+  const chart = createChart(chartContainer, {
     width: chartContainer.offsetWidth,
     height: 400,
     layout: {
@@ -146,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
       vertLines: { color: secondaryColor },
       horzLines: { color: secondaryColor },
     },
-    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    crosshair: { mode: CrosshairMode.Normal },
     rightPriceScale: { borderVisible: false },
     timeScale: { 
       borderVisible: false,
@@ -192,13 +201,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Customize the Crosshair
   chart.applyOptions({
     crosshair: {
-      mode: LightweightCharts.CrosshairMode.Normal,
+      mode: CrosshairMode.Normal,
 
       // Vertical crosshair line (showing Date in Label)
       vertLine: {
         width: 8,
         color: purpleColor + '33',
-        style: LightweightCharts.LineStyle.Solid,
+        style: LineStyle.Solid,
         labelBackgroundColor: yellowColor,
       },
 
@@ -539,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
     // Function to launch confetti animation
-    function launchConfetti() {
+    launchConfetti().then((confetti) => {
       // Basic confetti burst
       confetti({
           particleCount: 100,
@@ -581,7 +590,7 @@ document.addEventListener("DOMContentLoaded", function () {
               colors: colors
           });
       }, 200);
-    };
+    });
     
 
     // Show confirmation modal

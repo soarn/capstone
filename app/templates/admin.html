@@ -1,13 +1,8 @@
 {% extends "base.html" %} {% block title %}Admin Panel - Stock Trading System{% endblock %}
 {% block content %}
-<head>
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-</head>
+
+<body data-user-pagination="{{ current_user.pagination }}" data-transaction-data-url="{{ url_for('admin.transaction_data') }}">
+
 <div class="container-fluid mt-4">
   <div class="row">
     <!-- Left-side navigation -->
@@ -60,7 +55,7 @@
             <!-- Days Selection -->
             <div class="form-group mb-3">
               {{ update_market_form.open_days.label }}
-              {{ update_market_form.open_days(class="form-control", multiple=True) }}
+              {{ update_market_form.open_days(class="form-control", id="open-days", multiple=True) }}
             </div>
 
             <!-- Holiday Closure Toggle -->
@@ -205,55 +200,6 @@
   </div>
 </div>
 
-<script>
-  // Initialize the select2 plugin for the open days selection
-  $(document).ready(function() {
-    $('#open-days').select2({
-      placeholder: 'Select Open Days',
-      allowClear: true
-    });
-  });
-
-    var userPagination = {{current_user.pagination}};
-
-    // Define the available length options
-    var lengthOptions = [10, 25, 50, { label: 'All', value: -1 }];
-
-    // Remove the user's setting from the options if it exists
-    lengthOptions = lengthOptions.filter(function(option) {
-      return (typeof option === 'object' && option.value !== userPagination)
-      || option !== userPagination;
-    });
-
-    // Add the user's setting at the beginning of the menu
-    lengthOptions.unshift(userPagination);
-
-    $('#transactions-table').DataTable({
-      "processing": true,
-      "serverSide": true,
-      "ajax": {
-        "url": "{{ url_for('admin.transaction_data') }}",
-        "type": "GET",
-      },
-      "pageLength": userPagination,
-      "lengthMenu": lengthOptions,
-      "columns": [
-        { "data": "order_number" },
-        { "data": "username" },
-        { "data": "symbol" },
-        { "data": "type" },
-        { "data": "quantity" },
-        { "data": "price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "amount",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "timestamp",
-          "render": DataTable.render.datetime('lll'),
-        }
-      ],
-      "order": [[7, 'desc']]
-    });
-</script>
+<script src="{{ url_for('static', filename='js/bundles/admin.bundle.js') }}"></script>
+{{ moment.include_moment() }}
 {% endblock %}

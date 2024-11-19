@@ -349,8 +349,8 @@
     console.log('Updating chart for period:', period);
   }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
-<script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/bundles/runtime.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bundles/portfolio.bundle.js') }}"></script>
 
 {% endblock %}

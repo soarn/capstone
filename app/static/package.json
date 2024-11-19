@@ -1,0 +1,35 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@floating-ui/core": "^1.6.8",
+    "@floating-ui/dom": "^1.6.12",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
+    "canvas-confetti": "^1.9.3",
+    "choices.js": "^11.0.2",
+    "datatables.net": "^2.1.8",
+    "datatables.net-dt": "^2.1.8",
+    "feather-icons": "^4.29.2",
+    "gsap": "^3.12.5",
+    "jquery": "^3.7.1",
+    "lightweight-charts": "^4.2.1",
+    "lodash": "^4.17.21",
+    "luxon": "^3.5.0"
+  },
+  "devDependencies": {
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.96.1",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4"
+  }
+}
