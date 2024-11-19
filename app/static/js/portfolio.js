@@ -268,6 +268,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const transactions = data.transactions || [];
         updateCandlestickChart(history);
         updateVolumeChart(history);
+        // Adjust the timescale to fit the new data
+        chart.timeScale().fitContent();
       })
       .catch((error) => {
         console.error("Error fetching stock data:", error);
