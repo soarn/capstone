@@ -41,7 +41,12 @@ def admin_page():
     updateForm = UpdateStockForm()
     updateForm.stock_id.choices = [(stock.id, f"{stock.symbol} - {stock.company}") for stock in all_stocks]
     newForm = CreateStockForm()
-    updateMarketForm = UpdateMarketForm()
+    updateMarketForm = UpdateMarketForm(
+            open=AdminSettings.market_open,
+            close=AdminSettings.market_close,
+            open_days=AdminSettings.open_days,
+            close_on_holiday=AdminSettings.close_on_holidays
+            )
 
     # Return render template
     return render_template(

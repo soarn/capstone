@@ -3,12 +3,6 @@
 {% block title %}Home - Stock Trading System{% endblock %}
 
 {% block content %}
-<head>
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-</head>
 
 <body>
   <!-- Main Content -->
@@ -43,7 +37,12 @@
 <section id="stock-history" class="mb-5 p-3 bg-body border rounded">
   <h2 class="mb-4 text-primary border-bottom pb-2">Stock Information</h2>
   <div class="table-responsive">
-    <table id="stock-table" class="table table-striped table-bordered">
+    <table 
+        id="stock-table" 
+        class="table table-striped table-bordered"
+        data-url="{{ url_for('web.stock_data') }}"
+        data-pagination="{{ current_user.pagination or 10 }}"
+    >
       <thead>
         <tr>
           <th>$SYMBOL</th>
@@ -78,54 +77,9 @@
 </main>
 </div>
 </div>
-<script>
 
-      var userPagination = {{ current_user.pagination or 10 }};
+<script src="{{ url_for('static', filename='js/bundles/runtime.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bundles/home.bundle.js') }}"></script>
 
-    // Define the available length options
-    var lengthOptions = [10, 25, 50, { label: 'All', value: -1 }];
-
-    // Remove the user's setting from the options if it exists
-    lengthOptions = lengthOptions.filter(function(option) {
-      return (typeof option === 'object' && option.value !== userPagination)
-      || option !== userPagination;
-    });
-
-    // Add the user's setting at the beginning of the menu
-    lengthOptions.unshift(userPagination);
-
-    $('#stock-table').DataTable({
-      "processing": true,
-      "serverSide": true,
-      "ajax": {
-        "url": "{{ url_for('web.stock_data') }}",
-        "type": "GET",
-      },
-      "pageLength": userPagination,
-      "lengthMenu": lengthOptions,
-      "columns": [
-        { "data": "symbol" },
-        { "data": "company" },
-        { "data": "price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "quantity" },
-        { "data": "open_price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "high_price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "low_price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "close_price",
-          "render": $.fn.dataTable.render.number(',', '.', 2, '$')
-        },
-        { "data": "volume" },
-      ],
-      "order": [[7, 'desc']]
-    });
-</script>
 </body>
 {% endblock %}
