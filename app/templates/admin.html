@@ -5,13 +5,13 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 <div class="container-fluid mt-4">
   <div class="row">
     <!-- Left-side navigation -->
-    <nav id="admin-nav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+    <nav id="admin-nav" class="col-md-3 col-lg-2 d-md-block bg-body-tertiary sidebar">
       <div class="position-sticky">
         <ul class="nav flex-column">
           <li class="nav-item">
@@ -35,8 +35,8 @@
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
         <h1>Admin Dashboard</h1>
         <div id="market-status" class="text-muted">
-          <h6>Market Status:</h6>
-          <p class="d-flex justify-content-end">{{ market_status }}</p>
+          <h6>Market Status: {{ market_status }}
+          </h6>
         </div>
       </div>
 
@@ -48,19 +48,19 @@
             <input type="hidden" name="form_name" value="update-market">
 
             <!-- Market Open and Close Times -->
-            <div class="form-group mb-3"> <!--  # TODO: #34 Use current time from db if available -->
-              {{ update_market_form.open(class="form-control", required=True, type="time") }}
+            <div class="form-group mb-3">
               {{ update_market_form.open.label }}
+              {{ update_market_form.open(class="form-control", required=True, type="time") }}
             </div>
             <div class="form-group mb-3">
-              {{ update_market_form.close(class="form-control", required=True, type="time") }}
               {{ update_market_form.close.label }}
+              {{ update_market_form.close(class="form-control", required=True, type="time") }}
             </div>
 
             <!-- Days Selection -->
             <div class="form-group mb-3">
               {{ update_market_form.open_days.label }}
-              {{ update_market_form.open_days(class="form-control", multiple=True) }}
+              {{ update_market_form.open_days(class="form-control", id="open-days", multiple=True) }}
             </div>
 
             <!-- Holiday Closure Toggle -->
@@ -207,10 +207,15 @@
 
 <script>
   // Initialize the select2 plugin for the open days selection
-  $(document).ready(function() {
-    $('#open-days').select2({
-      placeholder: 'Select Open Days',
-      allowClear: true
+  document.addEventListener('DOMContentLoaded', function () {
+    const openDaysElement = document.getElementById('open-days');
+    const openDays = new TomSelect(openDaysElement, {
+      plugins: ['remove_button'],
+      placeholder: 'Select open days',
+      sortField: {
+        field: 'text',
+        direction: 'asc'
+      }
     });
   });
 
