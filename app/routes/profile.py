@@ -28,6 +28,8 @@ def profile_page():
     form.pagination.default = current_user.pagination
 
     if form.validate_on_submit():
+        current_user.first_name = form.first_name.data
+        current_user.last_name = form.last_name.data
         current_user.username = form.username.data
         current_user.email = form.email.data
         if form.password.data:
