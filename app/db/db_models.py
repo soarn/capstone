@@ -74,7 +74,6 @@ class StockHistory(db.Model):
     volume         = db.Column(db.Integer, nullable=True, default=0)
 
 # Create Transaction Model (Transaction)
-
 class Transaction(db.Model):
     id        = db.Column(db.Integer, primary_key=True)
     order_number = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))

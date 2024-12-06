@@ -8,7 +8,7 @@ from utils import get_market_status
 from db.db_models import Portfolio, Stock, User, StockHistory, Transaction
 from db.db import db
 from routes.api_v1 import get_stocks
-from transaction import buy_stock, check_user_balance, sell_stock, balance_transaction
+from transaction import buy_stock, check_user_balance, sell_stock, balance_transaction, check_portfolio_balance
 from forms import LoginForm, RegisterForm, TransactionForm, BalanceForm
 
 # Create a blueprint for web routes
@@ -140,6 +140,7 @@ def transaction():
 def portfolio():
     user_id = current_user.id
     balance = check_user_balance(user_id)
+    portfolio_balance = check_portfolio_balance(user_id)
     with current_app.app_context():
         market_status = get_market_status(current_app)
 
@@ -209,6 +210,7 @@ def portfolio():
         transactions=transactions_paginated.items,
         pagination=transactions_paginated,
         balance=balance,
+        portfolio_balance=portfolio_balance,
         market_status=market_status)
 
 # BALANCE UPDATE ROUTE
@@ -290,7 +292,7 @@ def stock_data():
         )
         stocks_items = stocks_paginated.items
         total_records = stocks_query.count()
-        total_filtered =stocks_paginated.total
+        total_filtered = stocks_paginated.total
     else:
         stocks_items = stocks_query.all()
         total_records = total_filtered = len(stocks_items)

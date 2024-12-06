@@ -91,6 +91,21 @@ def check_user_balance(user_id):
         return user.balance
     return 0
 
+# Get user portfolio value
+def check_portfolio_balance(user_id):
+    # Query the user's portfolio and join with the stock table to get stock details
+    portfolio_data = db.session.query(Portfolio, Stock).filter(Portfolio.user == user_id).join(Stock, Portfolio.stock == Stock.id).all()
+
+    portfolio_value = 0
+
+    if portfolio_data:
+        for entry in portfolio_data:
+            portfolio_value = portfolio_value + entry.Stock.price
+    else:
+        portfolio_value = 0
+    
+    return portfolio_value
+
 # Update user portfolio
 def update_portfolio(user_id, stock_id, quantity, purchase_price):
     # Check if the user already has this stock in their portfolio

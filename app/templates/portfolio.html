@@ -20,8 +20,9 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 d-flex justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
-      <h3 id="user-balance" class="">Cash Account: ${{ "{:,.2f}".format(balance) }}</h3>
+    <div class="grid gap-3 justify-content-{% if is_mobile %}center{% else %}end{% endif %}">
+      <h3 id="user-balance" class="p-2 g-col-6">Cash Account: ${{ "{:,.2f}".format(balance) }}</h3>
+      <h3 id="user-portfolio-balance" class="p-2 g-col-6">Portfolio Value: ${{ "{:,.2f}".format(portfolio_balance) }}</h3>
     </div>
   </div>
   <div class="row">
